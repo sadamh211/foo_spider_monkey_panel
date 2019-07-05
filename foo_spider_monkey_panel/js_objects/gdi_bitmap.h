@@ -71,7 +71,7 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    ;
+
     std::unique_ptr<Gdiplus::Bitmap> pGdi_;
 };
 

@@ -313,6 +313,9 @@
     <ClCompile Include="ui\ui_slow_script.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="plugin\plugin_example.cpp">
+      <Filter>plugin</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -699,6 +702,12 @@
     <ClInclude Include="ui\ui_slow_script.h">
       <Filter>ui</Filter>
     </ClInclude>
+    <ClInclude Include="plugin\plugin.h">
+      <Filter>plugin</Filter>
+    </ClInclude>
+    <ClInclude Include="plugin\plugin_interface.h">
+      <Filter>plugin</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -751,6 +760,9 @@
     </Filter>
     <Filter Include="z_core\data structs">
       <UniqueIdentifier>{152c5bdd-bddc-41d8-851c-389f61eb1305}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="plugin">
+      <UniqueIdentifier>{f3ef2151-8531-4d69-9eb8-ba7902884ea1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

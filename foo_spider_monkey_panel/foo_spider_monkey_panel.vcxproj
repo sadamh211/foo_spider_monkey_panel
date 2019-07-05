@@ -171,6 +171,7 @@
     <ClCompile Include="mainmenu.cpp" />
     <ClCompile Include="message_blocking_scope.cpp" />
     <ClCompile Include="message_manager.cpp" />
+    <ClCompile Include="plugin\plugin_example.cpp" />
     <ClCompile Include="popup_msg.cpp" />
     <ClCompile Include="scintilla\editorctrl.cpp" />
     <ClCompile Include="scintilla\scintilla_prop_sets.cpp" />
@@ -290,6 +291,8 @@
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
     <ClInclude Include="panel_tooltip_param.h" />
+    <ClInclude Include="plugin\plugin.h" />
+    <ClInclude Include="plugin\plugin_interface.h" />
     <ClInclude Include="scintilla\editorctrl.h" />
     <ClInclude Include="scintilla\scintilla_prop_sets.h" />
     <ClInclude Include="scintilla\SString.h" />

@@ -200,6 +200,8 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD, WORD, HWND )
 
 LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
 {
+    using namespace smp::config;
+
     constexpr auto k_DialogImportExtFilter = smp::to_array<COMDLG_FILTERSPEC>( {
         { L"Property files", L"*.json;*.smp;*.wsp" },
         { L"All files", L"*.*" },
@@ -222,29 +224,37 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            localProperties_.LoadJson( *io, abort, true );
+            localProperties_ = PanelProperties::LoadJson( *io, abort, true );
         }
         else if ( extension == ".smp" )
         {
-            localProperties_.LoadBinary( *io, abort );
+            localProperties_ = PanelProperties::LoadBinary( *io, abort );
         }
         else if ( extension == ".wsp" )
         {
-            localProperties_.LoadLegacy( *io, abort );
+            localProperties_ = PanelProperties::LoadCom( *io, abort );
         }
         else
         { // let's brute-force it!
-            if ( !localProperties_.LoadJson( *io, abort, true )
-                 && !localProperties_.LoadBinary( *io, abort ) )
+            try
             {
-                localProperties_.LoadLegacy( *io, abort );
+                localProperties_ = PanelProperties::LoadJson( *io, abort, true );
+            }
+            catch ( const SmpException& )
+            {
+                localProperties_ = PanelProperties::LoadLegacy( *io, abort );
             }
         }
 
         LoadProperties( false );
     }
-    catch ( const pfc::exception& )
+    catch ( const SmpException& e )
     {
+        // TODO: popup error message
+    }
+    catch ( const pfc::exception& e )
+    {
+        // TODO: popup error message
     }
 
     return 0;

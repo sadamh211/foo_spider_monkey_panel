@@ -12,17 +12,22 @@
 namespace
 {
 
-/// @brief Specify properties serialization format.
-///        1 - JSON.
-constexpr uint32_t kPropConfigVersion = 1;
-
 constexpr const char kPropJsonConfigVersion[] = "1";
 constexpr const char kPropJsonConfigId[] = "properties";
 
-enum class Version : uint32_t
+constexpr const char kSettingsJsonConfigVersion[] = "1";
+constexpr const char kSettingsJsonConfigId[] = "settings";
+
+enum class ScriptType : uint8_t
 {
-    SMP_VERSION_100 = 1, // must start with 1 so we don't break component upgrades
-    CONFIG_VERSION_CURRENT = SMP_VERSION_100
+    Simple = 1,
+    Package = 2
+};
+
+enum class SettingsType : uint32_t
+{
+    Binary = 1,
+    Json = 2
 };
 
 } // namespace
@@ -30,17 +35,8 @@ enum class Version : uint32_t
 namespace smp::config
 {
 
-bool PanelProperties::LoadBinary( stream_reader& reader, abort_callback& abort )
+PanelProperties PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bool loadRawString )
 {
-    return LoadProperties_Binary( values, reader, abort );
-}
-
-bool PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bool loadRawString )
-{
-    using json = nlohmann::json;
-
-    values.clear();
-
     try
     {
         std::u8string jsonStr;
@@ -50,39 +46,90 @@ bool PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bo
         }
         else
         {
-            uint32_t version;
-            reader.read_lendian_t( version, abort );
-            if ( version != kPropConfigVersion )
-            {
-                return false;
-            }
-
             jsonStr = smp::pfc_x::ReadString( reader, abort );
         }
 
-        json jsonMain = json::parse( jsonStr );
+        return FromJson( jsonStr );
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
+}
+
+PanelProperties PanelProperties::LoadBinary( stream_reader& reader, abort_callback& abort )
+{
+    return smp::config::binary::LoadProperties( reader, abort );
+}
+
+PanelProperties PanelProperties::LoadCom( stream_reader& reader, abort_callback& abort )
+{
+    return smp::config::com::LoadProperties( reader, abort );
+}
+
+PanelProperties PanelProperties::LoadLegacy( stream_reader& reader, abort_callback& abort )
+{
+    try
+    {
+        return smp::config::binary::LoadProperties( reader, abort );
+    }
+    catch ( const SmpException& )
+    {
+        return smp::config::com::LoadProperties( reader, abort );
+    }   
+}
+
+void PanelProperties::SaveJson( stream_writer& writer, abort_callback& abort, bool saveAsRawString ) const
+{
+    try
+    {
+        const auto jsonStr = ToJson();
+        if ( saveAsRawString )
+        {
+            pfc_x::WriteStringRaw( writer, jsonStr, abort );
+        }
+        else
+        {
+            pfc_x::WriteString( writer, jsonStr, abort );
+        }
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
+}
+
+PanelProperties PanelProperties::FromJson( const std::u8string& jsonString )
+{
+    using json = nlohmann::json;
+
+    PanelProperties properties;
+
+    try
+    {
+        json jsonMain = json::parse( jsonString );
         if ( !jsonMain.is_object() )
         {
-            return false;
+            throw SmpException( "Corrupted serialized properties: not a JSON object" );
         }
 
         if ( jsonMain.at( "version" ).get<std::string>() != kPropJsonConfigVersion
              || jsonMain.at( "id" ).get<std::string>() != kPropJsonConfigId )
         {
-            return false;
+            throw SmpException( "Corrupted serialized properties: version/id mismatch" );
         }
 
         auto& jsonValues = jsonMain.at( "values" );
         if ( !jsonValues.is_object() )
         {
-            return false;
+            throw SmpException( "Corrupted serialized properties: values" );
         }
 
         for ( auto& [key, value]: jsonValues.items() )
         {
             if ( key.empty() )
             {
-                return false;
+                throw SmpException( "Corrupted serialized properties: empty key" );
             }
 
             mozjs::SerializedJsValue serializedValue;
@@ -108,32 +155,22 @@ bool PanelProperties::LoadJson( stream_reader& reader, abort_callback& abort, bo
                 continue;
             }
 
-            values.emplace( smp::unicode::ToWide( key ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            properties.values.emplace( smp::unicode::ToWide( key ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
+
+        return properties;
     }
-    catch ( const json::exception& )
+    catch ( const json::exception& e )
     {
-        return false;
+        throw SmpException( e.what() );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        return false;
+        throw SmpException( e.what() );
     }
-
-    return true;
 }
 
-bool PanelProperties::LoadLegacy( stream_reader& reader, abort_callback& abort )
-{
-    return LoadProperties_Com( values, reader, abort );
-}
-
-void PanelProperties::SaveBinary( stream_writer& writer, abort_callback& abort ) const
-{
-    SaveProperties_Binary( values, writer, abort );
-}
-
-void PanelProperties::SaveJson( stream_writer& writer, abort_callback& abort, bool saveAsRawString ) const
+std::u8string PanelProperties::ToJson() const
 {
     using json = nlohmann::json;
 
@@ -156,31 +193,30 @@ void PanelProperties::SaveJson( stream_writer& writer, abort_callback& abort, bo
 
         jsonMain.push_back( { "values", jsonValues } );
 
-        const auto jsonStr = jsonMain.dump();
-        if ( saveAsRawString )
-        {
-            writer.write_string_raw( jsonStr.c_str(), abort );
-        }
-        else
-        {
-            writer.write_lendian_t( kPropConfigVersion, abort );
-            writer.write_string( jsonStr.c_str(), jsonStr.length(), abort );
-        }
+        return jsonMain.dump();
     }
-    catch ( const json::exception& )
+    catch ( const json::exception& e )
     {
+        throw SmpException( e.what() );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
+        throw SmpException( e.what() );
     }
 }
 
-PanelSettings::PanelSettings()
+PanelSettings_Simple::PanelSettings_Simple()
 {
     ResetToDefault();
 }
 
-std::u8string PanelSettings::GetDefaultScript()
+void PanelSettings_Simple::ResetToDefault()
+{
+    shouldGrabFocus = true;
+    script = GetDefaultScript();
+}
+
+std::u8string PanelSettings_Simple::GetDefaultScript()
 {
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
@@ -193,75 +229,215 @@ std::u8string PanelSettings::GetDefaultScript()
     }
 }
 
-void PanelSettings::Load( stream_reader& reader, t_size size, abort_callback& abort )
+PanelSettings::PanelSettings()
 {
     ResetToDefault();
-
-    // TODO: remove old config values and up the version
-
-    if ( size > sizeof( Version ) )
-    {
-        try
-        {
-            uint32_t ver = 0;
-            reader.read_object_t( ver, abort );
-            if ( ver > static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT ) )
-            {
-                throw pfc::exception();
-            }
-            reader.skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
-            reader.read_object_t( guid, abort );
-            reader.read_object( &edgeStyle, sizeof( edgeStyle ), abort );
-            properties.LoadBinary( reader, abort );
-            reader.skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
-            reader.read_object_t( shouldGrabFocus, abort );
-            reader.read_object( &windowPlacement, sizeof( windowPlacement ), abort );
-            script = smp::pfc_x::ReadString( reader, abort );
-            reader.read_object_t( isPseudoTransparent, abort );
-        }
-        catch ( const pfc::exception& )
-        {
-            ResetToDefault();
-            FB2K_console_formatter() << "Error: " SMP_NAME_WITH_VERSION " Configuration has been corrupted. All settings have been reset.";
-        }
-    }
 }
 
 void PanelSettings::ResetToDefault()
 {
-    script = GetDefaultScript();
+    payload = PanelSettings_Simple();
     isPseudoTransparent = false;
-    windowPlacement.length = 0;
-    shouldGrabFocus = true;
     edgeStyle = EdgeStyle::NO_EDGE;
+    windowPlacement.length = 0;
     // should not fail
     (void)CoCreateGuid( &guid );
 }
 
-void PanelSettings::Save( stream_writer& writer, abort_callback& abort ) const
+PanelSettings PanelSettings::LoadBinary( stream_reader& reader, t_size size, abort_callback& abort )
 {
+    PanelSettings panelSettings;
+
+    if ( size < sizeof( SettingsType ) )
+    { // probably no config at all
+        return panelSettings;
+    }
+
     try
     {
-        const auto currentVersion = static_cast<uint32_t>( Version::CONFIG_VERSION_CURRENT );
-        writer.write_object_t( currentVersion, abort );
-        writer.write_object_t( false, abort ); // HACK: write this in place of "delay load"
-        writer.write_object_t( guid, abort );
-        writer.write_object( &edgeStyle, sizeof( edgeStyle ), abort );
-        properties.SaveBinary( writer, abort );
-        writer.write_object_t( false, abort ); // HACK: write this in place of "disable before"
-        writer.write_object_t( shouldGrabFocus, abort );
-        writer.write_object( &windowPlacement, sizeof( windowPlacement ), abort );
-        writer.write_string( script.c_str(), abort );
-        writer.write_object_t( isPseudoTransparent, abort );
+        PanelSettings_Simple payload;
+
+        uint32_t version = 0;
+        reader.read_object_t( version, abort );
+        if ( version != static_cast<uint32_t>( SettingsType::Binary ) )
+        {
+            throw SmpException( "Not a binary serialized settings" );
+        }
+        reader.skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
+        reader.read_object_t( panelSettings.guid, abort );
+        reader.read_object( &panelSettings.edgeStyle, sizeof( panelSettings.edgeStyle ), abort );
+        panelSettings.properties = PanelProperties::LoadBinary( reader, abort );
+        reader.skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
+        reader.read_object_t( payload.shouldGrabFocus, abort );
+        reader.read_object( &panelSettings.windowPlacement, sizeof( panelSettings.windowPlacement ), abort );
+        payload.script = smp::pfc_x::ReadString( reader, abort );
+        reader.read_object_t( panelSettings.isPseudoTransparent, abort );
+
+        panelSettings.payload = payload;
+        return panelSettings;
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
+        throw SmpException( e.what() );
+    }
+}
+
+PanelSettings PanelSettings::LoadJson( stream_reader& reader, t_size size, abort_callback& abort )
+{
+    using json = nlohmann::json;
+
+    // TODO: remove, since we don't want to change type probably
+    PanelSettings panelSettings;
+
+    if ( size < sizeof( SettingsType ) )
+    { // probably no config at all
+        return panelSettings;
+    }
+
+    try
+    {
+        uint32_t ver = 0;
+        reader.read_object_t( ver, abort );
+        if ( ver != static_cast<uint32_t>( SettingsType::Json ) )
+        {
+            throw SmpException( "Not a JSON serialized settings" );
+        }
+
+        const json jsonMain = json::parse( smp::pfc_x::ReadString( reader, abort ) );
+        if ( !jsonMain.is_object() )
+        {
+            throw SmpException( "Corrupted serialized settings: not a JSON object" );
+        }
+
+        if ( jsonMain.at( "version" ).get<std::string>() != kSettingsJsonConfigVersion
+             || jsonMain.at( "id" ).get<std::string>() != kSettingsJsonConfigId )
+        {
+            throw SmpException( "Corrupted serialized settings: version/id mismatch" );
+        }
+
+        const auto scriptType = jsonMain.at( "scriptType" ).get<ScriptType>();
+        const auto jsonPayload = jsonMain.at( "payload" );
+        switch ( scriptType )
+        {
+        case ScriptType::Simple:
+        {
+            PanelSettings_Simple payload;
+            payload.script = jsonPayload.at( "scriptType" ).get<std::string>();
+            payload.shouldGrabFocus = jsonPayload.at( "shouldGrabFocus" ).get<bool>();
+
+            panelSettings.payload = payload;
+        }
+        case ScriptType::Package:
+        {
+            PanelSettings_Package payload;
+            payload.packageName = jsonPayload.at( "packageName" ).get<std::string>();
+            payload.location = jsonPayload.at( "location" ).get<int>();
+
+            panelSettings.payload = payload;
+        }
+        default:
+        {
+            throw smp::SmpException( "Corrupted serialized settings: unknown script type" );
+        }
+        }
+
+        panelSettings.properties = PanelProperties::FromJson( jsonMain.at( "properties" ).get<std::string>() );
+        panelSettings.edgeStyle = static_cast<EdgeStyle>( jsonMain.value( "properties", static_cast<uint8_t>( EdgeStyle::Default ) ) );
+        panelSettings.isPseudoTransparent = jsonMain.value( "isPseudoTransparent", false );
+
+        WINDOWPLACEMENT windowPlacement;
+        std::fill( &windowPlacement, &windowPlacement + sizeof( windowPlacement ), 0 );
+        if ( jsonMain.contains( "windowPlacement" ) )
+        {
+            const auto windowPlacementJson = jsonMain.at( "windowPlacement" );
+            windowPlacement.length = jsonMain.value( "length", UINT{} );
+            windowPlacement.flags = jsonMain.value( "flags", UINT{} );
+            windowPlacement.showCmd = jsonMain.value( "showCmd", UINT{} );
+            windowPlacement.ptMaxPosition = POINT{ jsonMain.value( "ptMaxPosition.x", LONG{} ), jsonMain.value( "ptMaxPosition.y", LONG{} ) };
+            windowPlacement.ptMinPosition = POINT{ jsonMain.value( "ptMinPosition.x", LONG{} ), jsonMain.value( "ptMinPosition.y", LONG{} ) };
+            windowPlacement.rcNormalPosition = RECT{ jsonMain.value( "rcNormalPosition.left", LONG{} ),
+                                                     jsonMain.value( "rcNormalPosition.top", LONG{} ),
+                                                     jsonMain.value( "rcNormalPosition.right", LONG{} ),
+                                                     jsonMain.value( "rcNormalPosition.bottom", LONG{} ) };
+        }
+        panelSettings.windowPlacement = windowPlacement;
+
+        return panelSettings;
+    }
+    catch ( const json::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
     }
 }
 
 void PanelSettings::SaveDefault( stream_writer& writer, abort_callback& abort )
 {
-    PanelSettings().Save( writer, abort );
+    PanelSettings{}.SaveJson( writer, abort );
+}
+
+void PanelSettings::SaveJson( stream_writer& writer, abort_callback& abort ) const
+{
+    using json = nlohmann::json;
+
+    try
+    {
+        json jsonMain = json::object( { { "id", kSettingsJsonConfigId },
+                                        { "version", kSettingsJsonConfigVersion } } );
+
+        const auto scriptType = ( std::holds_alternative<PanelSettings_Simple>( payload ) ? ScriptType::Simple : ScriptType::Package );
+        jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );
+
+        json jsonPayload = json::object();
+        switch ( scriptType )
+        {
+        case ScriptType::Simple:
+        {
+            auto& simpleConfig = std::get<PanelSettings_Simple>( payload );
+            jsonPayload.push_back( { { "script", simpleConfig.script },
+                                     { "shouldGrabFocus", simpleConfig.shouldGrabFocus } } );
+        }
+        case ScriptType::Package:
+        {
+            auto& packageConfig = std::get<PanelSettings_Package>( payload );
+            jsonPayload.push_back( { { "packageName", packageConfig.packageName },
+                                     { "location", packageConfig.location } } );
+        }
+        }
+
+        jsonMain.push_back( { { "payload", jsonPayload },
+                              { "properties", properties.ToJson() },
+                              { "isPseudoTransparent", isPseudoTransparent } } );
+
+        json jsonWindowPlacement = json::object();
+        jsonWindowPlacement.push_back( { { "length", windowPlacement.length },
+                                         { "flags", windowPlacement.flags },
+                                         { "showCmd", windowPlacement.showCmd },
+                                         { "ptMaxPosition.x", windowPlacement.ptMaxPosition.x },
+                                         { "ptMaxPosition.y", windowPlacement.ptMaxPosition.y },
+                                         { "ptMinPosition.x", windowPlacement.ptMinPosition.x },
+                                         { "ptMinPosition.y", windowPlacement.ptMinPosition.y },
+                                         { "rcNormalPosition.left", windowPlacement.rcNormalPosition.left },
+                                         { "rcNormalPosition.top", windowPlacement.rcNormalPosition.top },
+                                         { "rcNormalPosition.right", windowPlacement.rcNormalPosition.right },
+                                         { "rcNormalPosition.bottom", windowPlacement.rcNormalPosition.bottom } } );
+
+        jsonMain.push_back( { "windowPlacement", jsonWindowPlacement } );
+
+        writer.write_object_t( static_cast<uint32_t>( SettingsType::Json ), abort );
+        pfc_x::WriteString( writer, jsonMain.dump(), abort );
+    }
+    catch ( const json::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
 }
 
 } // namespace smp::config

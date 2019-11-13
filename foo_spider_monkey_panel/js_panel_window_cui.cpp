@@ -159,7 +159,7 @@ void js_panel_window_cui::get_category( pfc::string_base& out ) const
 
 void js_panel_window_cui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
-    GetSettings().Save( *writer, abort );
+    GetSettings().SaveBinary( *writer, abort );
 }
 
 void js_panel_window_cui::get_name( pfc::string_base& out ) const
@@ -184,7 +184,7 @@ void js_panel_window_cui::on_font_changed( t_size ) const
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    GetSettings().Load( *reader, size, abort );
+    GetSettings().LoadBinary( *reader, size, abort );
 }
 
 void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )

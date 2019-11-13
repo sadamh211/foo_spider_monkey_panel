@@ -21,9 +21,12 @@ enum class JsValueType : uint32_t
 namespace smp::config
 {
 
-bool LoadProperties_Binary( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort )
+namespace binary
 {
-    data.clear();
+
+PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
+{
+    PanelProperties properties;
 
     try
     {
@@ -74,79 +77,25 @@ bool LoadProperties_Binary( PanelProperties::PropertyMap& data, stream_reader& r
             }
             }
 
-            data.emplace( smp::unicode::ToWide( u8PropName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            properties.values.emplace( smp::unicode::ToWide( u8PropName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
+
+        return properties;
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        return false;
-    }
-
-    return true;
-}
-
-void SaveProperties_Binary( const PanelProperties::PropertyMap& data, stream_writer& writer, abort_callback& abort )
-{
-    try
-    {
-        writer.write_lendian_t( static_cast<uint32_t>( data.size() ), abort );
-
-        for ( const auto& [name, pValue]: data )
-        {
-            pfc_x::WriteString( writer, smp::unicode::ToU8( name ), abort );
-
-            const auto& serializedValue = *pValue;
-
-            const JsValueType valueType = std::visit( []( auto&& arg ) {
-                using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, bool> )
-                {
-                    return JsValueType::pt_boolean;
-                }
-                else if constexpr ( std::is_same_v<T, int32_t> )
-                {
-                    return JsValueType::pt_int32;
-                }
-                else if constexpr ( std::is_same_v<T, double> )
-                {
-                    return JsValueType::pt_double;
-                }
-                else if constexpr ( std::is_same_v<T, std::u8string> )
-                {
-                    return JsValueType::pt_string;
-                }
-                else
-                {
-                    static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
-                }
-            },
-                                                      serializedValue );
-
-            writer.write_lendian_t( static_cast<uint32_t>( valueType ), abort );
-
-            std::visit( [&writer, &abort]( auto&& arg ) {
-                using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, std::u8string> )
-                {
-                    const auto& value = arg;
-                    writer.write_string( value.c_str(), value.length(), abort );
-                }
-                else
-                {
-                    writer.write_lendian_t( arg, abort );
-                }
-            },
-                        serializedValue );
-        }
-    }
-    catch ( const pfc::exception& )
-    {
+        throw SmpException( e.what() );
     }
 }
 
-bool LoadProperties_Com( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort )
+} // namespace binary
+
+namespace com
 {
-    data.clear();
+
+PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
+{
+    PanelProperties properties;
 
     try
     {
@@ -240,15 +189,17 @@ bool LoadProperties_Com( PanelProperties::PropertyMap& data, stream_reader& read
             }
             }
 
-            data.emplace( smp::unicode::ToWide( u8propName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
+            properties.values.emplace( smp::unicode::ToWide( u8propName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
         }
-    }
-    catch ( const pfc::exception& )
-    {
-        return false;
-    }
 
-    return true;
+        return properties;
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
 }
+
+} // namespace com
 
 } // namespace smp::config

@@ -5,9 +5,20 @@
 namespace smp::config
 {
 
-bool LoadProperties_Binary( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort );
-void SaveProperties_Binary( const PanelProperties::PropertyMap& data, stream_writer& writer, abort_callback& abort );
+namespace binary
+{
 
-bool LoadProperties_Com( PanelProperties::PropertyMap& data, stream_reader& reader, abort_callback& abort );
+/// @throw smp::SmpException
+PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort );
+
+} // namespace binary
+
+namespace com
+{
+
+/// @throw smp::SmpException
+PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort );
+
+} // namespace com
 
 } // namespace smp::config

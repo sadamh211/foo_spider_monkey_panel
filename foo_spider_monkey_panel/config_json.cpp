@@ -54,10 +54,11 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         case ScriptType::Simple:
         {
             PanelSettings_Simple payload;
-            payload.script = jsonPayload.at( "scriptType" ).get<std::string>();
+            payload.script = jsonPayload.at( "script" ).get<std::string>();
             payload.shouldGrabFocus = jsonPayload.at( "shouldGrabFocus" ).get<bool>();
 
             panelSettings.payload = payload;
+            break;
         }
         case ScriptType::Package:
         {
@@ -67,6 +68,7 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
             // TODO: validate location
 
             panelSettings.payload = payload;
+            break;
         }
         default:
         {
@@ -75,22 +77,24 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         }
 
         panelSettings.properties = PanelProperties::FromJson( jsonMain.at( "properties" ).get<std::string>() );
-        panelSettings.edgeStyle = static_cast<EdgeStyle>( jsonMain.value( "properties", static_cast<uint8_t>( EdgeStyle::Default ) ) );
+        panelSettings.edgeStyle = static_cast<EdgeStyle>( jsonMain.value( "edgeStyle", static_cast<uint8_t>( EdgeStyle::Default ) ) );
         panelSettings.isPseudoTransparent = jsonMain.value( "isPseudoTransparent", false );
 
         WINDOWPLACEMENT windowPlacement{};
         if ( jsonMain.contains( "windowPlacement" ) )
         {
-            const auto windowPlacementJson = jsonMain.at( "windowPlacement" );
-            windowPlacement.length = jsonMain.value( "length", UINT{} );
-            windowPlacement.flags = jsonMain.value( "flags", UINT{} );
-            windowPlacement.showCmd = jsonMain.value( "showCmd", UINT{} );
-            windowPlacement.ptMaxPosition = POINT{ jsonMain.value( "ptMaxPosition.x", LONG{} ), jsonMain.value( "ptMaxPosition.y", LONG{} ) };
-            windowPlacement.ptMinPosition = POINT{ jsonMain.value( "ptMinPosition.x", LONG{} ), jsonMain.value( "ptMinPosition.y", LONG{} ) };
-            windowPlacement.rcNormalPosition = RECT{ jsonMain.value( "rcNormalPosition.left", LONG{} ),
-                                                     jsonMain.value( "rcNormalPosition.top", LONG{} ),
-                                                     jsonMain.value( "rcNormalPosition.right", LONG{} ),
-                                                     jsonMain.value( "rcNormalPosition.bottom", LONG{} ) };
+            const auto wndPlcJson = jsonMain.at( "windowPlacement" );
+            windowPlacement.length = wndPlcJson.value( "length", UINT{} );
+            windowPlacement.flags = wndPlcJson.value( "flags", UINT{} );
+            windowPlacement.showCmd = wndPlcJson.value( "showCmd", UINT{} );
+            windowPlacement.ptMaxPosition = POINT{ wndPlcJson.value( "ptMaxPosition.x", LONG{} ),
+                                                   wndPlcJson.value( "ptMaxPosition.y", LONG{} ) };
+            windowPlacement.ptMinPosition = POINT{ wndPlcJson.value( "ptMinPosition.x", LONG{} ),
+                                                   wndPlcJson.value( "ptMinPosition.y", LONG{} ) };
+            windowPlacement.rcNormalPosition = RECT{ wndPlcJson.value( "rcNormalPosition.left", LONG{} ),
+                                                     wndPlcJson.value( "rcNormalPosition.top", LONG{} ),
+                                                     wndPlcJson.value( "rcNormalPosition.right", LONG{} ),
+                                                     wndPlcJson.value( "rcNormalPosition.bottom", LONG{} ) };
         }
         panelSettings.windowPlacement = windowPlacement;
 
@@ -112,8 +116,9 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
 
     try
     {
-        json jsonMain = json::object( { { "id", kSettingsJsonConfigId },
-                                        { "version", kSettingsJsonConfigVersion } } );
+        auto jsonMain = json::object();
+        jsonMain.push_back( { "id", kSettingsJsonConfigId } );
+        jsonMain.push_back( { "version", kSettingsJsonConfigVersion } );
 
         const auto scriptType = ( std::holds_alternative<PanelSettings_Simple>( settings.payload ) ? ScriptType::Simple : ScriptType::Package );
         jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );
@@ -124,33 +129,35 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         case ScriptType::Simple:
         {
             auto& simpleConfig = std::get<PanelSettings_Simple>( settings.payload );
-            jsonPayload.push_back( { { "script", simpleConfig.script },
-                                     { "shouldGrabFocus", simpleConfig.shouldGrabFocus } } );
+            jsonPayload.push_back( { "script", simpleConfig.script } );
+            jsonPayload.push_back( { "shouldGrabFocus", simpleConfig.shouldGrabFocus } );
+            break;
         }
         case ScriptType::Package:
         {
             auto& packageConfig = std::get<PanelSettings_Package>( settings.payload );
-            jsonPayload.push_back( { { "packageName", packageConfig.packageName },
-                                     { "location", packageConfig.location } } );
+            jsonPayload.push_back( { "packageName", packageConfig.packageName } );
+            jsonPayload.push_back( { "location", packageConfig.location } );
+            break;
         }
         }
 
-        jsonMain.push_back( { { "payload", jsonPayload },
-                              { "properties", settings.properties.ToJson() },
-                              { "isPseudoTransparent", settings.isPseudoTransparent } } );
+        jsonMain.push_back( { "payload", jsonPayload } );
+        jsonMain.push_back( { "properties", settings.properties.ToJson() } );
+        jsonMain.push_back( { "isPseudoTransparent", settings.isPseudoTransparent } );
 
-        json jsonWindowPlacement = json::object();
-        jsonWindowPlacement.push_back( { { "length", settings.windowPlacement.length },
-                                         { "flags", settings.windowPlacement.flags },
-                                         { "showCmd", settings.windowPlacement.showCmd },
-                                         { "ptMaxPosition.x", settings.windowPlacement.ptMaxPosition.x },
-                                         { "ptMaxPosition.y", settings.windowPlacement.ptMaxPosition.y },
-                                         { "ptMinPosition.x", settings.windowPlacement.ptMinPosition.x },
-                                         { "ptMinPosition.y", settings.windowPlacement.ptMinPosition.y },
-                                         { "rcNormalPosition.left", settings.windowPlacement.rcNormalPosition.left },
-                                         { "rcNormalPosition.top", settings.windowPlacement.rcNormalPosition.top },
-                                         { "rcNormalPosition.right", settings.windowPlacement.rcNormalPosition.right },
-                                         { "rcNormalPosition.bottom", settings.windowPlacement.rcNormalPosition.bottom } } );
+        auto jsonWindowPlacement = json::object();
+        jsonWindowPlacement.push_back( { "length", settings.windowPlacement.length } );
+        jsonWindowPlacement.push_back( { "flags", settings.windowPlacement.flags } );
+        jsonWindowPlacement.push_back( { "showCmd", settings.windowPlacement.showCmd } );
+        jsonWindowPlacement.push_back( { "ptMaxPosition.x", settings.windowPlacement.ptMaxPosition.x } );
+        jsonWindowPlacement.push_back( { "ptMaxPosition.y", settings.windowPlacement.ptMaxPosition.y } );
+        jsonWindowPlacement.push_back( { "ptMinPosition.x", settings.windowPlacement.ptMinPosition.x } );
+        jsonWindowPlacement.push_back( { "ptMinPosition.y", settings.windowPlacement.ptMinPosition.y } );
+        jsonWindowPlacement.push_back( { "rcNormalPosition.left", settings.windowPlacement.rcNormalPosition.left } );
+        jsonWindowPlacement.push_back( { "rcNormalPosition.top", settings.windowPlacement.rcNormalPosition.top } );
+        jsonWindowPlacement.push_back( { "rcNormalPosition.right", settings.windowPlacement.rcNormalPosition.right } );
+        jsonWindowPlacement.push_back( { "rcNormalPosition.bottom", settings.windowPlacement.rcNormalPosition.bottom } );
 
         jsonMain.push_back( { "windowPlacement", jsonWindowPlacement } );
 

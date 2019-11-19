@@ -74,7 +74,8 @@ void js_panel_window::update_script( const char* code )
 {
     if ( code )
     {
-        settings_.script = code;
+        // TODO: fix this
+        std::get<smp::config::PanelSettings_Simple>( settings_.payload ).script = code;
     }
 
     if ( pJsContainer_ )
@@ -905,7 +906,8 @@ bool js_panel_window::script_load( bool isFirstLoad )
         return false;
     }
 
-    if ( !pJsContainer_->ExecuteScript( settings_.script ) )
+    if ( !pJsContainer_->ExecuteScript( // TODO: fix this
+             std::get<smp::config::PanelSettings_Simple>( settings_.payload ).script ) )
     { // error reporting handled inside
         return false;
     }
@@ -1230,7 +1232,8 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 
 void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( settings_.shouldGrabFocus )
+    if ( // TODO: fix this
+        std::get<smp::config::PanelSettings_Simple>( settings_.payload ).shouldGrabFocus )
     {
         wnd_.SetFocus();
     }

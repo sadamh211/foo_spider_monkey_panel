@@ -72,7 +72,8 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     sciEditor_.SetScintillaSettings();
     sciEditor_.SetJScript();
     sciEditor_.ReadAPI();
-    sciEditor_.SetContent( panelSettings.script.c_str(), true );
+    // TODO: replace with proper handling for multiple scrupt types
+    sciEditor_.SetContent( std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).script.c_str(), true );
     sciEditor_.SetSavePoint();
 
     // Edge Style
@@ -99,7 +100,8 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     }
 
     // Grab Focus
-    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, panelSettings.shouldGrabFocus ? MF_CHECKED : MF_UNCHECKED );
+    // TODO: add proper handling
+    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).shouldGrabFocus ? MF_CHECKED : MF_UNCHECKED );
 
     return TRUE; // set focus to default control
 }
@@ -170,7 +172,8 @@ void CDialogConf::Apply()
         panelSettings.edgeStyle = smp::config::EdgeStyle::SunkenEdge;
     }
 
-    panelSettings.shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
+    // TODO: fix this
+    std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
     panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
     m_parent->update_script( code.data() );
 
@@ -259,7 +262,8 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
-    sciEditor_.SetContent( smp::config::PanelSettings::GetDefaultScript().c_str() );
+    // TODO: fix
+    sciEditor_.SetContent( smp::config::PanelSettings_Simple::GetDefaultScript().c_str() );
     return 0;
 }
 

@@ -3,6 +3,7 @@
 #include "ui_property.h"
 
 #include <utils/array_x.h>
+#include <utils/error_popup.h>
 #include <utils/file_helpers.h>
 #include <utils/type_traits_x.h>
 
@@ -255,13 +256,13 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
 
         LoadProperties( false );
     }
-    catch ( const SmpException& )
+    catch ( const SmpException& e )
     {
-        // TODO: popup error message
+        smp::utils::ReportErrorWithPopup( e.what() );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        // TODO: popup error message
+        smp::utils::ReportErrorWithPopup( e.what() );
     }
 
     return 0;
@@ -290,9 +291,9 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
 
         pfc_x::WriteStringRaw( *io, abort, localProperties_.ToJson() );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        // TODO: error popup
+        smp::utils::ReportErrorWithPopup( e.what() );
     }
 
     return 0;

@@ -66,6 +66,7 @@ using std::max;
     __pragma( warning( pop ) )
 
 // Mozilla SpiderMonkey
+// TODO: try to move to subfolder
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <jsapi.h>
 #include <jsfriendapi.h>

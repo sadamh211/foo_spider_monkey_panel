@@ -6,9 +6,9 @@ namespace smp::config::binary
 {
 
 /// @throw smp::SmpException
-PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort );
+[[nodiscard]] PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort );
 
 /// @throw smp::SmpException
-PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort );
+[[nodiscard]] PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort );
 
 } // namespace smp::config::binary

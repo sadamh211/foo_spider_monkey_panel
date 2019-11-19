@@ -52,13 +52,13 @@ struct PanelProperties
 
 public:
     /// @throw smp::SmpException
-    static PanelProperties FromJson( const std::u8string& jsonString );
+    [[nodiscard]] static PanelProperties FromJson( const std::u8string& jsonString );
 
     /// @throw smp::SmpException
-    std::u8string ToJson() const;
+    [[nodiscard]] std::u8string ToJson() const;
 
     /// @throw smp::SmpException
-    static PanelProperties Load( stream_reader& reader, abort_callback& abort, SerializationFormat format = SerializationFormat::Json );
+    [[nodiscard]] static PanelProperties Load( stream_reader& reader, abort_callback& abort, SerializationFormat format = SerializationFormat::Json );
 
     /// @throw smp::SmpException
     void Save( stream_writer& writer, abort_callback& abort ) const;
@@ -74,7 +74,7 @@ public:
     PanelSettings_Simple();
     void ResetToDefault();
 
-    static std::u8string GetDefaultScript();
+    [[nodiscard]] static std::u8string GetDefaultScript();
 };
 
 struct PanelSettings_Package
@@ -104,7 +104,7 @@ public:
     void ResetToDefault();
 
     /// @throw smp::SmpException
-    static PanelSettings Load( stream_reader& reader, size_t size, abort_callback& abort );
+    [[nodiscard]] static PanelSettings Load( stream_reader& reader, size_t size, abort_callback& abort );
 
     /// @throw smp::SmpException
     void Save( stream_writer& writer, abort_callback& abort ) const;

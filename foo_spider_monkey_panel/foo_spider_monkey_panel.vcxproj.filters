@@ -277,9 +277,6 @@
     <ClCompile Include="js_engine\js_internal_global.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="config_legacy.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
     <ClCompile Include="js_engine\js_monitor.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
@@ -324,6 +321,15 @@
     </ClCompile>
     <ClCompile Include="js_engine\js_realm_inner.cpp">
       <Filter>js_engine</Filter>
+    </ClCompile>
+    <ClCompile Include="config_json.cpp">
+      <Filter>z_core</Filter>
+    </ClCompile>
+    <ClCompile Include="config_binary.cpp">
+      <Filter>z_core</Filter>
+    </ClCompile>
+    <ClCompile Include="config_com.cpp">
+      <Filter>z_core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -657,9 +663,6 @@
     <ClInclude Include="callback_data.h">
       <Filter>z_core\data structs</Filter>
     </ClInclude>
-    <ClInclude Include="config_legacy.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
     <ClInclude Include="js_engine\js_monitor.h">
       <Filter>js_engine</Filter>
     </ClInclude>
@@ -719,6 +722,14 @@
     </ClInclude>
     <ClInclude Include="utils\type_traits_x.h">
       <Filter>utils</Filter>
+    <ClInclude Include="config_com.h">
+      <Filter>z_core</Filter>
+    </ClInclude>
+    <ClInclude Include="config_json.h">
+      <Filter>z_core</Filter>
+    </ClInclude>
+    <ClInclude Include="config_binary.h">
+      <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="utils\array_x.h">
       <Filter>utils</Filter>

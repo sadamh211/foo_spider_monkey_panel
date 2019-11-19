@@ -63,8 +63,8 @@ void ScintillaCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abor
         p_stream->write_lendian_t( m_data.size(), p_abort );
         for ( const auto& prop: m_data )
         {
-            smp::pfc_x::WriteString( *p_stream, prop.key, p_abort );
-            smp::pfc_x::WriteString( *p_stream, prop.val, p_abort );
+            smp::pfc_x::WriteString( *p_stream, p_abort, prop.key );
+            smp::pfc_x::WriteString( *p_stream, p_abort, prop.val );
         }
     }
     catch ( ... )

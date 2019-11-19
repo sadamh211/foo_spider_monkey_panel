@@ -159,15 +159,15 @@ void CDialogConf::Apply()
 
     if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::NO_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::NoEdge;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_GREY, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::GREY_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::GreyEdge;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_SUNKEN, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::SUNKEN_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::SunkenEdge;
     }
 
     panelSettings.shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;

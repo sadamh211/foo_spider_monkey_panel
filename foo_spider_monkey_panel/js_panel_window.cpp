@@ -24,9 +24,9 @@ DWORD ConvertEdgeStyleToNativeFlags( smp::config::EdgeStyle edge_style )
 {
     switch ( edge_style )
     {
-    case smp::config::EdgeStyle::SUNKEN_EDGE:
+    case smp::config::EdgeStyle::SunkenEdge:
         return WS_EX_CLIENTEDGE;
-    case smp::config::EdgeStyle::GREY_EDGE:
+    case smp::config::EdgeStyle::GreyEdge:
         return WS_EX_STATICEDGE;
     default:
         return 0;
@@ -872,7 +872,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
-    if ( smp::config::EdgeStyle::NO_EDGE != settings_.edgeStyle )
+    if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
     {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
     }

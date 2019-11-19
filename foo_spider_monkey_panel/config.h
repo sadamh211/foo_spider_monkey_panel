@@ -7,6 +7,13 @@
 namespace smp::config
 {
 
+enum class SerializationFormat : uint8_t
+{
+    Com,
+    Binary,
+    Json
+};
+
 enum class ScriptType : uint8_t
 {
     Simple = 0,
@@ -20,7 +27,7 @@ enum class SimpleScriptSource : uint8_t
     InMemory = 2
 };
 
-enum class PackageScriptLocation : uint8_t
+enum class PackageLocation : uint8_t
 {
     Sample = 0,
     LocalAppData = 1,
@@ -29,10 +36,10 @@ enum class PackageScriptLocation : uint8_t
 
 enum class EdgeStyle : uint8_t
 {
-    NO_EDGE = 0,
-    SUNKEN_EDGE,
-    GREY_EDGE,
-    Default = NO_EDGE,
+    NoEdge = 0,
+    SunkenEdge,
+    GreyEdge,
+    Default = NoEdge,
 };
 
 struct PanelProperties
@@ -42,25 +49,16 @@ struct PanelProperties
 
 public:
     /// @throw smp::SmpException
-    static PanelProperties LoadJson( stream_reader& reader, abort_callback& abort, bool loadRawString = false );
-
-    /// @throw smp::SmpException
-    static PanelProperties LoadBinary( stream_reader& reader, abort_callback& abort );
-
-    /// @throw smp::SmpException
-    static PanelProperties LoadCom( stream_reader& reader, abort_callback& abort );
-
-    /// @throw smp::SmpException
-    static PanelProperties LoadLegacy( stream_reader& reader, abort_callback& abort );
-
-    /// @throw smp::SmpException
-    void SaveJson( stream_writer& writer, abort_callback& abort, bool saveAsRawString = false ) const;
-
-    /// @throw smp::SmpException
     static PanelProperties FromJson( const std::u8string& jsonString );
 
     /// @throw smp::SmpException
     std::u8string ToJson() const;
+
+    /// @throw smp::SmpException
+    static PanelProperties Load( stream_reader& reader, abort_callback& abort, SerializationFormat format = SerializationFormat::Json );
+
+    /// @throw smp::SmpException
+    void Save( stream_writer& writer, abort_callback& abort ) const;
 };
 
 struct PanelSettings_Simple
@@ -79,14 +77,13 @@ public:
 struct PanelSettings_Package
 {
     std::u8string packageName;
-    PackageScriptLocation location;
+    PackageLocation location;
 
 public:
     // TODO: implement
     PanelSettings_Package(){};
     void ResetToDefault(){};
 };
-
 
 struct PanelSettings
 {
@@ -104,13 +101,10 @@ public:
     void ResetToDefault();
 
     /// @throw smp::SmpException
-    static PanelSettings LoadBinary( stream_reader& reader, t_size size, abort_callback& abort );
+    static PanelSettings Load( stream_reader& reader, size_t size, abort_callback& abort );
 
     /// @throw smp::SmpException
-    static PanelSettings LoadJson( stream_reader& reader, t_size size, abort_callback& abort );
-
-    /// @throw smp::SmpException
-    void SaveJson( stream_writer& writer, abort_callback& abort ) const;
+    void Save( stream_writer& writer, abort_callback& abort ) const;
 
     /// @throw smp::SmpException
     static void SaveDefault( stream_writer& writer, abort_callback& abort );

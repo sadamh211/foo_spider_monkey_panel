@@ -9,7 +9,6 @@
 #include <abort_callback.h>
 #include <js_panel_window.h>
 
-// precision
 #include <filesystem>
 #include <iomanip>
 #include <map>
@@ -214,45 +213,53 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
     }
     path = path.lexically_normal();
 
-    auto& abort = smp::GlobalAbortCallback::GetInstance();
-
     try
     {
+        auto& abort = smp::GlobalAbortCallback::GetInstance();
         file_ptr io;
         filesystem::g_open_read( io, path.u8string().c_str(), abort );
 
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            localProperties_ = PanelProperties::LoadJson( *io, abort, true );
+            localProperties_ = PanelProperties::FromJson( pfc_x::ReadRawString( *io, abort ) );
         }
         else if ( extension == ".smp" )
         {
-            localProperties_ = PanelProperties::LoadBinary( *io, abort );
+            localProperties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Binary );
         }
         else if ( extension == ".wsp" )
         {
-            localProperties_ = PanelProperties::LoadCom( *io, abort );
+            localProperties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Com );
         }
         else
         { // let's brute-force it!
-            try
+            const auto loadProps = [&io, &abort]( smp::config::SerializationFormat format ) -> std::optional<PanelProperties> {
+                try
+                {
+                    return PanelProperties::Load( *io, abort, format );
+                }
+                catch ( const SmpException& )
+                {
+                    return std::nullopt;
+                }
+            };
+
+            if ( !loadProps( smp::config::SerializationFormat::Json )
+                 && !loadProps( smp::config::SerializationFormat::Binary )
+                 && !loadProps( smp::config::SerializationFormat::Com ) )
             {
-                localProperties_ = PanelProperties::LoadJson( *io, abort, true );
-            }
-            catch ( const SmpException& )
-            {
-                localProperties_ = PanelProperties::LoadLegacy( *io, abort );
+                throw SmpException( "Failed to parse panel properties: unknown format" );
             }
         }
 
         LoadProperties( false );
     }
-    catch ( const SmpException& e )
+    catch ( const SmpException& )
     {
         // TODO: popup error message
     }
-    catch ( const pfc::exception& e )
+    catch ( const pfc::exception& )
     {
         // TODO: popup error message
     }
@@ -275,16 +282,17 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
     }
     path = path.lexically_normal();
 
-    file_ptr io;
-    auto& abort = smp::GlobalAbortCallback::GetInstance();
-
     try
     {
+        auto& abort = smp::GlobalAbortCallback::GetInstance();
+        file_ptr io;
         filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
-        localProperties_.SaveJson( *io, abort, true );
+
+        pfc_x::WriteStringRaw( *io, abort, localProperties_.ToJson() );
     }
     catch ( const pfc::exception& )
     {
+        // TODO: error popup
     }
 
     return 0;

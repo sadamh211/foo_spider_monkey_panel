@@ -1,96 +1,11 @@
 #include <stdafx.h>
 
-#include "config_legacy.h"
+#include "config_com.h"
 
 #include <utils/string_helpers.h>
 #include <utils/type_traits_x.h>
 
-namespace
-{
-
-enum class JsValueType : uint32_t
-{ // Take care changing this: used in config
-    pt_boolean = 0,
-    pt_int32 = 1,
-    pt_double = 2,
-    pt_string = 3,
-};
-
-}
-
-namespace smp::config
-{
-
-namespace binary
-{
-
-PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
-{
-    PanelProperties properties;
-
-    try
-    {
-        uint32_t count;
-        reader.read_lendian_t( count, abort );
-
-        for ( uint32_t i = 0; i < count; ++i )
-        {
-            mozjs::SerializedJsValue serializedValue;
-
-            const std::u8string u8PropName = smp::pfc_x::ReadString( reader, abort );
-
-            uint32_t valueType;
-            reader.read_lendian_t( valueType, abort );
-
-            switch ( static_cast<JsValueType>( valueType ) )
-            {
-            case JsValueType::pt_boolean:
-            {
-                bool value;
-                reader.read_lendian_t( value, abort );
-                serializedValue = value;
-                break;
-            }
-            case JsValueType::pt_int32:
-            {
-                int32_t value;
-                reader.read_lendian_t( value, abort );
-                serializedValue = value;
-                break;
-            }
-            case JsValueType::pt_double:
-            {
-                double value;
-                reader.read_lendian_t( value, abort );
-                serializedValue = value;
-                break;
-            }
-            case JsValueType::pt_string:
-            {
-                serializedValue = smp::pfc_x::ReadString( reader, abort );
-                break;
-            }
-            default:
-            {
-                assert( 0 );
-                continue;
-            }
-            }
-
-            properties.values.emplace( smp::unicode::ToWide( u8PropName ), std::make_shared<mozjs::SerializedJsValue>( serializedValue ) );
-        }
-
-        return properties;
-    }
-    catch ( const pfc::exception& e )
-    {
-        throw SmpException( e.what() );
-    }
-}
-
-} // namespace binary
-
-namespace com
+namespace smp::config::com
 {
 
 PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
@@ -110,7 +25,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
             reader.read_lendian_t( vt, abort );
 
             mozjs::SerializedJsValue serializedValue;
-
             switch ( vt )
             {
             case VT_UI1:
@@ -119,7 +33,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 int8_t val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
-
                 break;
             }
             case VT_I2:
@@ -128,7 +41,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 int16_t val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
-
                 break;
             }
 
@@ -137,7 +49,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 int16_t val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = !!val;
-
                 break;
             }
             case VT_I4:
@@ -148,7 +59,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 int32_t val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = val;
-
                 break;
             }
             case VT_R4:
@@ -156,7 +66,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 float val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<double>( val );
-
                 break;
             }
             case VT_I8:
@@ -165,7 +74,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 int64_t val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = static_cast<int32_t>( val );
-
                 break;
             }
             case VT_R8:
@@ -175,7 +83,6 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
                 double val;
                 reader.read( &val, sizeof( val ), abort );
                 serializedValue = val;
-
                 break;
             }
             case VT_BSTR:
@@ -200,6 +107,4 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
     }
 }
 
-} // namespace com
-
-} // namespace smp::config
+} // namespace smp::config::com

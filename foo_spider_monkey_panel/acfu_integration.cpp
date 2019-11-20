@@ -131,6 +131,6 @@ std::string SmpSource::FetchVersion()
     }
 }
 
-service_factory_single_t<SmpSource> g_smpSource;
+FB2K_SERVICE_FACTORY( SmpSource );
 
 } // namespace

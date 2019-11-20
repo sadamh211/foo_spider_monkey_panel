@@ -97,6 +97,6 @@ namespace
 mainmenu_group_popup_factory g_mainmenu_group(
     smp::guid::mainmenu_group, mainmenu_groups::file, static_cast<t_uint32>( mainmenu_commands::sort_priority_dontcare ), SMP_NAME );
 
-mainmenu_commands_factory_t<my_mainmenu_commands> g_my_mainmenu_commands_factory;
+FB2K_SERVICE_FACTORY( my_mainmenu_commands );
 
 } // namespace

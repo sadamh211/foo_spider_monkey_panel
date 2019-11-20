@@ -64,7 +64,7 @@ public:
         }
     }
 };
-service_factory_single_t<init_stage_callback_impl> g_init_stage_callback_impl;
+FB2K_SERVICE_FACTORY( init_stage_callback_impl );
 
 class initquit_impl : public initquit
 {
@@ -74,7 +74,7 @@ public:
         g_cachedAPI.release();
     }
 };
-service_factory_single_t<initquit_impl> g_initquit_impl;
+FB2K_SERVICE_FACTORY( initquit_impl );
 
 class metadb_display_field_provider_impl : public metadb_display_field_provider
 {
@@ -174,7 +174,7 @@ public:
         }
     }
 };
-service_factory_single_t<metadb_display_field_provider_impl> g_metadb_display_field_provider_impl;
+FB2K_SERVICE_FACTORY( metadb_display_field_provider_impl );
 
 class track_property_provider_impl : public track_property_provider_v2
 {
@@ -234,7 +234,7 @@ public:
         return false;
     }
 };
-service_factory_single_t<track_property_provider_impl> g_track_property_provider_impl;
+FB2K_SERVICE_FACTORY( track_property_provider_impl );
 
 } // namespace
 

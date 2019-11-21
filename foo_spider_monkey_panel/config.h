@@ -5,7 +5,6 @@
 #include <optional>
 
 // TODO: rename to panel_config
-// TODO: create smp_config (move window placement there)
 
 namespace smp::config
 {
@@ -91,7 +90,6 @@ public:
 struct PanelSettings
 {
     GUID guid; ///< TODO: save guid to config
-    WINDOWPLACEMENT windowPlacement; ///< TODO: move to smp_config
     EdgeStyle edgeStyle;
     bool isPseudoTransparent;
     PanelProperties properties;

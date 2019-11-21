@@ -90,7 +90,6 @@ void PanelSettings::ResetToDefault()
     payload = PanelSettings_Simple();
     isPseudoTransparent = false;
     edgeStyle = EdgeStyle::NoEdge;
-    windowPlacement.length = 0;
     // should not fail
     (void)CoCreateGuid( &guid );
 }

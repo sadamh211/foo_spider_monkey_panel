@@ -331,6 +331,9 @@
     <ClCompile Include="config_com.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
+    <ClCompile Include="ui\scintilla\sci_config.cpp">
+      <Filter>ui\scintilla</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -733,6 +736,9 @@
     </ClInclude>
     <ClInclude Include="utils\array_x.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\sci_config.h">
+      <Filter>ui\scintilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

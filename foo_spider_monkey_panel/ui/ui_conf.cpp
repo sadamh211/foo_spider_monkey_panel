@@ -2,6 +2,7 @@
 
 #include "ui_conf.h"
 
+#include <ui/scintilla/sci_config.h>
 #include <utils/array_x.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
@@ -23,6 +24,8 @@ constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
         { L"Text files", L"*.txt" },
         { L"All files", L"*.*" },
     } );
+
+WINDOWPLACEMENT g_WindowPlacement{};
 
 } // namespace
 
@@ -48,19 +51,19 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     DlgResize_Init();
 
     // Apply window placement
-    auto& windowPlacement = panelSettings.windowPlacement;
-    if ( windowPlacement.length == 0 )
+    if ( !g_WindowPlacement.length )
     {
-        windowPlacement.length = sizeof( WINDOWPLACEMENT );
+        WINDOWPLACEMENT tmpPlacement{};
+        tmpPlacement.length = sizeof( WINDOWPLACEMENT );
 
-        if ( !GetWindowPlacement( &windowPlacement ) )
+        if ( GetWindowPlacement( &tmpPlacement ) )
         {
-            memset( &windowPlacement, 0, sizeof( WINDOWPLACEMENT ) );
+            g_WindowPlacement = tmpPlacement;
         }
     }
     else
     {
-        SetWindowPlacement( &windowPlacement );
+        SetWindowPlacement( &g_WindowPlacement );
     }
 
     // GUID Text
@@ -108,6 +111,16 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
 
 LRESULT CDialogConf::OnCloseCmd( WORD, WORD wID, HWND )
 {
+    // Window position
+    {
+        WINDOWPLACEMENT tmpPlacement{};
+        tmpPlacement.length = sizeof( WINDOWPLACEMENT );
+        if ( GetWindowPlacement( &tmpPlacement ) )
+        {
+            g_WindowPlacement = tmpPlacement;
+        }
+    }
+
     switch ( wID )
     {
     case IDOK:
@@ -176,9 +189,6 @@ void CDialogConf::Apply()
     std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
     panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
     m_parent->update_script( code.data() );
-
-    // Window position
-    GetWindowPlacement( &panelSettings.windowPlacement );
 
     // Save point
     sciEditor_.SetSavePoint();

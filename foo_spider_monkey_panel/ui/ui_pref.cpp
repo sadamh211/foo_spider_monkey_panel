@@ -2,7 +2,7 @@
 
 #include "ui_pref.h"
 
-#include <ui/scintilla/sci_prop_sets.h>
+#include <ui/scintilla/sci_config.h>
 #include <ui/ui_name_value_edit.h>
 #include <utils/array_x.h>
 #include <utils/file_helpers.h>
@@ -92,10 +92,10 @@ void CDialogPref::LoadProps( bool reset )
 {
     if ( reset )
     {
-        g_scintillaCfg.reset();
+        scintilla::config::g_props.reset();
     }
 
-    const auto& prop_sets = g_scintillaCfg.val();
+    const auto& prop_sets = scintilla::config::g_props.val();
 
     m_props.DeleteAllItems();
 
@@ -116,7 +116,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
     if ( pniv->iItem >= 0 )
     {
-        auto& prop_sets = g_scintillaCfg.val();
+        auto& prop_sets = scintilla::config::g_props.val();
 
         const auto key = this->uGetItemText( pniv->iItem, 0 );
         const auto val = this->uGetItemText( pniv->iItem, 1 );
@@ -168,7 +168,7 @@ void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        g_scintillaCfg.export_to_file( path.wstring().c_str() );
+        scintilla::config::g_props.export_to_file( path.wstring().c_str() );
     }
 }
 
@@ -178,7 +178,7 @@ void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        g_scintillaCfg.import_from_file( path.u8string().c_str() );
+        scintilla::config::g_props.import_from_file( path.u8string().c_str() );
     }
 
     LoadProps();

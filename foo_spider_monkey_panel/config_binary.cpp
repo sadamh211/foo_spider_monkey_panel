@@ -27,13 +27,13 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         PanelSettings panelSettings;
         PanelSettings_Simple payload;
 
-        reader.skip_object( sizeof( false ), abort ); // HACK: skip over "delay load"
+        reader.skip_object( sizeof( false ), abort ); // skip "delay load"
         reader.read_object_t( panelSettings.guid, abort );
         reader.read_object( &panelSettings.edgeStyle, sizeof( panelSettings.edgeStyle ), abort );
         panelSettings.properties = LoadProperties( reader, abort );
-        reader.skip_object( sizeof( false ), abort ); // HACK: skip over "disable before"
+        reader.skip_object( sizeof( false ), abort ); // skip "disable before"
         reader.read_object_t( payload.shouldGrabFocus, abort );
-        reader.read_object( &panelSettings.windowPlacement, sizeof( panelSettings.windowPlacement ), abort );
+        reader.skip_object( sizeof( WINDOWPLACEMENT ), abort ); // skip WINDOWPLACEMENT
         payload.script = smp::pfc_x::ReadString( reader, abort );
         reader.read_object_t( panelSettings.isPseudoTransparent, abort );
         panelSettings.payload = payload;

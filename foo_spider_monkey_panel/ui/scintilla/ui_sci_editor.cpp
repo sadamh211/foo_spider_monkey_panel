@@ -2,6 +2,7 @@
 
 #include "ui_sci_editor.h"
 
+#include <ui/scintilla/sci_config.h>
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
 #include <utils/array_x.h>
@@ -1231,7 +1232,7 @@ void CScriptEditorCtrl::Init()
     SetProperty( "dir.profile", smp::get_profile_path().c_str() );
 
     // Load properties
-    LoadProperties( g_scintillaCfg.val() );
+    LoadProperties( scintilla::config::g_props.val() );
 }
 
 void CScriptEditorCtrl::LoadProperties( nonstd::span<const ScintillaProp> data )

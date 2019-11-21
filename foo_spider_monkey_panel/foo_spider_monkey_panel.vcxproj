@@ -184,6 +184,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ui\scintilla\sci_config.cpp" />
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
@@ -312,6 +313,7 @@
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
     <ClInclude Include="ui\scintilla\ui_sci_editor.h" />
     <ClInclude Include="ui\scintilla\ui_sci_find_replace.h" />

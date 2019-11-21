@@ -63,7 +63,7 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         case ScriptType::Package:
         {
             PanelSettings_Package payload;
-            payload.packageName = jsonPayload.at( "packageName" ).get<std::string>();
+            payload.folderName = jsonPayload.at( "folderName" ).get<std::string>();
             payload.location = jsonPayload.at( "location" ).get<PackageLocation>();
             // TODO: validate location
 
@@ -118,7 +118,7 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         case ScriptType::Package:
         {
             auto& packageConfig = std::get<PanelSettings_Package>( settings.payload );
-            jsonPayload.push_back( { "packageName", packageConfig.packageName } );
+            jsonPayload.push_back( { "folderName", packageConfig.folderName } );
             jsonPayload.push_back( { "location", packageConfig.location } );
             break;
         }

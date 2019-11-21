@@ -1,9 +1,9 @@
 #pragma once
 
-#include "config.h"
-#include "resource.h"
-
 #include <property_list/PropertyList.h>
+
+#include <config.h>
+#include <resource.h>
 
 namespace smp::panel
 {

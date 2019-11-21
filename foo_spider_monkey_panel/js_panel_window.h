@@ -5,8 +5,6 @@
 #include <panel_tooltip_param.h>
 #include <user_message.h>
 
-#include <queue>
-
 namespace mozjs
 {
 class JsContainer;

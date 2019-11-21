@@ -65,9 +65,24 @@ public:
 
 struct PanelSettings_Simple
 {
-    SimpleScriptSource scriptSource;
-    std::u8string script;
+    SimpleScriptSource scriptSource; // TODO: remove
+    std::u8string script; // TODO: remove
     bool shouldGrabFocus;
+
+    struct InMemoryData
+    {
+        std::u8string script;
+    };
+    struct FileData
+    {
+        std::u8string path;
+    };
+    struct SampleData
+    {
+        std::u8string sampleName;
+    };
+
+    std::variant<InMemoryData, FileData, SampleData> data;
 
 public:
     PanelSettings_Simple();
@@ -78,8 +93,19 @@ public:
 
 struct PanelSettings_Package
 {
-    std::u8string packageName;
+    std::u8string folderName; // converted from packageName when imported (i.e. remove `'":/\ and etc)
     PackageLocation location;
+
+    struct PackageData      // TODO: move to a separate file
+    {                       // package.json (main script will be in (scripts/ ?)main.js)
+        std::u8string name; // when imported will be used for folder name
+        std::u8string version;
+        std::u8string author;
+        std::u8string description;
+        bool shouldGrabFocus;
+        bool enableDragDrop;
+        int smthSmthDynamicActions;
+    } data;
 
 public:
     // TODO: implement

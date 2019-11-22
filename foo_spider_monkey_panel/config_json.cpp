@@ -26,6 +26,8 @@ constexpr const char kSettingsJsonConfigId[] = "settings";
 namespace smp::config::json
 {
 
+// TODO: integrate temprorarily in smp::config::binary, so that it would be possible to downgrade in case there are some unrecoverable errors in the release
+
 PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
 {
     using json = nlohmann::json;

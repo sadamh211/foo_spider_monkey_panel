@@ -4,6 +4,7 @@
 //
 #define VS_VERSION_INFO                 1
 #define IDCANCEL2                       3
+#define IDOK2                           4
 #define IDR_SCRIPT                      101
 #define IDD_DIALOG_CONFIG               102
 #define IDD_DIALOG_FIND                 103
@@ -19,6 +20,9 @@
 #define IDD_FINDDLGORD_WITH_REGEXP      117
 #define IDD_REPLACEDLGORD_WITH_REGEXP   118
 #define IDD_DIALOG1                     119
+#define IDD_DIALOG_CONF_TAB_HOST        119
+#define IDD_DIALOG_CONF_TAB_SIMPLE_MAIN 123
+#define IDD_DIALOG_CONF_TAB_SIMPLE_MAIN2 124
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_DEL                         1010
@@ -45,13 +49,23 @@
 #define IDC_EDIT_VALUE                  1061
 #define IDD_DIALOG_INPUT                1062
 #define IDC_INPUT_PROMPT                1063
+#define IDD_DIALOG_CONF_TAB_SIMPLE_PROPS 1063
 #define IDC_INPUT_VALUE                 1064
+#define IDD_DIALOG_CONF_TAB_SIMPLE_APPEARANCE 1064
 #define IDC_IE                          1065
 #define IDC_SLOWSCRIPT_CONTINUE         1066
 #define IDC_SLOWSCRIPT_STOP             1067
 #define IDC_SLOWSCRIPT_CHECK_DONTASK    1068
 #define IDC_SLOWSCRIPT_SCRIPT_NAME      1069
 #define IDC_CHECK_USE_REGEXP            1070
+#define IDC_TAB1                        1071
+#define IDC_RADIO1                      1072
+#define IDC_RADIO2                      1073
+#define IDC_RADIO3                      1074
+#define IDC_COMBO1                      1075
+#define IDC_RICHEDIT21                  1076
+#define IDC_BUTTON1                     1077
+#define IDC_CHECK1                      1078
 #define ID_FILE_IMPORT                  40014
 #define ID_FILE_EXPORT                  40015
 #define ID_EDIT_RESETTODEFAULT          40016
@@ -65,9 +79,9 @@
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
+#define _APS_NEXT_RESOURCE_VALUE        124
 #define _APS_NEXT_COMMAND_VALUE         40024
-#define _APS_NEXT_CONTROL_VALUE         1071
+#define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

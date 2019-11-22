@@ -44,6 +44,17 @@ enum class EdgeStyle : uint8_t
     Default = NoEdge,
 };
 
+struct PackageData      //< TODO: move to a separate file
+{                       // package.json (main script will be in (scripts/ ?)main.js)
+    std::u8string name; //< when imported will be used for folder name
+    std::u8string version;
+    std::u8string author;
+    std::u8string description;
+    bool shouldGrabFocus;
+    bool enableDragDrop;
+    std::vector<std::pair<std::string, std::string>> dynamicActions;
+};
+
 struct PanelProperties
 {
     using PropertyMap = std::unordered_map<std::wstring, std::shared_ptr<mozjs::SerializedJsValue>>;
@@ -65,12 +76,11 @@ public:
 
 struct PanelSettings_Simple
 {
-    SimpleScriptSource scriptSource; // TODO: remove
-    std::u8string script; // TODO: remove
-    bool shouldGrabFocus;
+    bool shouldGrabFocus; ///< TODO: remove and place in DefinePanel
 
     struct InMemoryData
     {
+        [[nodiscard]] static std::u8string GetDefaultScript();
         std::u8string script;
     };
     struct FileData
@@ -81,31 +91,18 @@ struct PanelSettings_Simple
     {
         std::u8string sampleName;
     };
-
     std::variant<InMemoryData, FileData, SampleData> data;
 
 public:
     PanelSettings_Simple();
     void ResetToDefault();
-
-    [[nodiscard]] static std::u8string GetDefaultScript();
 };
 
 struct PanelSettings_Package
 {
     std::u8string folderName; // converted from packageName when imported (i.e. remove `'":/\ and etc)
     PackageLocation location;
-
-    struct PackageData      // TODO: move to a separate file
-    {                       // package.json (main script will be in (scripts/ ?)main.js)
-        std::u8string name; // when imported will be used for folder name
-        std::u8string version;
-        std::u8string author;
-        std::u8string description;
-        bool shouldGrabFocus;
-        bool enableDragDrop;
-        int smthSmthDynamicActions;
-    } data;
+    PackageData data;
 
 public:
     // TODO: implement

@@ -18,62 +18,6 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian (Russia) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG1 DIALOGEX 0, 0, 449, 243
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,266,222,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,338,222,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL2,392,222,50,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_DIALOG1, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 442
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 236
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_DIALOG1 AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-#endif    // Russian (Russia) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 // English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -82,76 +26,21 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Menu
-//
-
-IDR_MENU_CONF MENU
-BEGIN
-    POPUP "File"
-    BEGIN
-        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
-        MENUITEM SEPARATOR
-        MENUITEM "Import...",                   ID_FILE_IMPORT
-        MENUITEM "Export...",                   ID_FILE_EXPORT
-    END
-    POPUP "Edit"
-    BEGIN
-        MENUITEM "Reset to Default",            ID_EDIT_RESETTODEFAULT
-    END
-    POPUP "Panel Features"
-    BEGIN
-        POPUP "Edge Style"
-        BEGIN
-            MENUITEM "None",                        ID_EDGESTYLE_NONE
-            MENUITEM "Sunken",                      ID_EDGESTYLE_SUNKEN
-            MENUITEM "Grey",                        ID_EDGESTYLE_GREY
-        END
-        MENUITEM "Pseudo Transparent",          ID_PANELFEATURES_PSEUDOTRANSPARENT
-        MENUITEM "Grab Focus",                  ID_PANELFEATURES_GRABFOCUS
-    END
-    POPUP "Help"
-    BEGIN
-        MENUITEM "View Help",                   ID_HELP
-        MENUITEM SEPARATOR
-        MENUITEM "About Spider Monkey Panel",   ID_APP_ABOUT
-    END
-END
-
-
-#ifdef APSTUDIO_INVOKED
-/////////////////////////////////////////////////////////////////////////////
-//
-// TEXTINCLUDE
-//
-
-1 TEXTINCLUDE 
-BEGIN
-    "resource.h\0"
-END
-
-2 TEXTINCLUDE 
-BEGIN
-    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "#include ""windows.h""\r\n"
-    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
-    "\r\n"
-    "#include <atlres.h>\r\n"
-    "#include <component_defines.h>\r\n"
-    "\0"
-END
-
-3 TEXTINCLUDE 
-BEGIN
-    "#include ""foo_spider_monkey_panel.rc2""\0"
-END
-
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // Dialog
 //
+
+IDD_DIALOG_CONF_TAB_HOST DIALOGEX 0, 0, 449, 264
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,284,243,50,14
+    PUSHBUTTON      "Apply",IDCANCEL,338,243,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL2,392,243,50,14
+    DEFPUSHBUTTON   "Switch to Package mode",IDOK2,7,243,108,14
+    CONTROL         "",IDC_TAB1,"SysTabControl32",0x0,7,23,435,212
+    EDITTEXT        IDC_STATIC_GUID,7,5,435,14,ES_CENTER | ES_READONLY | NOT WS_TABSTOP
+END
 
 IDD_DIALOG_CONFIG DIALOGEX 0, 0, 620, 381
 STYLE DS_SETFONT | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
@@ -288,6 +177,37 @@ BEGIN
     LTEXT           "Panel: PanelName\nScript: ScriptName",IDC_SLOWSCRIPT_SCRIPT_NAME,12,40,270,18
 END
 
+IDD_DIALOG_CONF_TAB_SIMPLE_MAIN DIALOGEX 0, 0, 375, 258
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "Sample",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,27,41,39,10
+    CONTROL         "File",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,25,79,27,10
+    CONTROL         "In-memory",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,20,116,51,10
+    COMBOBOX        IDC_COMBO1,26,59,196,30,CBS_DROPDOWN | CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_RICHEDIT21,"RichEdit20W",ES_AUTOHSCROLL | WS_BORDER | WS_TABSTOP,23,94,198,14
+    PUSHBUTTON      "Edit",IDC_BUTTON1,222,131,50,14
+    GROUPBOX        "Source",IDC_STATIC,17,25,272,131
+END
+
+IDD_DIALOG_CONF_TAB_SIMPLE_PROPS DIALOGEX 0, 0, 375, 258
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Show Properties",IDC_BUTTON1,57,78,65,18
+END
+
+IDD_DIALOG_CONF_TAB_SIMPLE_APPEARANCE DIALOGEX 0, 0, 375, 258
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_SYSMENU
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Edge style",IDC_STATIC,29,26,259,77
+    CONTROL         "Radio1",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,37,46,38,10
+    CONTROL         "Radio1",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,36,59,38,10
+    CONTROL         "Radio1",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,36,77,38,10
+    CONTROL         "Use pseudo-transparency",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,30,126,99,10
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -297,6 +217,14 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_DIALOG_CONF_TAB_HOST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 442
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 257
+    END
+
     IDD_DIALOG_CONFIG, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -366,22 +294,43 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 97
     END
+
+    IDD_DIALOG_CONF_TAB_SIMPLE_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 251
+    END
+
+    IDD_DIALOG_CONF_TAB_SIMPLE_PROPS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 251
+    END
+
+    IDD_DIALOG_CONF_TAB_SIMPLE_APPEARANCE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 368
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 251
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// SCRIPT
-//
-
-IDR_SCRIPT              SCRIPT                  "default.js"
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
 // AFX_DIALOG_LAYOUT
 //
+
+IDD_DIALOG_CONF_TAB_HOST AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 IDD_DIALOG_CONFIG AFX_DIALOG_LAYOUT
 BEGIN
@@ -398,6 +347,97 @@ IDD_DIALOG_SLOWSCRIPT AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
+
+IDD_DIALOG_CONF_TAB_SIMPLE_MAIN AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_CONF_TAB_SIMPLE_PROPS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_CONF_TAB_SIMPLE_APPEARANCE AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU_CONF MENU
+BEGIN
+    POPUP "File"
+    BEGIN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM SEPARATOR
+        MENUITEM "Import...",                   ID_FILE_IMPORT
+        MENUITEM "Export...",                   ID_FILE_EXPORT
+    END
+    POPUP "Edit"
+    BEGIN
+        MENUITEM "Reset to Default",            ID_EDIT_RESETTODEFAULT
+    END
+    POPUP "Panel Features"
+    BEGIN
+        POPUP "Edge Style"
+        BEGIN
+            MENUITEM "None",                        ID_EDGESTYLE_NONE
+            MENUITEM "Sunken",                      ID_EDGESTYLE_SUNKEN
+            MENUITEM "Grey",                        ID_EDGESTYLE_GREY
+        END
+        MENUITEM "Pseudo Transparent",          ID_PANELFEATURES_PSEUDOTRANSPARENT
+        MENUITEM "Grab Focus",                  ID_PANELFEATURES_GRABFOCUS
+    END
+    POPUP "Help"
+    BEGIN
+        MENUITEM "View Help",                   ID_HELP
+        MENUITEM SEPARATOR
+        MENUITEM "About Spider Monkey Panel",   ID_APP_ABOUT
+    END
+END
+
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\r\n"
+    "#include <atlres.h>\r\n"
+    "#include <component_defines.h>\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""foo_spider_monkey_panel.rc2""\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SCRIPT
+//
+
+IDR_SCRIPT              SCRIPT                  "default.js"
 
 
 /////////////////////////////////////////////////////////////////////////////

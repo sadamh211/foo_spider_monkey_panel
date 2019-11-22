@@ -56,18 +56,7 @@ void PanelProperties::Save( stream_writer& writer, abort_callback& abort ) const
     smp::config::json::SaveProperties( writer, abort, *this );
 }
 
-PanelSettings_Simple::PanelSettings_Simple()
-{
-    ResetToDefault();
-}
-
-void PanelSettings_Simple::ResetToDefault()
-{
-    shouldGrabFocus = true;
-    script = GetDefaultScript();
-}
-
-std::u8string PanelSettings_Simple::GetDefaultScript()
+std::u8string PanelSettings_Simple::InMemoryData::GetDefaultScript()
 {
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
@@ -80,6 +69,17 @@ std::u8string PanelSettings_Simple::GetDefaultScript()
     }
 }
 
+PanelSettings_Simple::PanelSettings_Simple()
+{
+    ResetToDefault();
+}
+
+void PanelSettings_Simple::ResetToDefault()
+{
+    shouldGrabFocus = true;
+    data = InMemoryData{ InMemoryData::GetDefaultScript() };
+}
+
 PanelSettings::PanelSettings()
 {
     ResetToDefault();
@@ -90,15 +90,13 @@ void PanelSettings::ResetToDefault()
     payload = PanelSettings_Simple();
     isPseudoTransparent = false;
     edgeStyle = EdgeStyle::NoEdge;
-    // should not fail
-    (void)CoCreateGuid( &guid );
+    (void)CoCreateGuid( &guid ); //< should not fail
 }
 
 PanelSettings PanelSettings::Load( stream_reader& reader, size_t size, abort_callback& abort )
 {
     try
     {
-        // TODO: remove, since we don't want to change type probably
         PanelSettings panelSettings;
 
         if ( size < sizeof( SettingsType ) )

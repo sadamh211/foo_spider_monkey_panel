@@ -2,7 +2,7 @@
 
 #include <utils/stacktrace.h>
 
-#include <adv_config.h>
+#include <config/adv_config.h>
 
 namespace mozjs::error
 {

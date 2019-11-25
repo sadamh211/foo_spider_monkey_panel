@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config.h>
+#include <config/panel_config.h>
 
 namespace smp::config::com
 {

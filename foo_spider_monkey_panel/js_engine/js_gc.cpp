@@ -8,7 +8,7 @@
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
 
-#include <adv_config.h>
+#include <config/adv_config.h>
 
 namespace
 {

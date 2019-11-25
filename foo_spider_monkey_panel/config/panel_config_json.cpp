@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "config_json.h"
+#include "panel_config_json.h"
 
 #include <utils/string_helpers.h>
 #include <utils/winapi_error_helpers.h>
@@ -12,10 +12,10 @@ namespace
 
 enum class ScriptType : uint8_t
 {
-    SimpleInMemory = 0,
-    SimpleSample = 1,
-    SimpleFile = 2,
-    Package = 3
+    SimpleInMemory = 1,
+    SimpleSample = 2,
+    SimpleFile = 3,
+    Package = 4
 };
 
 constexpr const char kPropJsonConfigVersion[] = "1";

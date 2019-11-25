@@ -1,12 +1,12 @@
 #include <stdafx.h>
 
-#include "config.h"
+#include "panel_config.h"
 
 #include <utils/string_helpers.h>
 
-#include <config_binary.h>
-#include <config_com.h>
-#include <config_json.h>
+#include <config/panel_config_binary.h>
+#include <config/panel_config_com.h>
+#include <config/panel_config_json.h>
 #include <resource.h>
 
 namespace

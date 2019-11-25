@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "config_com.h"
+#include "panel_config_com.h"
 
 #include <utils/string_helpers.h>
 #include <utils/type_traits_x.h>

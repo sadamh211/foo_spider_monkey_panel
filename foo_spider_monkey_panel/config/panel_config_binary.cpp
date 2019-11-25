@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "config_binary.h"
+#include "panel_config_binary.h"
 
 #include <utils/string_helpers.h>
 

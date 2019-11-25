@@ -37,9 +37,6 @@
     <ClCompile Include="js_engine\js_container.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="config.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
     <ClCompile Include="host_timer_dispatcher.cpp">
       <Filter>z_core</Filter>
     </ClCompile>
@@ -141,9 +138,6 @@
     </ClCompile>
     <ClCompile Include="js_objects\hacks.cpp">
       <Filter>js_objects</Filter>
-    </ClCompile>
-    <ClCompile Include="adv_config.cpp">
-      <Filter>z_core</Filter>
     </ClCompile>
     <ClCompile Include="js_objects\enumerator.cpp">
       <Filter>js_objects</Filter>
@@ -322,17 +316,23 @@
     <ClCompile Include="js_engine\js_realm_inner.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="config_json.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
-    <ClCompile Include="config_binary.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
-    <ClCompile Include="config_com.cpp">
-      <Filter>z_core</Filter>
-    </ClCompile>
     <ClCompile Include="ui\scintilla\sci_config.cpp">
       <Filter>ui\scintilla</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_binary.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_com.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_json.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\adv_config.cpp">
+      <Filter>config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -376,9 +376,6 @@
       <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="component_defines.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
       <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="host_timer_dispatcher.h">
@@ -497,9 +494,6 @@
     </ClInclude>
     <ClInclude Include="js_objects\fb_window.h">
       <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="adv_config.h">
-      <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\enumerator.h">
       <Filter>js_objects</Filter>
@@ -725,20 +719,27 @@
     </ClInclude>
     <ClInclude Include="utils\type_traits_x.h">
       <Filter>utils</Filter>
-    <ClInclude Include="config_com.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
-    <ClInclude Include="config_json.h">
-      <Filter>z_core</Filter>
-    </ClInclude>
-    <ClInclude Include="config_binary.h">
-      <Filter>z_core</Filter>
     </ClInclude>
     <ClInclude Include="utils\array_x.h">
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="ui\scintilla\sci_config.h">
       <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_binary.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_com.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_json.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\adv_config.h">
+      <Filter>config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -790,6 +791,9 @@
     </Filter>
     <Filter Include="ui\scintilla">
       <UniqueIdentifier>{026a4588-b180-4f15-bc70-daedd985c371}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{f5542204-378e-42ff-a72e-c3f02413d0a4}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

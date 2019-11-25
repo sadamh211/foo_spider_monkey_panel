@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config.h>
+#include <config/panel_config.h>
 #include <panel_info.h>
 #include <panel_tooltip_param.h>
 #include <user_message.h>

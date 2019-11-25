@@ -106,12 +106,13 @@
   <ItemGroup>
     <ClCompile Include="abort_callback.cpp" />
     <ClCompile Include="acfu_integration.cpp" />
-    <ClCompile Include="adv_config.cpp" />
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_message_scope.cpp" />
-    <ClCompile Include="config_binary.cpp" />
-    <ClCompile Include="config_com.cpp" />
-    <ClCompile Include="config_json.cpp" />
+    <ClCompile Include="config\adv_config.cpp" />
+    <ClCompile Include="config\panel_config.cpp" />
+    <ClCompile Include="config\panel_config_binary.cpp" />
+    <ClCompile Include="config\panel_config_com.cpp" />
+    <ClCompile Include="config\panel_config_json.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
@@ -121,7 +122,6 @@
     <ClCompile Include="com_objects\host_external.cpp" />
     <ClCompile Include="com_objects\internal\drag_image.cpp" />
     <ClCompile Include="com_objects\internal\drag_utils.cpp" />
-    <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
@@ -223,7 +223,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="abort_callback.h" />
-    <ClInclude Include="adv_config.h" />
     <ClInclude Include="callback_data.h" />
     <ClInclude Include="component_guids.h" />
     <ClInclude Include="component_paths.h" />
@@ -238,9 +237,11 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
-    <ClInclude Include="config_binary.h" />
-    <ClInclude Include="config_com.h" />
-    <ClInclude Include="config_json.h" />
+    <ClInclude Include="config\adv_config.h" />
+    <ClInclude Include="config\panel_config.h" />
+    <ClInclude Include="config\panel_config_binary.h" />
+    <ClInclude Include="config\panel_config_com.h" />
+    <ClInclude Include="config\panel_config_json.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
@@ -304,7 +305,6 @@
     <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />
-    <ClInclude Include="config.h" />
     <ClInclude Include="host_timer_dispatcher.h" />
     <ClInclude Include="js_panel_window.h" />
     <ClInclude Include="js_panel_window_cui.h" />

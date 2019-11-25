@@ -75,7 +75,7 @@ void js_panel_window::update_script( const char* code )
     if ( code )
     {
         // TODO: fix this
-        std::get<smp::config::PanelSettings_Simple>( settings_.payload ).script = code;
+        std::get<smp::config::PanelSettings_InMemory>( settings_.payload ).script = code;
     }
 
     if ( pJsContainer_ )
@@ -907,7 +907,7 @@ bool js_panel_window::script_load( bool isFirstLoad )
     }
 
     if ( !pJsContainer_->ExecuteScript( // TODO: fix this
-             std::get<smp::config::PanelSettings_Simple>( settings_.payload ).script ) )
+             std::get<smp::config::PanelSettings_InMemory>( settings_.payload ).script ) )
     { // error reporting handled inside
         return false;
     }
@@ -1232,8 +1232,7 @@ void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
 
 void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
 {
-    if ( // TODO: fix this
-        std::get<smp::config::PanelSettings_Simple>( settings_.payload ).shouldGrabFocus )
+    if ( shouldGrabFocus_ )
     {
         wnd_.SetFocus();
     }
@@ -1628,6 +1627,11 @@ config::PanelSettings& js_panel_window::GetSettings()
 const config::PanelSettings& js_panel_window::GetSettings() const
 {
     return settings_;
+}
+
+bool& js_panel_window::ShouldGrabFocus()
+{
+    return shouldGrabFocus_;
 }
 
 } // namespace smp::panel

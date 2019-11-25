@@ -300,6 +300,7 @@ void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         smp::error::CheckHR( hr, "RegisterDragDrop" );
     }
+    parentPanel_.ShouldGrabFocus() = parsedOptions.features.grab_focus;
 
     isPanelDefined_ = true;
 }
@@ -881,6 +882,7 @@ JsWindow::DefinePanelOptions JsWindow::ParseDefinePanelOptions( JS::HandleValue 
 
             JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
             parsedOptions.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
+            parsedOptions.features.grab_focus = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "grab_focus" ).value_or( true );
         }
     }
 

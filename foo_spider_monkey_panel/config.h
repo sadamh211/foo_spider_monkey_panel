@@ -16,19 +16,6 @@ enum class SerializationFormat : uint8_t
     Json
 };
 
-enum class ScriptType : uint8_t
-{
-    Simple = 0,
-    Package = 1
-};
-
-enum class SimpleScriptSource : uint8_t
-{
-    Sample = 0,
-    File = 1,
-    InMemory = 2
-};
-
 enum class PackageLocation : uint8_t
 {
     Sample = 0,
@@ -74,28 +61,21 @@ public:
     void Save( stream_writer& writer, abort_callback& abort ) const;
 };
 
-struct PanelSettings_Simple
+struct PanelSettings_InMemory
 {
-    bool shouldGrabFocus; ///< TODO: remove and place in DefinePanel
+    std::u8string script = GetDefaultScript();
 
-    struct InMemoryData
-    {
-        [[nodiscard]] static std::u8string GetDefaultScript();
-        std::u8string script;
-    };
-    struct FileData
-    {
-        std::u8string path;
-    };
-    struct SampleData
-    {
-        std::u8string sampleName;
-    };
-    std::variant<InMemoryData, FileData, SampleData> data;
+    [[nodiscard]] static std::u8string GetDefaultScript();
+};
 
-public:
-    PanelSettings_Simple();
-    void ResetToDefault();
+struct PanelSettings_File
+{
+    std::u8string path;
+};
+
+struct PanelSettings_Sample
+{
+    std::u8string sampleName;
 };
 
 struct PanelSettings_Package
@@ -117,7 +97,7 @@ struct PanelSettings
     bool isPseudoTransparent;
     PanelProperties properties;
 
-    std::variant<PanelSettings_Simple, PanelSettings_Package> payload;
+    std::variant<PanelSettings_InMemory, PanelSettings_File, PanelSettings_Sample, PanelSettings_Package> payload;
 
 public:
     PanelSettings();

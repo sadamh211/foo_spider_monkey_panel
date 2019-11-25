@@ -73,14 +73,13 @@
 #define ID_EDGESTYLE_SUNKEN             40020
 #define ID_EDGESTYLE_GREY               40021
 #define ID_PANELFEATURES_PSEUDOTRANSPARENT 40022
-#define ID_PANELFEATURES_GRABFOCUS         40023
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        124
-#define _APS_NEXT_COMMAND_VALUE         40024
+#define _APS_NEXT_COMMAND_VALUE         40023
 #define _APS_NEXT_CONTROL_VALUE         1079
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

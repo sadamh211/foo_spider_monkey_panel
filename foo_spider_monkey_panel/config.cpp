@@ -56,7 +56,7 @@ void PanelProperties::Save( stream_writer& writer, abort_callback& abort ) const
     smp::config::json::SaveProperties( writer, abort, *this );
 }
 
-std::u8string PanelSettings_Simple::InMemoryData::GetDefaultScript()
+std::u8string PanelSettings_InMemory::GetDefaultScript()
 {
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
     if ( puRes )
@@ -69,17 +69,6 @@ std::u8string PanelSettings_Simple::InMemoryData::GetDefaultScript()
     }
 }
 
-PanelSettings_Simple::PanelSettings_Simple()
-{
-    ResetToDefault();
-}
-
-void PanelSettings_Simple::ResetToDefault()
-{
-    shouldGrabFocus = true;
-    data = InMemoryData{ InMemoryData::GetDefaultScript() };
-}
-
 PanelSettings::PanelSettings()
 {
     ResetToDefault();
@@ -87,7 +76,7 @@ PanelSettings::PanelSettings()
 
 void PanelSettings::ResetToDefault()
 {
-    payload = PanelSettings_Simple();
+    payload = PanelSettings_InMemory{};
     isPseudoTransparent = false;
     edgeStyle = EdgeStyle::NoEdge;
     (void)CoCreateGuid( &guid ); //< should not fail
@@ -110,7 +99,17 @@ PanelSettings PanelSettings::Load( stream_reader& reader, size_t size, abort_cal
         switch ( static_cast<SettingsType>( ver ) )
         {
         case SettingsType::Binary:
-            return smp::config::binary::LoadSettings( reader, abort );
+        {
+            const PanelSettings binarySettings = smp::config::binary::LoadSettings( reader, abort );
+            try
+            { // check if we have json config appended
+                return smp::config::json::LoadSettings( reader, abort );
+            }
+            catch ( const SmpException& )
+            {
+                return binarySettings;
+            }
+        }
         case SettingsType::Json:
             return smp::config::json::LoadSettings( reader, abort );
         default:
@@ -125,8 +124,18 @@ PanelSettings PanelSettings::Load( stream_reader& reader, size_t size, abort_cal
 
 void PanelSettings::Save( stream_writer& writer, abort_callback& abort ) const
 {
-    writer.write_object_t( static_cast<uint32_t>( SettingsType::Json ), abort );
-    smp::config::json::SaveSettings( writer, abort, *this );
+    if ( std::holds_alternative<PanelSettings_InMemory>( payload ) )
+    { // append json config for compatibility with older versions
+        // TODO: remove in the future versions
+        writer.write_object_t( static_cast<uint32_t>( SettingsType::Binary ), abort );
+        smp::config::binary::SaveSettings( writer, abort, *this );
+        smp::config::json::SaveSettings( writer, abort, *this );
+    }
+    else
+    {
+        writer.write_object_t( static_cast<uint32_t>( SettingsType::Json ), abort );
+        smp::config::json::SaveSettings( writer, abort, *this );
+    }
 }
 
 void PanelSettings::SaveDefault( stream_writer& writer, abort_callback& abort )

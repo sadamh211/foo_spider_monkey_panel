@@ -25,20 +25,45 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
     try
     {
         PanelSettings panelSettings;
-        PanelSettings_Simple payload;
+        PanelSettings_InMemory payload;
 
         reader.skip_object( sizeof( false ), abort ); // skip "delay load"
         reader.read_object_t( panelSettings.guid, abort );
         reader.read_object( &panelSettings.edgeStyle, sizeof( panelSettings.edgeStyle ), abort );
         panelSettings.properties = LoadProperties( reader, abort );
-        reader.skip_object( sizeof( false ), abort ); // skip "disable before"
-        reader.read_object_t( payload.shouldGrabFocus, abort );
+        reader.skip_object( sizeof( false ), abort );           // skip "disable before"
+        reader.skip_object( sizeof( false ), abort );           // skip "shouldGrabFocus"
         reader.skip_object( sizeof( WINDOWPLACEMENT ), abort ); // skip WINDOWPLACEMENT
         payload.script = smp::pfc_x::ReadString( reader, abort );
         reader.read_object_t( panelSettings.isPseudoTransparent, abort );
+
         panelSettings.payload = payload;
 
         return panelSettings;
+    }
+    catch ( const pfc::exception& e )
+    {
+        throw SmpException( e.what() );
+    }
+}
+
+void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSettings& settings )
+{
+    try
+    {
+        assert( std::holds_alternative<PanelSettings_InMemory>( settings.payload ) );
+        const auto& payload = std::get<PanelSettings_InMemory>( settings.payload );
+
+        writer.write_object_t( false, abort ); // skip "delay load"
+        writer.write_object_t( settings.guid, abort );
+        writer.write_object_t( static_cast<uint8_t>( settings.edgeStyle ), abort );
+        SaveProperties( writer, abort, settings.properties );
+        writer.write_object_t( false, abort );             // skip "disable before"
+        writer.write_object_t( true, abort );              // skip "shouldGrabFocus"
+        WINDOWPLACEMENT dummy{};
+        writer.write_object( &dummy, sizeof( dummy ), abort ); // skip WINDOWPLACEMENT
+        pfc_x::WriteString( writer, abort, payload.script );
+        writer.write_object_t( settings.isPseudoTransparent, abort );
     }
     catch ( const pfc::exception& e )
     {
@@ -107,6 +132,65 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
     catch ( const pfc::exception& e )
     {
         throw SmpException( e.what() );
+    }
+}
+
+void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelProperties& properties )
+{
+    try
+    {
+        writer.write_lendian_t( static_cast<uint32_t>( properties.values.size() ), abort );
+
+        for ( const auto& [name, pValue]: properties.values )
+        {
+            pfc_x::WriteString( writer, abort, smp::unicode::ToU8( name ) );
+
+            const auto& serializedValue = *pValue;
+
+            const JsValueType valueType = std::visit( []( auto&& arg ) {
+                using T = std::decay_t<decltype( arg )>;
+                if constexpr ( std::is_same_v<T, bool> )
+                {
+                    return JsValueType::pt_boolean;
+                }
+                else if constexpr ( std::is_same_v<T, int32_t> )
+                {
+                    return JsValueType::pt_int32;
+                }
+                else if constexpr ( std::is_same_v<T, double> )
+                {
+                    return JsValueType::pt_double;
+                }
+                else if constexpr ( std::is_same_v<T, std::u8string> )
+                {
+                    return JsValueType::pt_string;
+                }
+                else
+                {
+                    static_assert( false, "non-exhaustive visitor!" );
+                }
+            },
+                                                      serializedValue );
+
+            writer.write_lendian_t( static_cast<uint32_t>( valueType ), abort );
+
+            std::visit( [&writer, &abort]( auto&& arg ) {
+                using T = std::decay_t<decltype( arg )>;
+                if constexpr ( std::is_same_v<T, std::u8string> )
+                {
+                    const auto& value = arg;
+                    writer.write_string( value.c_str(), value.length(), abort );
+                }
+                else
+                {
+                    writer.write_lendian_t( arg, abort );
+                }
+            },
+                        serializedValue );
+        }
+    }
+    catch ( const pfc::exception& )
+    {
     }
 }
 

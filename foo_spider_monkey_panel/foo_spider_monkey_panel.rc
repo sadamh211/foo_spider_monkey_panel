@@ -391,7 +391,6 @@ BEGIN
             MENUITEM "Grey",                        ID_EDGESTYLE_GREY
         END
         MENUITEM "Pseudo Transparent",          ID_PANELFEATURES_PSEUDOTRANSPARENT
-        MENUITEM "Grab Focus",                  ID_PANELFEATURES_GRABFOCUS
     END
     POPUP "Help"
     BEGIN

@@ -76,7 +76,7 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     sciEditor_.SetJScript();
     sciEditor_.ReadAPI();
     // TODO: replace with proper handling for multiple scrupt types
-    sciEditor_.SetContent( std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).script.c_str(), true );
+    sciEditor_.SetContent( std::get<smp::config::PanelSettings_InMemory>( panelSettings.payload ).script.c_str(), true );
     sciEditor_.SetSavePoint();
 
     // Edge Style
@@ -101,10 +101,6 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
         (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_UNCHECKED );
         (void)menu.EnableMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_GRAYED );
     }
-
-    // Grab Focus
-    // TODO: add proper handling
-    (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).shouldGrabFocus ? MF_CHECKED : MF_UNCHECKED );
 
     return TRUE; // set focus to default control
 }
@@ -185,8 +181,6 @@ void CDialogConf::Apply()
         panelSettings.edgeStyle = smp::config::EdgeStyle::SunkenEdge;
     }
 
-    // TODO: fix this
-    std::get<smp::config::PanelSettings_Simple>( panelSettings.payload ).shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
     panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
     m_parent->update_script( code.data() );
 
@@ -273,7 +267,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
     // TODO: fix
-    sciEditor_.SetContent( smp::config::PanelSettings_Simple::GetDefaultScript().c_str() );
+    sciEditor_.SetContent( smp::config::PanelSettings_InMemory::GetDefaultScript().c_str() );
     return 0;
 }
 
@@ -290,17 +284,6 @@ LRESULT CDialogConf::OnFeaturesPseudoTransparent( WORD, WORD, HWND )
     if ( !( menuState & MF_GRAYED ) && !( menuState & MF_DISABLED ) )
     {
         (void)menu.CheckMenuItem( ID_PANELFEATURES_PSEUDOTRANSPARENT, ( menuState & MF_CHECKED ) ? MF_UNCHECKED : MF_CHECKED );
-    }
-
-    return 0;
-}
-
-LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
-{
-    auto menuState = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND );
-    if ( !( menuState & MF_GRAYED ) && !( menuState & MF_DISABLED ) )
-    {
-        (void)menu.CheckMenuItem( ID_PANELFEATURES_GRABFOCUS, ( menuState & MF_CHECKED ) ? MF_UNCHECKED : MF_CHECKED );
     }
 
     return 0;

@@ -110,6 +110,7 @@ private:
         struct Features
         {
             bool drag_n_drop = false;
+            bool grab_focus = true;
         } features;
     };
     DefinePanelOptions ParseDefinePanelOptions( JS::HandleValue options );

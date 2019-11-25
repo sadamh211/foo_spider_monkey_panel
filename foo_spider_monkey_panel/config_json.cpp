@@ -3,6 +3,7 @@
 #include "config_json.h"
 
 #include <utils/string_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <nlohmann/json.hpp>
 
@@ -11,8 +12,10 @@ namespace
 
 enum class ScriptType : uint8_t
 {
-    Simple = 1,
-    Package = 2
+    SimpleInMemory = 0,
+    SimpleSample = 1,
+    SimpleFile = 2,
+    Package = 3
 };
 
 constexpr const char kPropJsonConfigVersion[] = "1";
@@ -26,17 +29,14 @@ constexpr const char kSettingsJsonConfigId[] = "settings";
 namespace smp::config::json
 {
 
-// TODO: integrate temprorarily in smp::config::binary, so that it would be possible to downgrade in case there are some unrecoverable errors in the release
-
 PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
 {
     using json = nlohmann::json;
 
-    // TODO: remove, since we don't want to change type probably
-    PanelSettings panelSettings;
-
     try
     {
+        PanelSettings panelSettings;
+
         const json jsonMain = json::parse( smp::pfc_x::ReadString( reader, abort ) );
         if ( !jsonMain.is_object() )
         {
@@ -49,17 +49,32 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
             throw SmpException( "Corrupted serialized settings: version/id mismatch" );
         }
 
+        if ( jsonMain.find( "guid" ) != jsonMain.end() )
+        {
+            const auto guidStr = jsonMain.at( "guid" ).get<std::string>();
+            HRESULT hr = IIDFromString( smp::unicode::ToWide( guidStr ).c_str(), &panelSettings.guid );
+            smp::error::CheckHR( hr, "IIDFromString" );
+        }
+
+        panelSettings.isPseudoTransparent = jsonMain.value( "isPseudoTransparent", false );
+
         const auto scriptType = jsonMain.at( "scriptType" ).get<ScriptType>();
         const auto jsonPayload = jsonMain.at( "payload" );
         switch ( scriptType )
         {
-        case ScriptType::Simple:
+        case ScriptType::SimpleInMemory:
         {
-            PanelSettings_Simple payload;
-            payload.script = jsonPayload.at( "script" ).get<std::string>();
-            payload.shouldGrabFocus = jsonPayload.at( "shouldGrabFocus" ).get<bool>();
-
-            panelSettings.payload = payload;
+            panelSettings.payload = PanelSettings_InMemory{ jsonPayload.at( "script" ).get<std::string>() };
+            break;
+        }
+        case ScriptType::SimpleFile:
+        {
+            panelSettings.payload = PanelSettings_File{ jsonPayload.at( "path" ).get<std::string>() };
+            break;
+        }
+        case ScriptType::SimpleSample:
+        {
+            panelSettings.payload = PanelSettings_Sample{ jsonPayload.at( "sampleName" ).get<std::string>() };
             break;
         }
         case ScriptType::Package:
@@ -104,28 +119,46 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         jsonMain.push_back( { "id", kSettingsJsonConfigId } );
         jsonMain.push_back( { "version", kSettingsJsonConfigVersion } );
 
-        const auto scriptType = ( std::holds_alternative<PanelSettings_Simple>( settings.payload ) ? ScriptType::Simple : ScriptType::Package );
-        jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );
+        const std::u8string guidStr = [& guid = settings.guid] {
+            std::wstring guidStr;
+            guidStr.resize( 64 );
+            StringFromGUID2( guid, guidStr.data(), guidStr.size() );
+            return smp::unicode::ToU8( guidStr );
+        }();
+        jsonMain.push_back( { "guid", guidStr } );
 
         json jsonPayload = json::object();
-        switch ( scriptType )
-        {
-        case ScriptType::Simple:
-        {
-            auto& simpleConfig = std::get<PanelSettings_Simple>( settings.payload );
-            jsonPayload.push_back( { "script", simpleConfig.script } );
-            jsonPayload.push_back( { "shouldGrabFocus", simpleConfig.shouldGrabFocus } );
-            break;
-        }
-        case ScriptType::Package:
-        {
-            auto& packageConfig = std::get<PanelSettings_Package>( settings.payload );
-            jsonPayload.push_back( { "folderName", packageConfig.folderName } );
-            jsonPayload.push_back( { "location", packageConfig.location } );
-            break;
-        }
-        }
+        const auto scriptType = std::visit( [&jsonPayload]( const auto& data ) {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                jsonPayload.push_back( { "script", data.script } );
+                return ScriptType::SimpleInMemory;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
+            {
+                jsonPayload.push_back( { "path", data.path } );
+                return ScriptType::SimpleFile;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
+            {
+                jsonPayload.push_back( { "sampleName", data.sampleName } );
+                return ScriptType::SimpleSample;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                jsonPayload.push_back( { "folderName", data.folderName } );
+                jsonPayload.push_back( { "location", data.location } );
+                return ScriptType::Package;
+            }
+            else
+            {
+                static_assert( false, "non-exhaustive visitor!" );
+            }
+        },
+                                            settings.payload );
 
+        jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );
         jsonMain.push_back( { "payload", jsonPayload } );
         jsonMain.push_back( { "properties", settings.properties.ToJson() } );
         jsonMain.push_back( { "isPseudoTransparent", settings.isPseudoTransparent } );

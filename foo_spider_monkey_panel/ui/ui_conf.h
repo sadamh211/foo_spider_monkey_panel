@@ -44,7 +44,6 @@ public:
         COMMAND_ID_HANDLER_EX( ID_EDIT_RESETTODEFAULT, OnEditResetDefault )
         COMMAND_RANGE_HANDLER_EX( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, OnFeaturesEdgeStyle )
         COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_PSEUDOTRANSPARENT, OnFeaturesPseudoTransparent )
-        COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_GRABFOCUS, OnFeaturesGrabFocus )
         COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
         COMMAND_ID_HANDLER_EX( ID_APP_ABOUT, OnAbout )
         CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
@@ -68,7 +67,6 @@ public:
     LRESULT OnEditResetDefault( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnFeaturesEdgeStyle( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnFeaturesPseudoTransparent( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnFeaturesGrabFocus( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnAbout( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 

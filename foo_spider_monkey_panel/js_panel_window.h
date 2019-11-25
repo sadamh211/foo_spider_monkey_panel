@@ -59,6 +59,7 @@ private:
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
 public:
+
     [[nodiscard]] GUID GetGUID();
     [[nodiscard]] HDC GetHDC() const;
     [[nodiscard]] HWND GetHWND() const;
@@ -92,6 +93,7 @@ private:
     HDC hDc_ = nullptr;
 
     PanelInfo m_script_info; // TODO: move to JsContainer
+    bool shouldGrabFocus_ = true;
 
     uint32_t height_ = 0;     // Used externally as well
     uint32_t width_ = 0;      // Used externally as well

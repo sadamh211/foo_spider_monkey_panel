@@ -110,7 +110,7 @@ std::vector<std::filesystem::path> GetFilesInDirectoryRecursive( const std::file
     return filepaths;
 }
 
-std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFiles()
+std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
 {
     namespace fs = std::filesystem;
 
@@ -486,10 +486,11 @@ void ConfigTabSimpleScript::UpdateUiRadioButtons()
 void ConfigTabSimpleScript::InitializeSamplesComboBox()
 {
     samplesComboBox_ = GetDlgItem( IDC_COMBO_SRC_SAMPLE );
+    comboBoxData_ = GetSampleFileData();
 
     size_t i = 0;
     // TODO: zip
-    for ( const auto& [path, name]: GetSampleFiles() )
+    for ( const auto& [path, name]: comboBoxData_ )
     {
         samplesComboBox_.AddString( name.c_str() );
         samplesComboBox_.SetItemDataPtr( i, (void*)path.c_str() );

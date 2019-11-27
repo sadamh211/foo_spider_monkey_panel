@@ -2,6 +2,7 @@
 
 #include "js_engine.h"
 
+#include <config/adv_config.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_internal_global.h>
 #include <js_engine/js_realm_inner.h>
@@ -12,7 +13,6 @@
 #include <utils/string_helpers.h>
 #include <utils/thread_helpers.h>
 
-#include <adv_config.h>
 #include <heartbeat_window.h>
 #include <host_timer_dispatcher.h>
 #include <js_panel_window.h>

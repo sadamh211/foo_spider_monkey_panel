@@ -97,7 +97,8 @@ struct PanelSettings
     bool isPseudoTransparent;
     PanelProperties properties;
 
-    std::variant<PanelSettings_InMemory, PanelSettings_File, PanelSettings_Sample, PanelSettings_Package> payload;
+    using ScriptVariant = std::variant<PanelSettings_InMemory, PanelSettings_File, PanelSettings_Sample, PanelSettings_Package>;
+    ScriptVariant payload;
 
 public:
     PanelSettings();

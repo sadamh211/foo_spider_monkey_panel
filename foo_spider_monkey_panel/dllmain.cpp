@@ -5,13 +5,9 @@
 #include <utils/error_popup.h>
 #include <utils/thread_pool.h>
 
-#include <abort_callback.h>
-#include <message_manager.h>
-#include <user_message.h>
-
 #include <Scintilla.h>
 
-#include <map>
+#include <unordered_map>
 
 DECLARE_COMPONENT_VERSION( SMP_NAME, SMP_VERSION, SMP_ABOUT );
 
@@ -43,7 +39,7 @@ struct SubsystemError
     uint32_t errorCode = 0;
 };
 
-std::map<SubsystemId, SubsystemError> g_subsystem_failures;
+std::unordered_map<SubsystemId, SubsystemError> g_subsystem_failures;
 
 void InitializeSubsystems( HINSTANCE ins )
 {

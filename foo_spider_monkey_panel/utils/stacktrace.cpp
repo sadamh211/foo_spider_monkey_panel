@@ -4,9 +4,9 @@
 
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 
+#    include <config/adv_config.h>
 #    include <utils/scope_helpers.h>
 
-#    include <adv_config.h>
 #    include <dbghelp.h>
 #    pragma comment( lib, "dbghelp.lib" )
 

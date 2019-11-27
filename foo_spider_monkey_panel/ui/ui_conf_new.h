@@ -1,0 +1,71 @@
+#pragma once
+
+#include <config/panel_config.h>
+#include <utils/option_wrap.h>
+#include <ui/ui_itab.h>
+
+#include <resource.h>
+
+#include <vector>
+
+namespace smp::panel
+{
+class js_panel_window;
+}
+
+namespace smp::ui
+{
+
+class CDialogConfNew
+    : public CDialogImpl<CDialogConfNew>
+    , public CDialogResize<CDialogConfNew>
+{
+public:
+    enum
+    {
+        IDD = IDD_DIALOG_CONF
+    };
+
+    BEGIN_MSG_MAP( CDialogConfNew )
+        MSG_WM_INITDIALOG( OnInitDialog )
+        MSG_WM_PARENTNOTIFY( OnParentNotify )
+        MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
+        NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
+    END_MSG_MAP()
+
+public:
+    CDialogConfNew( smp::panel::js_panel_window* pParent );
+    ~CDialogConfNew() override = default;
+
+    void OnDataChanged();
+
+private:
+    BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
+    void OnParentNotify( UINT message, UINT nChildID, LPARAM lParam );
+    LRESULT OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled );
+    LRESULT OnSelectionChanged( LPNMHDR pNmhdr );
+
+    void CreateTabHost();
+    void DestroyTabHost();
+
+    bool HasChanged();
+
+    void Apply();
+    void Revert();
+
+private:
+    panel::js_panel_window* pParent_ = nullptr;
+
+    OptionWrap<config::PanelSettings> settings_;
+
+    std::u8string caption_;
+
+    CTabCtrl cTabs_;
+    CDialogImplBase* pcCurTab_ = nullptr;
+
+    size_t activeTabIdx_ = 0;
+    std::vector<std::unique_ptr<ITab>> tabs_;
+};
+
+} // namespace smp::ui

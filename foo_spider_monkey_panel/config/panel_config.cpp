@@ -2,11 +2,11 @@
 
 #include "panel_config.h"
 
-#include <utils/string_helpers.h>
-
 #include <config/panel_config_binary.h>
 #include <config/panel_config_com.h>
 #include <config/panel_config_json.h>
+#include <utils/string_helpers.h>
+
 #include <resource.h>
 
 namespace

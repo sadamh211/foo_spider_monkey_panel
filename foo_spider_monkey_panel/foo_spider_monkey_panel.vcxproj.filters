@@ -334,6 +334,12 @@
     <ClCompile Include="config\adv_config.cpp">
       <Filter>config</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_conf_new.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_tab_simple_script.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -741,6 +747,24 @@
     <ClInclude Include="config\adv_config.h">
       <Filter>config</Filter>
     </ClInclude>
+    <ClInclude Include="ui\ui_itab.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_new.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_simple_script.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\option_wrap.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\internal\ui_ddx.h">
+      <Filter>ui\internal</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\internal\ui_ddx_option.h">
+      <Filter>ui\internal</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -794,6 +818,9 @@
     </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{f5542204-378e-42ff-a72e-c3f02413d0a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\internal">
+      <UniqueIdentifier>{85a499ca-56ab-4595-80ee-18dfaf944eb6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

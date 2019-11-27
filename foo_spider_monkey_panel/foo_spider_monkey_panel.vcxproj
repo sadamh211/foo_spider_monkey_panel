@@ -190,6 +190,8 @@
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_goto.cpp" />
     <ClCompile Include="ui\ui_conf.cpp" />
+    <ClCompile Include="ui\ui_conf_new.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_simple_script.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
@@ -313,6 +315,8 @@
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ui\internal\ui_ddx.h" />
+    <ClInclude Include="ui\internal\ui_ddx_option.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
     <ClInclude Include="ui\scintilla\ui_sci_editor.h" />
@@ -320,8 +324,11 @@
     <ClInclude Include="ui\scintilla\ui_sci_goto.h" />
     <ClInclude Include="ui\scintilla\wtlscintilla.h" />
     <ClInclude Include="ui\ui_conf.h" />
+    <ClInclude Include="ui\ui_conf_new.h" />
+    <ClInclude Include="ui\ui_conf_tab_simple_script.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
+    <ClInclude Include="ui\ui_itab.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
@@ -332,6 +339,7 @@
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />
+    <ClInclude Include="utils\option_wrap.h" />
     <ClInclude Include="utils\delayed_executor.h" />
     <ClInclude Include="utils\error_popup.h" />
     <ClInclude Include="utils\file_helpers.h" />

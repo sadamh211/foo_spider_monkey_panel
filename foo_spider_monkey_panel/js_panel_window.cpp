@@ -4,6 +4,7 @@
 
 #include <js_engine/js_container.h>
 #include <ui/ui_conf.h>
+#include <ui/ui_conf_new.h>
 #include <ui/ui_property.h>
 #include <utils/art_helpers.h>
 #include <utils/error_popup.h>
@@ -667,6 +668,11 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
         show_configure_popup( wnd_ );
         return 0;
     }
+    case InternalAsyncMessage::show_configure_v2:
+    {
+        ShowConfigureV2( hWnd_ );
+        return 0;
+    }
     case InternalAsyncMessage::show_properties:
     {
         show_property_popup( wnd_ );
@@ -703,6 +709,19 @@ void js_panel_window::show_property_popup( HWND parent )
 
     smp::ui::CDialogProperty dlg( this );
     (void)dlg.DoModal( parent );
+}
+
+bool js_panel_window::ShowConfigureV2( HWND parent )
+{
+    if ( !modal_dialog_scope::can_create() )
+    {
+        return false;
+    }
+
+    modal_dialog_scope scope( parent );
+
+    smp::ui::CDialogConfNew dlg( this );
+    return ( dlg.DoModal( parent ) == IDOK );
 }
 
 void js_panel_window::build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base )

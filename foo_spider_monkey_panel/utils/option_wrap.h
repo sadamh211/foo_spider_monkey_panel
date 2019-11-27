@@ -45,7 +45,11 @@ public:
 
 public:
     //template <std::enable_if_t<std::is_default_constructible_v<T>, int> = 0>
-    OptionWrap() = default;
+    OptionWrap()
+        : curValue_{}
+        , savedValue_{}
+    {
+    }
 
     OptionWrap( const value_type& value )
         : curValue_( value )

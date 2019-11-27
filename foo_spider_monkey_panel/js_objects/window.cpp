@@ -71,6 +71,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetProperty, JsWindow::SetProperty, JsWin
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsWindow::SetTimeout, JsWindow::SetTimeoutWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigureV2, JsWindow::ShowConfigureV2 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
@@ -95,6 +96,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
         JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
         JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
+        JS_FN( "ShowConfigureV2", ShowConfigureV2, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -637,6 +639,16 @@ void JsWindow::ShowProperties()
     }
 
     panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_properties ) );
+}
+
+void JsWindow::ShowConfigureV2()
+{
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
+    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_v2 ) );
 }
 
 uint32_t JsWindow::get_DlgCode()

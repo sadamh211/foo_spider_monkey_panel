@@ -44,6 +44,7 @@ protected:
 
     bool show_configure_popup( HWND parent );
     void show_property_popup( HWND parent );
+    bool ShowConfigureV2( HWND parent );
 
     static void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );
     void execute_context_menu_command( uint32_t id, uint32_t id_base );

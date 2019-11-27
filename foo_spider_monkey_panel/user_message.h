@@ -65,6 +65,7 @@ enum class InternalAsyncMessage : UINT
     refresh_bg,
     reload_script,
     show_configure,
+    show_configure_v2,
     show_properties,
     last_message = show_properties,
 };

@@ -48,9 +48,9 @@ void CDialogConfNew::Apply()
     }
 
     settings_.Apply();
-    pParent_->GetSettings() = settings_.GetSavedValue();
+    //pParent_->GetSettings() = settings_.GetSavedValue();
     OnDataChanged();
-    pParent_->update_script();
+    //pParent_->update_script();
 }
 
 void CDialogConfNew::Revert()

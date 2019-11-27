@@ -77,6 +77,7 @@ public: // methods
     uint32_t SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
     void ShowConfigure();
     void ShowProperties();
+    void ShowConfigureV2();
 
 public: // props
     uint32_t get_DlgCode();

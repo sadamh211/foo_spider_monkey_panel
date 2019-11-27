@@ -18,7 +18,6 @@ namespace smp::ui
 
 class CDialogConfNew
     : public CDialogImpl<CDialogConfNew>
-    , public CDialogResize<CDialogConfNew>
 {
 public:
     enum
@@ -29,6 +28,9 @@ public:
     BEGIN_MSG_MAP( CDialogConfNew )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_PARENTNOTIFY( OnParentNotify )
+        COMMAND_ID_HANDLER_EX( IDOK, OnCloseCmd )
+        COMMAND_ID_HANDLER_EX( IDCANCEL, OnCloseCmd )
+        COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()

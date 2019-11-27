@@ -26,10 +26,27 @@ public:
 
     BEGIN_MSG_MAP( ConfigTabSimpleScript )
         MSG_WM_INITDIALOG( OnInitDialog )
-        COMMAND_RANGE_CODE_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, BN_CLICKED, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_TEXTEDIT_SRC_PATH, EN_CHANGE, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, EN_CHANGE, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
         COMMAND_HANDLER_EX( IDC_BUTTON_SWITCH_MODE, BN_CLICKED, OnSwitchMode )
-        COMMAND_HANDLER_EX( IDC_RICHEDIT_SRC_PATH, EN_CHANGE, OnEditChange )
+        REFLECT_NOTIFICATIONS() 
     END_MSG_MAP()
+
+    struct SampleComboBoxElem
+    {
+        SampleComboBoxElem( std::wstring path, std::wstring displayedName )
+            : path( std::move( path ) )
+            , displayedName( std::move( displayedName ) )
+        {
+        }
+        std::wstring path;
+        std::wstring displayedName;
+    };
 
 public:
     ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
@@ -48,9 +65,14 @@ public:
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnSwitchMode( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnChanged();
+
+    void InitializeLocalOptions();
     void UpdateUiFromData();
+    void UpdateUiRadioButtons();
+    void InitializeSamplesComboBox();
 
 private:
     CDialogConfNew& parent_;
@@ -59,9 +81,12 @@ private:
 
     OptionWrap<int> payloadSwitchId_;
     OptionWrap<std::u8string> path_;
-    OptionWrap<std::u8string> sampleName_;
+    OptionWrap<int> sampleIdx_;
 
     std::array<std::unique_ptr<IUiDdxOption>, 3> ddxOpts_;
+
+    std::vector<SampleComboBoxElem> comboBoxData_;
+    CComboBox samplesComboBox_;
 };
 
 } // namespace smp::ui

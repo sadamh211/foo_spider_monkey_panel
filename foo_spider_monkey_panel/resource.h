@@ -54,7 +54,7 @@
 #define IDC_SLOWSCRIPT_SCRIPT_NAME      1071
 #define IDC_TAB_CONF                    1073
 #define IDC_COMBO_SRC_SAMPLE            1074
-#define IDC_RICHEDIT_SRC_PATH           1075
+#define IDC_TEXTEDIT_SRC_PATH           1075
 #define IDC_BUTTON_EDIT_SCRIPT          1076
 #define IDC_RADIO_SRC_SAMPLE            1077
 #define IDC_RADIO_SRC_FILE              1078

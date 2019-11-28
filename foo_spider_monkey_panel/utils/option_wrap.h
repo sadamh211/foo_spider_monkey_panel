@@ -44,7 +44,6 @@ public:
     using value_type = typename T;
 
 public:
-    //template <std::enable_if_t<std::is_default_constructible_v<T>, int> = 0>
     OptionWrap()
         : curValue_{}
         , savedValue_{}
@@ -52,9 +51,13 @@ public:
     }
 
     OptionWrap( const value_type& value )
-        : curValue_( value )
-        , savedValue_( value )
     {
+        InitializeValue( value );
+    }
+
+    OptionWrap( const value_type& savedValue, const value_type& currentValue )
+    {
+        InitializeValue( curValue_, savedValue_ );
     }
 
     OptionWrap( const OptionWrap& ) = delete;
@@ -82,9 +85,24 @@ public:
 
     void InitializeValue( const value_type& value )
     {
-        curValue_ = value;
         savedValue_ = value;
+        curValue_ = value;
         hasChanged_ = false;
+    }
+
+    void InitializeValue( const value_type& savedValue, const value_type& currentValue )
+    {
+        if constexpr ( smp::internal::isComparableV<value_type> )
+        {
+            hasChanged_ = ( savedValue != currentValue );
+        }
+        else
+        {
+            hasChanged_ = true;
+        }
+
+        savedValue_ = savedValue;
+        curValue_ = currentValue;
     }
 
     void SetValue( const value_type& value, bool dontCheck = false )
@@ -190,6 +208,28 @@ public:
     }
 
     // < IOptionWrap
+
+    void InitializeValue( const value_type& value )
+    {
+        optionWrap_.hasChanged_ = false;
+        fn_( optionWrap_.savedValue_ ) = value;
+        fn_( optionWrap_.curValue_ ) = value;
+    }
+
+    void InitializeValue( const value_type& savedValue, const value_type& currentValue )
+    {
+        if constexpr ( smp::internal::isComparableV<value_type> )
+        {
+            optionWrap_.hasChanged_ = ( savedValue != currentValue );
+        }
+        else
+        {
+            optionWrap_.hasChanged_ = true;
+        }
+
+        fn_( optionWrap_.savedValue_ ) = savedValue;
+        fn_( optionWrap_.curValue_ ) = currentValue;
+    }
 
     void SetValue( const value_type& value )
     {

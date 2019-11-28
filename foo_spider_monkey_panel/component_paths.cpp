@@ -23,6 +23,7 @@ namespace smp
 std::u8string get_fb2k_component_path()
 {
     pfc::string8_fast tmp;
+    // TODO: add error handling for core_api::get_my_instance()
     uGetModuleFileName( core_api::get_my_instance(), tmp );
 
     return StringFromDirPath( fs::u8path( tmp.c_str() ).parent_path() );
@@ -31,6 +32,7 @@ std::u8string get_fb2k_component_path()
 std::u8string get_fb2k_path()
 {
     pfc::string8_fast tmp;
+    // TODO: add error handling
     uGetModuleFileName( nullptr, tmp );
 
     return StringFromDirPath( fs::u8path( tmp.c_str() ).parent_path() );

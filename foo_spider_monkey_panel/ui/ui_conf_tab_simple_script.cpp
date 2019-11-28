@@ -118,7 +118,7 @@ std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
 
     std::vector<ConfigTabSimpleScript::SampleComboBoxElem> elems;
 
-    for ( const auto& subdir: { "basic", "complete", "jsplaylist-mod", "js-smooth" } )
+    for ( const auto& subdir: { "complete", "jsplaylist-mod", "js-smooth", "basic" } )
     {
         for ( const auto& filepath: GetFilesInDirectoryRecursive( sampleFolderPath / subdir ) )
         {
@@ -137,6 +137,8 @@ std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
 namespace smp::ui
 {
 
+std::vector<ConfigTabSimpleScript::SampleComboBoxElem> ConfigTabSimpleScript::sampleData_;
+
 ConfigTabSimpleScript::ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
     : parent_( parent )
     , settings_( settings )
@@ -153,6 +155,10 @@ ConfigTabSimpleScript::ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap
                                                } ),
       } )
 {
+    if ( sampleData_.empty() )
+    {// can't initialize it during global initialization
+        sampleData_ = GetSampleFileData();
+    }
 }
 
 HWND ConfigTabSimpleScript::CreateTab( HWND hParent )
@@ -203,6 +209,7 @@ void ConfigTabSimpleScript::Apply()
     {
         ddxOpt->Option().Apply();
     }
+    payload_.Apply();
 }
 
 void ConfigTabSimpleScript::Revert()
@@ -211,6 +218,7 @@ void ConfigTabSimpleScript::Revert()
     {
         ddxOpt->Option().Revert();
     }
+    payload_.Revert();
 
     InitializeLocalOptions();
     UpdateUiFromData();
@@ -231,7 +239,7 @@ BOOL ConfigTabSimpleScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 }
 
 void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
- {
+{
     auto it = ranges::find_if( ddxOpts_, [nID]( auto& ddxOpt ) {
         return ddxOpt->Ddx().IsMatchingId( nID );
     } );
@@ -251,19 +259,19 @@ void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wnd
         {
         case IDC_RADIO_SRC_SAMPLE:
         {
-            payload_ = ( comboBoxData_.empty()
+            payload_ = ( sampleData_.empty()
                              ? config::PanelSettings_Sample{}
-                             : config::PanelSettings_Sample{ smp::unicode::ToU8( comboBoxData_[sampleIdx_.GetCurrentValue()].displayedName ) } );
-            break;
-        }
-        case IDC_RADIO_SRC_MEMORY:
-        {
-            payload_ = config::PanelSettings_InMemory{};
+                             : config::PanelSettings_Sample{ smp::unicode::ToU8( sampleData_[sampleIdx_.GetCurrentValue()].displayedName ) } );
             break;
         }
         case IDC_RADIO_SRC_FILE:
         {
             payload_ = config::PanelSettings_File{ path_ };
+            break;
+        }
+        case IDC_RADIO_SRC_MEMORY:
+        {
+            payload_ = config::PanelSettings_InMemory{};
             break;
         }
         default:
@@ -273,7 +281,7 @@ void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wnd
         }
         }
 
-        UpdateUiRadioButtons();
+        UpdateUiRadioButtonData();
         break;
     }
     case IDC_TEXTEDIT_SRC_PATH:
@@ -288,9 +296,9 @@ void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wnd
     {
         if ( std::holds_alternative<config::PanelSettings_Sample>( payload_.GetCurrentValue() ) )
         {
-            payload_ = ( comboBoxData_.empty()
+            payload_ = ( sampleData_.empty()
                              ? config::PanelSettings_Sample{}
-                             : config::PanelSettings_Sample{ smp::unicode::ToU8( comboBoxData_[sampleIdx_.GetCurrentValue()].displayedName ) } );
+                             : config::PanelSettings_Sample{ smp::unicode::ToU8( sampleData_[sampleIdx_.GetCurrentValue()].displayedName ) } );
         }
         break;
     }
@@ -319,7 +327,7 @@ void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wnd
             // TODO: display warning about editing sample
 
             ExecuteApp( L"C:\\Program Files\\Notepad++\\notepad++.exe",
-                        comboBoxData_[sampleIdx_.GetCurrentValue()].path );
+                        sampleData_[sampleIdx_.GetCurrentValue()].path );
 
             break;
         }
@@ -356,10 +364,6 @@ void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wnd
     }
 }
 
-void ConfigTabSimpleScript::OnSwitchMode( UINT uNotifyCode, int nID, CWindow wndCtl )
-{
-}
-
 void ConfigTabSimpleScript::OnChanged()
 {
     parent_.OnDataChanged();
@@ -367,71 +371,125 @@ void ConfigTabSimpleScript::OnChanged()
 
 void ConfigTabSimpleScript::InitializeLocalOptions()
 {
-    // Set saved value
-    std::visit( [&]( const auto& data ) {
-        using T = std::decay_t<decltype( data )>;
-        if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-        {
-            payloadSwitchId_.InitializeValue( IDC_RADIO_SRC_MEMORY );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
-        {
-            payloadSwitchId_.InitializeValue( IDC_RADIO_SRC_FILE );
-            path_.InitializeValue( data.path );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
-        {
-            payloadSwitchId_.InitializeValue( IDC_RADIO_SRC_SAMPLE );
+    bool resetSettingsSoft = false;
+    bool resetSettingsHard = false;
 
-            const auto it = ranges::find_if( comboBoxData_, [sampleName = smp::unicode::ToWide(data.sampleName)]( const auto& elem ) {
-                return ( sampleName == elem.displayedName );
-            } );
+    const auto getSwitchIdFromVariant = [&]( const auto& vrt ) {
+        return std::visit( [&]( const auto& data ) {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                return IDC_RADIO_SRC_MEMORY;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
+            {
+                return IDC_RADIO_SRC_FILE;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
+            {
+                return IDC_RADIO_SRC_SAMPLE;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                assert( false );
+                if ( !resetSettingsHard )
+                {
+                    smp::utils::ReportErrorWithPopup( "Internal error: package type in simple type panel" );
+                    resetSettingsHard = true;
+                }
+                return IDC_RADIO_SRC_SAMPLE;
+            }
+            else
+            {
+                static_assert( false, "non-exhaustive visitor!" );
+            }
+        },
+                           vrt );
+    };
 
-            sampleIdx_.InitializeValue( it == comboBoxData_.cend() ? 0 : ranges::distance( comboBoxData_.cbegin(), it ) );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-        { // TODO: remove
-            payloadSwitchId_.InitializeValue( IDC_RADIO_SRC_MEMORY );
-        }
-        else
-        {
-            static_assert( false, "non-exhaustive visitor!" );
-        }
-    },
-                payload_.GetSavedValue() );
+    const auto getPathFromVariant = [&]( const auto& vrt ) {
+        return std::visit( [&]( const auto& data ) {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
+            {
+                return data.path;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> || std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                return std::u8string{};
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                assert( false );
+                if ( !resetSettingsHard )
+                {
+                    smp::utils::ReportErrorWithPopup( "Internal error: package type in simple type panel" );
+                    resetSettingsHard = true;
+                }
+                return std::u8string{};
+            }
+            else
+            {
+                static_assert( false, "non-exhaustive visitor!" );
+            }
+        },
+                           vrt );
+    };
 
-    // Set current value
-    std::visit( [&]( const auto& data ) {
-        using T = std::decay_t<decltype( data )>;
-        if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-        {
-            payloadSwitchId_ = IDC_RADIO_SRC_MEMORY;
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
-        {
-            payloadSwitchId_ = IDC_RADIO_SRC_FILE;
-            path_ = data.path;
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
-        {
-            payloadSwitchId_ = IDC_RADIO_SRC_SAMPLE;
+    const auto getSampleIdxFromVariant = [&]( const auto& vrt ) {
+        return std::visit( [&]( const auto& data ) {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
+            {
+                const auto it = ranges::find_if( sampleData_, [sampleName = smp::unicode::ToWide( data.sampleName )]( const auto& elem ) {
+                    return ( sampleName == elem.displayedName );
+                } );
 
-            const auto it = ranges::find_if( comboBoxData_, [sampleName = smp::unicode::ToWide( data.sampleName )]( const auto& elem ) {
-                return ( sampleName == elem.displayedName );
-            } );
+                if ( !data.sampleName.empty() && it == sampleData_.cend() && !resetSettingsSoft )
+                {
+                    smp::utils::ReportErrorWithPopup( fmt::format( "Can't find sample `{}`. Your settings will be reset.", data.sampleName ) );
+                    resetSettingsSoft = true;
+                    return 0;
+                }
+                else
+                {
+                    assert( it != sampleData_.cend() );
+                    return ranges::distance( sampleData_.cbegin(), it );
+                }
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> || std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                return 0;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                assert( false );
+                if ( !resetSettingsHard )
+                {
+                    smp::utils::ReportErrorWithPopup( "Internal error: package type in simple type panel" );
+                    resetSettingsHard = true;
+                }
+                return 0;
+            }
+            else
+            {
+                static_assert( false, "non-exhaustive visitor!" );
+            }
+        },
+                           vrt );
+    };
 
-            sampleIdx_ = ( it == comboBoxData_.cend() ? 0 : ranges::distance( comboBoxData_.cbegin(), it ) );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-        { // TODO: remove
-            payloadSwitchId_ = IDC_RADIO_SRC_MEMORY;
-        }
-        else
-        {
-            static_assert( false, "non-exhaustive visitor!" );
-        }
-    },
-                payload_.GetCurrentValue() );
+    payloadSwitchId_.InitializeValue( getSwitchIdFromVariant( payload_.GetSavedValue() ), getSwitchIdFromVariant( payload_.GetCurrentValue() ) );
+    path_.InitializeValue( getPathFromVariant( payload_.GetSavedValue() ), getPathFromVariant( payload_.GetCurrentValue() ) );
+    sampleIdx_.InitializeValue( getSampleIdxFromVariant( payload_.GetSavedValue() ), getSampleIdxFromVariant( payload_.GetCurrentValue() ) );
+    if ( resetSettingsHard )
+    {
+        payload_.InitializeValue( smp::config::PanelSettings_InMemory{} );
+    }
+    else if ( resetSettingsSoft )
+    {
+        payload_ = smp::config::PanelSettings_InMemory{};
+    }
 }
 
 void ConfigTabSimpleScript::UpdateUiFromData()
@@ -445,10 +503,10 @@ void ConfigTabSimpleScript::UpdateUiFromData()
     {
         ddxOpt->Ddx().WriteToUi();
     }
-    UpdateUiRadioButtons();
+    UpdateUiRadioButtonData();
 }
 
-void ConfigTabSimpleScript::UpdateUiRadioButtons()
+void ConfigTabSimpleScript::UpdateUiRadioButtonData()
 {
     if ( !this->m_hWnd )
     {
@@ -486,15 +544,11 @@ void ConfigTabSimpleScript::UpdateUiRadioButtons()
 void ConfigTabSimpleScript::InitializeSamplesComboBox()
 {
     samplesComboBox_ = GetDlgItem( IDC_COMBO_SRC_SAMPLE );
-    comboBoxData_ = GetSampleFileData();
 
-    size_t i = 0;
-    // TODO: zip
-    for ( const auto& [path, name]: comboBoxData_ )
+    for ( auto&& [i, elem]: ranges::view::enumerate( sampleData_ ) )
     {
-        samplesComboBox_.AddString( name.c_str() );
-        samplesComboBox_.SetItemDataPtr( i, (void*)path.c_str() );
-        i++;
+        samplesComboBox_.AddString( elem.displayedName.c_str() );
+        samplesComboBox_.SetItemDataPtr( i, (void*)elem.path.c_str() );
     }
 }
 

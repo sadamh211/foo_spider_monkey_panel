@@ -33,8 +33,7 @@ public:
         COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, EN_CHANGE, OnEditChange )
         COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnEditChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
-        COMMAND_HANDLER_EX( IDC_BUTTON_SWITCH_MODE, BN_CLICKED, OnSwitchMode )
-        REFLECT_NOTIFICATIONS() 
+        
     END_MSG_MAP()
 
     struct SampleComboBoxElem
@@ -66,12 +65,11 @@ private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
-    void OnSwitchMode( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnChanged();
 
     void InitializeLocalOptions();
     void UpdateUiFromData();
-    void UpdateUiRadioButtons();
+    void UpdateUiRadioButtonData();
     void InitializeSamplesComboBox();
 
 private:
@@ -85,7 +83,7 @@ private:
 
     std::array<std::unique_ptr<IUiDdxOption>, 3> ddxOpts_;
 
-    std::vector<SampleComboBoxElem> comboBoxData_;
+    static std::vector<SampleComboBoxElem> sampleData_;
     CComboBox samplesComboBox_;
 };
 

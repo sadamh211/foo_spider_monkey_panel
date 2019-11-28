@@ -191,6 +191,7 @@
     <ClCompile Include="ui\scintilla\ui_sci_goto.cpp" />
     <ClCompile Include="ui\ui_conf.cpp" />
     <ClCompile Include="ui\ui_conf_new.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
     <ClCompile Include="ui\ui_conf_tab_simple_script.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
@@ -325,6 +326,7 @@
     <ClInclude Include="ui\scintilla\wtlscintilla.h" />
     <ClInclude Include="ui\ui_conf.h" />
     <ClInclude Include="ui\ui_conf_new.h" />
+    <ClInclude Include="ui\ui_conf_tab_appearance.h" />
     <ClInclude Include="ui\ui_conf_tab_simple_script.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />

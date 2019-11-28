@@ -31,6 +31,7 @@ public:
         COMMAND_ID_HANDLER_EX( IDOK, OnCloseCmd )
         COMMAND_ID_HANDLER_EX( IDCANCEL, OnCloseCmd )
         COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
+        COMMAND_HANDLER_EX( IDC_BUTTON_SWITCH_MODE, BN_CLICKED, OnSwitchMode )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()
@@ -44,6 +45,7 @@ public:
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
+    void OnSwitchMode( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnParentNotify( UINT message, UINT nChildID, LPARAM lParam );
     LRESULT OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled );
     LRESULT OnSelectionChanged( LPNMHDR pNmhdr );

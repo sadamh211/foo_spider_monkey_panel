@@ -2,6 +2,7 @@
 
 #include "ui_conf_new.h"
 
+#include <ui/ui_conf_tab_appearance.h>
 #include <ui/ui_conf_tab_simple_script.h>
 
 #include <js_panel_window.h>
@@ -18,10 +19,11 @@ namespace smp::ui
 
 CDialogConfNew::CDialogConfNew( smp::panel::js_panel_window* pParent )
     : pParent_( pParent )
-    , caption_( "azaza" )
+    , caption_( "Panel Configuration" )
     , settings_( pParent->GetSettings() )
 {
     tabs_.emplace_back( std::make_unique<ConfigTabSimpleScript>( *this, settings_ ) );
+    tabs_.emplace_back( std::make_unique<ConfigTabAppearance>( *this, settings_ ) );
 }
 
 void CDialogConfNew::OnDataChanged()
@@ -132,6 +134,10 @@ LRESULT CDialogConfNew::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     }
 
     return 0;
+}
+
+void CDialogConfNew::OnSwitchMode( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
 }
 
 void CDialogConfNew::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam )

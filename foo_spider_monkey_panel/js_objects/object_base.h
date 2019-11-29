@@ -97,6 +97,9 @@ namespace mozjs
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 */
 
+// TODO: move T::traits to a separate template parameter, since current implemention is not actually C++ conformant and might be broken by MSVC in the future (https://godbolt.org/z/yCmVTQ)
+// TODO: consider replacing 'template <typename = std::enable_if_t<>>' with 'template <std::enable_if_t<..., int> = 0>' as recommended by MS
+
 template <typename T>
 class JsObjectBase
 {

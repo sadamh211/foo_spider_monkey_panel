@@ -10,6 +10,9 @@ namespace smp::utils
 /// @brief This is used for executing tasks that need fully initialized fb2k to function properly.
 ///        For example, `popup_message::g_show`, which is invoked during panel creation
 ///        (panels are created before `initquit::on_init` is called).
+/// 
+/// @remark The main difference from the `fb2k::inMainThread` is that this class does not delay invocation,
+///         if called after the initialization is complete.
 class DelayedExecutor
 {
 private:

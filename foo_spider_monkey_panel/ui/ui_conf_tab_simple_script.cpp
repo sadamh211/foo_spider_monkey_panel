@@ -25,6 +25,7 @@ void ExecuteApp( const std::wstring& app, const std::wstring& params, bool shoul
 {
     if ( shouldWait )
     {
+        // TODO: replace with proper emulation (+ FlashWindowEx + SetFocus), since brute blocking makes horrible UX
         SHELLEXECUTEINFO ShExecInfo{};
         ShExecInfo.cbSize = sizeof( SHELLEXECUTEINFO );
         ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;

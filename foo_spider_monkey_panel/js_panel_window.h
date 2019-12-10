@@ -69,7 +69,10 @@ public:
     [[nodiscard]] int GetHeight() const;
     [[nodiscard]] int GetWidth() const;
     [[nodiscard]] PanelTooltipParam& GetPanelTooltipParam();
+    [[nodiscard]] config::PanelSettings& GetSettings();
+    [[nodiscard]] const config::PanelSettings& GetSettings() const;
     [[nodiscard]] PanelInfo& ScriptInfo();
+    [[nodiscard]] bool& ShouldGrabFocus();
 
     [[nodiscard]] t_size& DlgCode();
     [[nodiscard]] PanelType GetPanelType() const;
@@ -80,9 +83,6 @@ public:
     void RepaintRect( const CRect& rc, bool force = false );
     /// @details Calls Repaint inside
     void RepaintBackground( const CRect& updateRc );
-
-    [[nodiscard]] config::PanelSettings& GetSettings();
-    [[nodiscard]] const config::PanelSettings& GetSettings() const;
 
 private:
     const PanelType panelType_;

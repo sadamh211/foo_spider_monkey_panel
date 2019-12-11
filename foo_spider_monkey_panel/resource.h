@@ -18,6 +18,7 @@
 #define IDD_REPLACEDLGORD_WITH_REGEXP   118
 #define IDD_DIALOG_CONF                 119
 #define IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT 120
+#define IDD_DIALOG_EDIT_IN_PROGRESS     121
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_DEL                         1010
@@ -65,6 +66,7 @@
 #define IDC_RADIO_EDGE_SUNKEN           1082
 #define IDC_RADIO_EDGE_GREY             1083
 #define IDC_CHECK_PSEUDOTRANSPARENT     1084
+#define IDC_EDIT_IN_PROGRESS_FOCUS      1085
 #define ID_FILE_IMPORT                  40014
 #define ID_FILE_EXPORT                  40015
 #define ID_EDIT_RESETTODEFAULT          40016
@@ -78,9 +80,9 @@
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
+#define _APS_NEXT_RESOURCE_VALUE        124
 #define _APS_NEXT_COMMAND_VALUE         40024
-#define _APS_NEXT_CONTROL_VALUE         1085
+#define _APS_NEXT_CONTROL_VALUE         1086
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

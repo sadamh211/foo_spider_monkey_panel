@@ -193,6 +193,7 @@
     <ClCompile Include="ui\ui_conf_new.cpp" />
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
     <ClCompile Include="ui\ui_conf_tab_simple_script.cpp" />
+    <ClCompile Include="ui\ui_edit_in_progress.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
       <MultiProcessorCompilation>false</MultiProcessorCompilation>
     </ClCompile>
@@ -204,6 +205,7 @@
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
     <ClCompile Include="utils\delayed_executor.cpp" />
+    <ClCompile Include="utils\edit_text.cpp" />
     <ClCompile Include="utils\error_popup.cpp" />
     <ClCompile Include="utils\file_helpers.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
@@ -328,6 +330,7 @@
     <ClInclude Include="ui\ui_conf_new.h" />
     <ClInclude Include="ui\ui_conf_tab_appearance.h" />
     <ClInclude Include="ui\ui_conf_tab_simple_script.h" />
+    <ClInclude Include="ui\ui_edit_in_progress.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_itab.h" />
@@ -341,6 +344,7 @@
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />
+    <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\option_wrap.h" />
     <ClInclude Include="utils\delayed_executor.h" />
     <ClInclude Include="utils\error_popup.h" />

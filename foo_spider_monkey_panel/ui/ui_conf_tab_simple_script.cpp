@@ -3,6 +3,7 @@
 #include "ui_conf_tab_simple_script.h"
 
 #include <ui/ui_conf_new.h>
+#include <utils/edit_text.h>
 #include <utils/error_popup.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
@@ -17,86 +18,6 @@ namespace
 
 using namespace smp;
 using namespace smp::ui;
-
-// TODO: move
-
-/// @throw smp::SmpException
-void ExecuteApp( const std::wstring& app, const std::wstring& params, bool shouldWait = false )
-{
-    if ( shouldWait )
-    {
-        // TODO: replace with proper emulation (+ FlashWindowEx + SetFocus), since brute blocking makes horrible UX
-        SHELLEXECUTEINFO ShExecInfo{};
-        ShExecInfo.cbSize = sizeof( SHELLEXECUTEINFO );
-        ShExecInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-        ShExecInfo.lpFile = app.c_str();
-        ShExecInfo.lpParameters = params.c_str();
-        ShExecInfo.nShow = SW_SHOW;
-
-        BOOL bRet = ShellExecuteEx( &ShExecInfo );
-        smp::error::CheckWinApi( bRet, "ShellExecuteEx" );
-
-        WaitForSingleObject( ShExecInfo.hProcess, INFINITE );
-        CloseHandle( ShExecInfo.hProcess );
-    }
-    else
-    {
-        const auto hInstance = ShellExecute( nullptr,
-                                             L"open",
-                                             app.c_str(),
-                                             params.c_str(),
-                                             nullptr,
-                                             SW_SHOW );
-        smp::error::CheckWinApi( hInstance, "ShellExecute" );
-    }
-}
-
-/// @throw smp::SmpException
-void EditAsTmpFile( const std::wstring& app, std::u8string& data )
-{
-    namespace fs = std::filesystem;
-
-    std::wstring path;
-    path.resize( MAX_PATH + 1 );
-
-    DWORD dwRet = GetTempPath( path.size() - 1,
-                               path.data() );
-    smp::error::CheckWinApi( dwRet && dwRet <= MAX_PATH, "GetTempPath" );
-
-    std::wstring filename;
-    filename.resize( MAX_PATH + 1 );
-    UINT uRet = GetTempFileName( path.c_str(),
-                                 L"smp",
-                                 0,
-                                 filename.data() ); // buffer for name
-    smp::error::CheckWinApi( uRet, "GetTempFileName" );
-
-    fs::path fsPath( path );
-    fsPath /= filename;
-
-    if ( !smp::file::WriteFile( fsPath.wstring().c_str(), data ) )
-    {
-        throw SmpException( fmt::format( "Failed to create temporary file: {}", fsPath.u8string() ) );
-    }
-    const smp::utils::final_action autoRemove( [&fsPath] { fs::remove( fsPath ); } );
-
-    std::wstring params;
-    if ( std::wstring::npos != app.find( L"notepad++.exe" ) )
-    {
-        params += L"-multiInst -notabbar -nosession -noPlugin ";
-    }
-    else if ( std::wstring::npos != app.find( L"Code.exe" )
-              || std::wstring::npos != app.find( L"subl.exe" ) )
-    {
-        params += L"--new-window --wait ";
-    }
-
-    params += fsPath.wstring();
-
-    ExecuteApp( app, params, true );
-
-    data = smp::file::ReadFile( fsPath.u8string(), CP_UTF8 );
-}
 
 std::vector<std::filesystem::path> GetFilesInDirectoryRecursive( const std::filesystem::path& dirPath )
 {
@@ -157,7 +78,7 @@ ConfigTabSimpleScript::ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap
       } )
 {
     if ( sampleData_.empty() )
-    {// can't initialize it during global initialization
+    { // can't initialize it during global initialization
         sampleData_ = GetSampleFileData();
     }
 }
@@ -314,9 +235,7 @@ void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wnd
 
 void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    namespace fs = std::filesystem;
-
-    // TODO: extract editor code + add ability to chose editor + detect default editors like Notepad++, VSCode, Sublime, maybe IntelliJ
+    // TODO: add ability to chose editor + detect default editors like Notepad++, VSCode, Sublime, maybe IntelliJ
     // https://github.com/desktop/desktop/blob/development/app/src/lib/editors/win32.ts
 
     try
@@ -327,25 +246,20 @@ void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wnd
         {
             // TODO: display warning about editing sample
 
-            ExecuteApp( L"C:\\Program Files\\Notepad++\\notepad++.exe",
-                        sampleData_[sampleIdx_.GetCurrentValue()].path );
+            smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", sampleData_[sampleIdx_.GetCurrentValue()].path );
 
             break;
         }
         case IDC_RADIO_SRC_FILE:
         {
-            ExecuteApp( L"C:\\Program Files\\Notepad++\\notepad++.exe",
-                        fs::u8path( path_.GetCurrentValue() ).lexically_normal().wstring() );
+            smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", std::filesystem::u8path( path_.GetCurrentValue() ) );
             break;
         }
         case IDC_RADIO_SRC_MEMORY:
         {
-            // TODO: display warning about blocking (+ "dont remind me again")
-
             auto script = std::get<config::PanelSettings_InMemory>( payload_.GetCurrentValue() ).script;
-            EditAsTmpFile( L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
+            smp::EditTextExternal( *this, L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
             payload_ = config::PanelSettings_InMemory{ script };
-
             break;
         }
         default:
@@ -355,7 +269,7 @@ void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wnd
         }
         }
     }
-    catch ( const fs::filesystem_error& e )
+    catch ( const std::filesystem::filesystem_error& e )
     {
         smp::utils::ReportErrorWithPopup( e.what() );
     }

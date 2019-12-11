@@ -265,6 +265,7 @@ T ReadFileImpl( const std::u8string& path, UINT codepage, bool checkFileExistens
 namespace smp::file
 {
 
+    // TODO: replace `std::u8string` with `std::filesystem::path`
 std::u8string ReadFile( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
     return ReadFileImpl<std::u8string>( path, codepage, checkFileExistense );

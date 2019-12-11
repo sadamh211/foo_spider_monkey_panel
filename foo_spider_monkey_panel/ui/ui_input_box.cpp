@@ -5,7 +5,7 @@
 namespace smp::ui
 {
 
-CInputBox::CInputBox( const char* p_prompt, const char* p_caption, const char* p_value )
+CInputBox::CInputBox( const std::u8string& p_prompt, const std::u8string& p_caption, const std::u8string& p_value )
     : m_prompt( p_prompt )
     , m_caption( p_caption )
     , m_value( p_value )

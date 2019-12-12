@@ -230,7 +230,7 @@ void CConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wn
     }
     }
 
-    OnChanged();
+    parent_.OnDataChanged();
 }
 
 void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -260,6 +260,7 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
             auto script = std::get<config::PanelSettings_InMemory>( payload_.GetCurrentValue() ).script;
             smp::EditTextExternal( *this, L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
             payload_ = config::PanelSettings_InMemory{ script };
+            parent_.OnDataChanged();
             break;
         }
         default:
@@ -277,11 +278,6 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
     {
         smp::utils::ReportErrorWithPopup( e.what() );
     }
-}
-
-void CConfigTabSimpleScript::OnChanged()
-{
-    parent_.OnDataChanged();
 }
 
 void CConfigTabSimpleScript::InitializeLocalOptions()

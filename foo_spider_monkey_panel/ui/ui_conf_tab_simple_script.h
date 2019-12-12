@@ -64,7 +64,6 @@ private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
-    void OnChanged();
 
     void InitializeLocalOptions();
     void UpdateUiFromData();

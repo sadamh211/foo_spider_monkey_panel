@@ -2,6 +2,7 @@
 
 #include "ui_property.h"
 
+#include <ui/ui_conf_new.h>
 #include <utils/array_x.h>
 #include <utils/error_popup.h>
 #include <utils/file_helpers.h>
@@ -19,120 +20,51 @@ namespace fs = std::filesystem;
 namespace smp::ui
 {
 
-CDialogProperty::CDialogProperty( smp::panel::js_panel_window* p_parent )
-    : parentPanel_( p_parent )
+CConfigTabProperties::CConfigTabProperties( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
+    : parent_( parent )
+    , properties_(
+          settings, []( auto& value ) -> auto& { return value.properties; } )
 {
 }
 
-LRESULT CDialogProperty::OnInitDialog( HWND, LPARAM )
+HWND CConfigTabProperties::CreateTab( HWND hParent )
 {
-    DlgResize_Init();
-
-    // Subclassing
-    propertyListCtrl_.SubclassWindow( GetDlgItem( IDC_LIST_PROPERTIES ) );
-    propertyListCtrl_.ModifyStyle( 0, LBS_SORT | LBS_HASSTRINGS );
-    propertyListCtrl_.SetExtendedListStyle( PLS_EX_SORTED | PLS_EX_XPLOOK );
-
-    LoadProperties();
-
-    return TRUE; // set focus to default control
+    return Create( hParent );
 }
 
-LRESULT CDialogProperty::OnCloseCmd( WORD, WORD wID, HWND )
+ATL::CDialogImplBase& CConfigTabProperties::Dialog()
 {
-    switch ( wID )
-    {
-    case IDAPPLY:
-        Apply();
-        return 0;
-    case IDOK:
-        Apply();
-        EndDialog( wID );
-        return 0;
-    default:
-        EndDialog( wID );
-        return 0;
-    }
+    return *this;
 }
 
-LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
+const wchar_t* CConfigTabProperties::Name() const
 {
-    auto pnpi = reinterpret_cast<LPNMPROPERTYITEM>( pnmh );
-
-    auto& localPropertyValues = localProperties_.values;
-    if ( auto it = localPropertyValues.find( pnpi->prop->GetName() );
-         it != localPropertyValues.end() )
-    {
-        auto& val = *( it->second );
-        _variant_t var;
-
-        if ( pnpi->prop->GetValue( &var ) )
-        {
-            std::visit( [&var]( auto& arg ) {
-                using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, bool> )
-                {
-                    var.ChangeType( VT_BOOL );
-                    arg = static_cast<bool>( var.boolVal );
-                }
-                else if constexpr ( std::is_same_v<T, int32_t> )
-                {
-                    var.ChangeType( VT_I4 );
-                    arg = static_cast<int32_t>( var.lVal );
-                }
-                else if constexpr ( std::is_same_v<T, double> )
-                {
-                    if ( VT_BSTR == var.vt )
-                    {
-                        arg = std::stod( var.bstrVal );
-                    }
-                    else
-                    {
-                        var.ChangeType( VT_R8 );
-                        arg = var.dblVal;
-                    }
-                }
-                else if constexpr ( std::is_same_v<T, std::u8string> )
-                {
-                    var.ChangeType( VT_BSTR );
-                    arg = smp::unicode::ToU8( std::wstring_view{ var.bstrVal ? var.bstrVal : L"" } );
-                }
-                else
-                {
-                    static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
-                }
-            },
-                        val );
-        }
-    }
-
-    return 0;
+    return L"Properties";
 }
 
-LRESULT CDialogProperty::OnClearallBnClicked( WORD, WORD, HWND )
+bool CConfigTabProperties::ValidateState()
 {
-    localProperties_.values.clear();
-    propertyListCtrl_.ResetContent();
-
-    return 0;
+    return true;
 }
 
-void CDialogProperty::Apply()
+bool CConfigTabProperties::HasChanged()
 {
-    // Copy back
-    parentPanel_->GetSettings().properties = localProperties_;
-    parentPanel_->update_script();
-    LoadProperties();
+    return properties_.HasChanged();
 }
 
-void CDialogProperty::LoadProperties( bool reload )
+void CConfigTabProperties::Apply()
+{
+    properties_.Apply();
+}
+
+void CConfigTabProperties::Revert()
+{
+    properties_.Revert();
+}
+
+void CConfigTabProperties::UpdateUiFromData()
 {
     propertyListCtrl_.ResetContent();
-
-    if ( reload )
-    {
-        localProperties_ = parentPanel_->GetSettings().properties;
-    }
 
     struct LowerLexCmp
     { // lexicographical comparison but with lower cased chars
@@ -142,7 +74,7 @@ void CDialogProperty::LoadProperties( bool reload )
         }
     };
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
-    for ( const auto& [name, pSerializedValue]: localProperties_.values )
+    for ( const auto& [name, pSerializedValue]: properties_.GetCurrentValue().values )
     {
         HPROPERTY hProp = std::visit( [&name = name]( auto&& arg ) {
             using T = std::decay_t<decltype( arg )>;
@@ -183,7 +115,98 @@ void CDialogProperty::LoadProperties( bool reload )
     }
 }
 
-LRESULT CDialogProperty::OnDelBnClicked( WORD, WORD, HWND )
+LRESULT CConfigTabProperties::OnInitDialog( HWND, LPARAM )
+{
+    DlgResize_Init( false, false, WS_CHILD );
+
+    // Subclassing
+    propertyListCtrl_.SubclassWindow( GetDlgItem( IDC_LIST_PROPERTIES ) );
+    propertyListCtrl_.ModifyStyle( 0, LBS_SORT | LBS_HASSTRINGS );
+    propertyListCtrl_.SetExtendedListStyle( PLS_EX_SORTED | PLS_EX_XPLOOK );
+
+    UpdateUiFromData();
+
+    return TRUE; // set focus to default control
+}
+
+LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
+{
+    auto pnpi = (LPNMPROPERTYITEM)pnmh;
+
+    properties_.ModifyValue( [pnpi]( auto& props ) {
+        auto& propValues = props.values;
+
+        if ( auto it = propValues.find( pnpi->prop->GetName() );
+             it != propValues.end() )
+        {
+            auto& val = *( it->second );
+            _variant_t var;
+
+            if ( pnpi->prop->GetValue( &var ) )
+            {
+                return std::visit( [&var]( auto& arg ) {
+                    using T = std::decay_t<decltype( arg )>;
+                    const auto prevArgValue = arg;
+                    if constexpr ( std::is_same_v<T, bool> )
+                    {
+                        var.ChangeType( VT_BOOL );
+                        arg = static_cast<bool>( var.boolVal );
+                    }
+                    else if constexpr ( std::is_same_v<T, int32_t> )
+                    {
+                        var.ChangeType( VT_I4 );
+                        arg = static_cast<int32_t>( var.lVal );
+                    }
+                    else if constexpr ( std::is_same_v<T, double> )
+                    {
+                        if ( VT_BSTR == var.vt )
+                        {
+                            arg = std::stod( var.bstrVal );
+                        }
+                        else
+                        {
+                            var.ChangeType( VT_R8 );
+                            arg = var.dblVal;
+                        }
+                    }
+                    else if constexpr ( std::is_same_v<T, std::u8string> )
+                    {
+                        var.ChangeType( VT_BSTR );
+                        arg = smp::unicode::ToU8( var.bstrVal );
+                    }
+                    else
+                    {
+                        static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+                    }
+
+                    return ( prevArgValue == arg );
+                },
+                                   val );
+            }
+        }
+        
+        return false;
+    } );
+
+    parent_.OnDataChanged();
+
+    return 0;
+}
+
+LRESULT CConfigTabProperties::OnClearallBnClicked( WORD, WORD, HWND )
+{
+    properties_.ModifyValue( []( auto& props ) {
+        props.values.clear();
+        return true;
+    } );
+    propertyListCtrl_.ResetContent();
+
+    parent_.OnDataChanged();
+
+    return 0;
+}
+
+LRESULT CConfigTabProperties::OnDelBnClicked( WORD, WORD, HWND )
 {
     if ( int idx = propertyListCtrl_.GetCurSel();
          idx )
@@ -192,13 +215,18 @@ LRESULT CDialogProperty::OnDelBnClicked( WORD, WORD, HWND )
         std::wstring name = hproperty->GetName();
 
         propertyListCtrl_.DeleteItem( hproperty );
-        localProperties_.values.erase( name );
+        properties_.ModifyValue( [&name]( auto& props ) {
+            props.values.erase( name );
+            return true;
+        } );
     }
+
+    parent_.OnDataChanged();
 
     return 0;
 }
 
-LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
+LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
 {
     using namespace smp::config;
 
@@ -223,15 +251,15 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            localProperties_ = PanelProperties::FromJson( pfc_x::ReadRawString( *io, abort ) );
+            properties_ = PanelProperties::FromJson( pfc_x::ReadRawString( *io, abort ) );
         }
         else if ( extension == ".smp" )
         {
-            localProperties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Binary );
+            properties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Binary );
         }
         else if ( extension == ".wsp" )
         {
-            localProperties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Com );
+            properties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Com );
         }
         else
         { // let's brute-force it!
@@ -254,7 +282,7 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
             }
         }
 
-        LoadProperties( false );
+        UpdateUiFromData();
     }
     catch ( const SmpException& e )
     {
@@ -265,10 +293,12 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
         smp::utils::ReportErrorWithPopup( e.what() );
     }
 
+    parent_.OnDataChanged();
+
     return 0;
 }
 
-LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
+LRESULT CConfigTabProperties::OnExportBnClicked( WORD, WORD, HWND )
 {
     constexpr auto k_DialogExportExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
         {
@@ -289,7 +319,7 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
         file_ptr io;
         filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
 
-        pfc_x::WriteStringRaw( *io, abort, localProperties_.ToJson() );
+        pfc_x::WriteStringRaw( *io, abort, properties_.GetCurrentValue().ToJson() );
     }
     catch ( const pfc::exception& e )
     {

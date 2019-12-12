@@ -14,8 +14,8 @@ namespace smp::ui
 
 class CDialogConfNew;
 
-class ConfigTabSimpleScript
-    : public CDialogImpl<ConfigTabSimpleScript>
+class CConfigTabSimpleScript
+    : public CDialogImpl<CConfigTabSimpleScript>
     , public ITab
 {
 public:
@@ -24,7 +24,7 @@ public:
         IDD = IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT
     };
 
-    BEGIN_MSG_MAP( ConfigTabSimpleScript )
+    BEGIN_MSG_MAP( CConfigTabSimpleScript )
         MSG_WM_INITDIALOG( OnInitDialog )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, BN_CLICKED, OnEditChange )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnEditChange )
@@ -47,8 +47,8 @@ public:
     };
 
 public:
-    ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
-    ~ConfigTabSimpleScript() override = default;
+    CConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
+    ~CConfigTabSimpleScript() override = default;
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
@@ -73,7 +73,6 @@ private:
 
 private:
     CDialogConfNew& parent_;
-    OptionWrap<config::PanelSettings>& settings_;
     SuboptionWrap<OptionWrap<config::PanelSettings>, decltype( config::PanelSettings::payload )> payload_;
 
     OptionWrap<int> payloadSwitchId_;

@@ -37,7 +37,7 @@ template <typename T>
 class OptionWrap
     : public IOptionWrap
 {
-    template <typename OptionT, typename ValueT>
+    template <typename OptionT, typename ValueT, bool>
     friend class SuboptionWrap;
 
 public:
@@ -68,7 +68,7 @@ public:
         return *this;
     }
 
-    operator const value_type&() const
+    operator const value_type &() const
     {
         return GetCurrentValue();
     }
@@ -152,13 +152,14 @@ private:
     value_type curValue_;
 };
 
-template <typename OptionT, typename ValueT>
+template <typename OptionT, typename ValueT, bool UseComparison = true>
 class SuboptionWrap
     : public IOptionWrap
 {
 public:
     using value_type = typename ValueT;
     using AccessorFn = typename value_type& (*)( typename OptionT::value_type& );
+    static constexpr bool kCanUseComparison = UseComparison && smp::internal::isComparableV<value_type>;
 
     SuboptionWrap( OptionT& optionWrap, AccessorFn fn )
         : optionWrap_( optionWrap )
@@ -172,7 +173,7 @@ public:
         return *this;
     }
 
-    operator const value_type&() const
+    operator const value_type &() const
     {
         return GetCurrentValue();
     }
@@ -181,13 +182,20 @@ public:
 
     bool HasChanged() const override
     {
-        if constexpr ( smp::internal::isComparableV<value_type> )
+        if ( !optionWrap_.hasChanged_ )
         {
-            return ( fn_( optionWrap_.savedValue_ ) != fn_( optionWrap_.curValue_ ) );
+            return false;
         }
         else
         {
-            return true;
+            if constexpr ( smp::internal::isComparableV<value_type> )
+            {
+                return ( fn_( optionWrap_.savedValue_ ) != fn_( optionWrap_.curValue_ ) );
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 
@@ -218,7 +226,7 @@ public:
 
     void InitializeValue( const value_type& savedValue, const value_type& currentValue )
     {
-        if constexpr ( smp::internal::isComparableV<value_type> )
+        if constexpr ( kCanUseComparison )
         {
             optionWrap_.hasChanged_ = ( savedValue != currentValue );
         }
@@ -233,7 +241,7 @@ public:
 
     void SetValue( const value_type& value )
     {
-        if constexpr ( smp::internal::isComparableV<value_type> )
+        if constexpr ( kCanUseComparison )
         {
             optionWrap_.hasChanged_ = ( fn_( optionWrap_.savedValue_ ) != value );
         }
@@ -253,6 +261,12 @@ public:
     const value_type& GetCurrentValue() const
     {
         return fn_( optionWrap_.curValue_ );
+    }
+
+    template <typename F>
+    void ModifyValue( F modifierFn )
+    {
+        optionWrap_.hasChanged_ = modifierFn( fn_( optionWrap_.curValue_ ) );
     }
 
 private:

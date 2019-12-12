@@ -1,8 +1,8 @@
 #pragma once
 
 #include <config/panel_config.h>
-#include <utils/option_wrap.h>
 #include <ui/ui_itab.h>
+#include <utils/option_wrap.h>
 
 #include <resource.h>
 
@@ -20,6 +20,15 @@ class CDialogConfNew
     : public CDialogImpl<CDialogConfNew>
 {
 public:
+    enum class Tab : uint8_t
+    {
+        script,
+        appearance,
+        properties,
+        def = script
+    };
+
+public:
     enum
     {
         IDD = IDD_DIALOG_CONF
@@ -36,8 +45,7 @@ public:
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()
 
-public:
-    CDialogConfNew( smp::panel::js_panel_window* pParent );
+    CDialogConfNew( smp::panel::js_panel_window* pParent, CDialogConfNew::Tab tabId = CDialogConfNew::Tab::def );
     ~CDialogConfNew() override = default;
 
     void OnDataChanged();

@@ -46,7 +46,6 @@
 #define IDD_DIALOG_INPUT                1062
 #define IDC_INPUT_PROMPT                1063
 #define IDC_INPUT_VALUE                 1064
-#define IDD_DIALOG_CONF_TAB_SIMPLE_PROPS 1065
 #define IDD_DIALOG_CONF_TAB_APPEARANCE  1066
 #define IDC_IE                          1067
 #define IDC_SLOWSCRIPT_CONTINUE         1068

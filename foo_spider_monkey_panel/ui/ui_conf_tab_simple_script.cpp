@@ -7,6 +7,7 @@
 #include <utils/error_popup.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/type_traits_x.h>
 #include <utils/winapi_error_helpers.h>
 
 #include <component_paths.h>
@@ -32,13 +33,13 @@ std::vector<std::filesystem::path> GetFilesInDirectoryRecursive( const std::file
     return filepaths;
 }
 
-std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
+std::vector<CConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
 {
     namespace fs = std::filesystem;
 
     auto sampleFolderPath = fs::u8path( get_fb2k_component_path() ) / "samples";
 
-    std::vector<ConfigTabSimpleScript::SampleComboBoxElem> elems;
+    std::vector<CConfigTabSimpleScript::SampleComboBoxElem> elems;
 
     for ( const auto& subdir: { "complete", "jsplaylist-mod", "js-smooth", "basic" } )
     {
@@ -59,13 +60,12 @@ std::vector<ConfigTabSimpleScript::SampleComboBoxElem> GetSampleFileData()
 namespace smp::ui
 {
 
-std::vector<ConfigTabSimpleScript::SampleComboBoxElem> ConfigTabSimpleScript::sampleData_;
+std::vector<CConfigTabSimpleScript::SampleComboBoxElem> CConfigTabSimpleScript::sampleData_;
 
-ConfigTabSimpleScript::ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
+CConfigTabSimpleScript::CConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
     : parent_( parent )
-    , settings_( settings )
     , payload_(
-          settings_, []( auto& value ) -> auto& { return value.payload; } )
+          settings, []( auto& value ) -> auto& { return value.payload; } )
     , ddxOpts_( {
           CreateUiDdxOption<UiDdx_TextEdit>( path_, IDC_TEXTEDIT_SRC_PATH ),
           CreateUiDdxOption<UiDdx_ComboBox>( sampleIdx_, IDC_COMBO_SRC_SAMPLE ),
@@ -83,22 +83,22 @@ ConfigTabSimpleScript::ConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap
     }
 }
 
-HWND ConfigTabSimpleScript::CreateTab( HWND hParent )
+HWND CConfigTabSimpleScript::CreateTab( HWND hParent )
 {
     return Create( hParent );
 }
 
-CDialogImplBase& ConfigTabSimpleScript::Dialog()
+CDialogImplBase& CConfigTabSimpleScript::Dialog()
 {
     return *this;
 }
 
-const wchar_t* ConfigTabSimpleScript::Name() const
+const wchar_t* CConfigTabSimpleScript::Name() const
 {
     return L"Script";
 }
 
-bool ConfigTabSimpleScript::ValidateState()
+bool CConfigTabSimpleScript::ValidateState()
 {
     if ( std::holds_alternative<config::PanelSettings_File>( payload_.GetCurrentValue() ) )
     {
@@ -114,7 +114,7 @@ bool ConfigTabSimpleScript::ValidateState()
     return true;
 }
 
-bool ConfigTabSimpleScript::HasChanged()
+bool CConfigTabSimpleScript::HasChanged()
 {
     const bool hasChanged =
         ddxOpts_.cend() != ranges::find_if( ddxOpts_, []( const auto& ddxOpt ) {
@@ -124,7 +124,7 @@ bool ConfigTabSimpleScript::HasChanged()
     return hasChanged;
 }
 
-void ConfigTabSimpleScript::Apply()
+void CConfigTabSimpleScript::Apply()
 {
     assert( ValidateState() );
     for ( auto& ddxOpt: ddxOpts_ )
@@ -134,7 +134,7 @@ void ConfigTabSimpleScript::Apply()
     payload_.Apply();
 }
 
-void ConfigTabSimpleScript::Revert()
+void CConfigTabSimpleScript::Revert()
 {
     for ( auto& ddxOpt: ddxOpts_ )
     {
@@ -146,7 +146,7 @@ void ConfigTabSimpleScript::Revert()
     UpdateUiFromData();
 }
 
-BOOL ConfigTabSimpleScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+BOOL CConfigTabSimpleScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     for ( auto& ddxOpt: ddxOpts_ )
     {
@@ -160,7 +160,7 @@ BOOL ConfigTabSimpleScript::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     auto it = ranges::find_if( ddxOpts_, [nID]( auto& ddxOpt ) {
         return ddxOpt->Ddx().IsMatchingId( nID );
@@ -233,7 +233,7 @@ void ConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wnd
     OnChanged();
 }
 
-void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     // TODO: add ability to chose editor + detect default editors like Notepad++, VSCode, Sublime, maybe IntelliJ
     // https://github.com/desktop/desktop/blob/development/app/src/lib/editors/win32.ts
@@ -279,12 +279,12 @@ void ConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wnd
     }
 }
 
-void ConfigTabSimpleScript::OnChanged()
+void CConfigTabSimpleScript::OnChanged()
 {
     parent_.OnDataChanged();
 }
 
-void ConfigTabSimpleScript::InitializeLocalOptions()
+void CConfigTabSimpleScript::InitializeLocalOptions()
 {
     bool resetSettingsSoft = false;
     bool resetSettingsHard = false;
@@ -316,7 +316,7 @@ void ConfigTabSimpleScript::InitializeLocalOptions()
             }
             else
             {
-                static_assert( false, "non-exhaustive visitor!" );
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                            vrt );
@@ -345,7 +345,7 @@ void ConfigTabSimpleScript::InitializeLocalOptions()
             }
             else
             {
-                static_assert( false, "non-exhaustive visitor!" );
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                            vrt );
@@ -388,7 +388,7 @@ void ConfigTabSimpleScript::InitializeLocalOptions()
             }
             else
             {
-                static_assert( false, "non-exhaustive visitor!" );
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                            vrt );
@@ -407,7 +407,7 @@ void ConfigTabSimpleScript::InitializeLocalOptions()
     }
 }
 
-void ConfigTabSimpleScript::UpdateUiFromData()
+void CConfigTabSimpleScript::UpdateUiFromData()
 {
     if ( !this->m_hWnd )
     {
@@ -421,7 +421,7 @@ void ConfigTabSimpleScript::UpdateUiFromData()
     UpdateUiRadioButtonData();
 }
 
-void ConfigTabSimpleScript::UpdateUiRadioButtonData()
+void CConfigTabSimpleScript::UpdateUiRadioButtonData()
 {
     if ( !this->m_hWnd )
     {
@@ -456,7 +456,7 @@ void ConfigTabSimpleScript::UpdateUiRadioButtonData()
     }
 }
 
-void ConfigTabSimpleScript::InitializeSamplesComboBox()
+void CConfigTabSimpleScript::InitializeSamplesComboBox()
 {
     samplesComboBox_ = GetDlgItem( IDC_COMBO_SRC_SAMPLE );
 

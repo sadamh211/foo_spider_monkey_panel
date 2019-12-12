@@ -5,7 +5,6 @@
 #include <js_engine/js_container.h>
 #include <ui/ui_conf.h>
 #include <ui/ui_conf_new.h>
-#include <ui/ui_property.h>
 #include <utils/art_helpers.h>
 #include <utils/error_popup.h>
 #include <utils/gdi_helpers.h>
@@ -707,7 +706,7 @@ void js_panel_window::show_property_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    smp::ui::CDialogProperty dlg( this );
+    smp::ui::CDialogConfNew dlg( this, smp::ui::CDialogConfNew::Tab::properties );
     (void)dlg.DoModal( parent );
 }
 

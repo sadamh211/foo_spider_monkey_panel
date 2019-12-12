@@ -14,8 +14,8 @@ namespace smp::ui
 
 class CDialogConfNew;
 
-class ConfigTabAppearance
-    : public CDialogImpl<ConfigTabAppearance>
+class CConfigTabAppearance
+    : public CDialogImpl<CConfigTabAppearance>
     , public ITab
 {
 public:
@@ -24,7 +24,7 @@ public:
         IDD = IDD_DIALOG_CONF_TAB_APPEARANCE
     };
 
-    BEGIN_MSG_MAP( ConfigTabAppearance )
+    BEGIN_MSG_MAP( CConfigTabAppearance )
         MSG_WM_INITDIALOG( OnInitDialog )
         COMMAND_HANDLER_EX( IDC_RADIO_EDGE_NO, BN_CLICKED, OnEditChange )
         COMMAND_HANDLER_EX( IDC_RADIO_EDGE_GREY, BN_CLICKED, OnEditChange )
@@ -44,8 +44,8 @@ public:
     };
 
 public:
-    ConfigTabAppearance( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
-    ~ConfigTabAppearance() override = default;
+    CConfigTabAppearance( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
+    ~CConfigTabAppearance() override = default;
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;

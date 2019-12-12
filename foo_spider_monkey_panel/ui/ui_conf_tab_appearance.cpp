@@ -44,7 +44,7 @@ int GetEdgeIdFromEnum( smp::config::EdgeStyle edgeStyle )
 namespace smp::ui
 {
 
-ConfigTabAppearance::ConfigTabAppearance( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
+CConfigTabAppearance::CConfigTabAppearance( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings )
     : parent_( parent )
     , settings_( settings )
     , edgeStyle_(
@@ -64,27 +64,27 @@ ConfigTabAppearance::ConfigTabAppearance( CDialogConfNew& parent, OptionWrap<con
 {
 }
 
-HWND ConfigTabAppearance::CreateTab( HWND hParent )
+HWND CConfigTabAppearance::CreateTab( HWND hParent )
 {
     return Create( hParent );
 }
 
-CDialogImplBase& ConfigTabAppearance::Dialog()
+CDialogImplBase& CConfigTabAppearance::Dialog()
 {
     return *this;
 }
 
-const wchar_t* ConfigTabAppearance::Name() const
+const wchar_t* CConfigTabAppearance::Name() const
 {
     return L"Appearance";
 }
 
-bool ConfigTabAppearance::ValidateState()
+bool CConfigTabAppearance::ValidateState()
 {
     return true;
 }
 
-bool ConfigTabAppearance::HasChanged()
+bool CConfigTabAppearance::HasChanged()
 {
     const bool hasChanged =
         ddxOpts_.cend() != ranges::find_if( ddxOpts_, []( const auto& ddxOpt ) {
@@ -94,7 +94,7 @@ bool ConfigTabAppearance::HasChanged()
     return hasChanged;
 }
 
-void ConfigTabAppearance::Apply()
+void CConfigTabAppearance::Apply()
 {
     assert( ValidateState() );
     for ( auto& ddxOpt: ddxOpts_ )
@@ -104,7 +104,7 @@ void ConfigTabAppearance::Apply()
     edgeStyle_.Apply();
 }
 
-void ConfigTabAppearance::Revert()
+void CConfigTabAppearance::Revert()
 {
     for ( auto& ddxOpt: ddxOpts_ )
     {
@@ -116,7 +116,7 @@ void ConfigTabAppearance::Revert()
     UpdateUiFromData();
 }
 
-BOOL ConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     for ( auto& ddxOpt: ddxOpts_ )
     {
@@ -129,7 +129,7 @@ BOOL ConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-void ConfigTabAppearance::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabAppearance::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     auto it = ranges::find_if( ddxOpts_, [nID]( auto& ddxOpt ) {
         return ddxOpt->Ddx().IsMatchingId( nID );
@@ -177,17 +177,17 @@ void ConfigTabAppearance::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCt
     OnChanged();
 }
 
-void ConfigTabAppearance::OnChanged()
+void CConfigTabAppearance::OnChanged()
 {
     parent_.OnDataChanged();
 }
 
-void ConfigTabAppearance::InitializeLocalOptions()
+void CConfigTabAppearance::InitializeLocalOptions()
 {
     edgeStyleId_.InitializeValue( GetEdgeIdFromEnum( edgeStyle_.GetSavedValue() ), GetEdgeIdFromEnum( edgeStyle_.GetCurrentValue() ) );
 }
 
-void ConfigTabAppearance::UpdateUiFromData()
+void CConfigTabAppearance::UpdateUiFromData()
 {
     if ( !this->m_hWnd )
     {

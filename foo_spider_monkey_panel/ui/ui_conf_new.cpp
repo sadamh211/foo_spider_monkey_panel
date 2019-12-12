@@ -4,6 +4,7 @@
 
 #include <ui/ui_conf_tab_appearance.h>
 #include <ui/ui_conf_tab_simple_script.h>
+#include <ui/ui_property.h>
 
 #include <js_panel_window.h>
 
@@ -17,13 +18,30 @@ WINDOWPLACEMENT g_WindowPlacement{};
 namespace smp::ui
 {
 
-CDialogConfNew::CDialogConfNew( smp::panel::js_panel_window* pParent )
+CDialogConfNew::CDialogConfNew( smp::panel::js_panel_window* pParent, CDialogConfNew::Tab tabId )
     : pParent_( pParent )
     , caption_( "Panel Configuration" )
     , settings_( pParent->GetSettings() )
 {
-    tabs_.emplace_back( std::make_unique<ConfigTabSimpleScript>( *this, settings_ ) );
-    tabs_.emplace_back( std::make_unique<ConfigTabAppearance>( *this, settings_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabSimpleScript>( *this, settings_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, settings_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, settings_ ) );
+
+    switch ( tabId )
+    {
+    case smp::ui::CDialogConfNew::Tab::script:
+        activeTabIdx_ = 0;
+        break;
+    case smp::ui::CDialogConfNew::Tab::appearance:
+        activeTabIdx_ = 1;
+        break;
+    case smp::ui::CDialogConfNew::Tab::properties:
+        activeTabIdx_ = 2;
+        break;
+    default:
+        assert( false );
+        break;
+    }
 }
 
 void CDialogConfNew::OnDataChanged()

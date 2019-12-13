@@ -349,6 +349,9 @@
     <ClCompile Include="ui\ui_edit_in_progress.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_editor.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -781,6 +784,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_edit_in_progress.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_editor.h">
       <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>

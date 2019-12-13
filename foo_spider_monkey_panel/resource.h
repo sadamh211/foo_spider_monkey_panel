@@ -12,6 +12,7 @@
 #define IDD_DIALOG_NAME_VALUE           108
 #define IDD_DIALOG_PROPERTIES           109
 #define IDD_DIALOG_HTML                 111
+#define IDD_DIALOG_EDITOR               112
 #define IDR_MENU_CONF                   115
 #define IDD_DIALOG_SLOWSCRIPT           116
 #define IDD_FINDDLGORD_WITH_REGEXP      117
@@ -19,6 +20,7 @@
 #define IDD_DIALOG_CONF                 119
 #define IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT 120
 #define IDD_DIALOG_EDIT_IN_PROGRESS     121
+#define IDR_MENU_EDITOR                 122
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_DEL                         1010
@@ -74,13 +76,15 @@
 #define ID_EDGESTYLE_GREY               40021
 #define ID_PANELFEATURES_PSEUDOTRANSPARENT 40022
 #define IDAPPLY                         40023
+#define ID_EDIT_WITH_INTERNAL           40028
+#define ID_EDIT_WITH_EXTERNAL           40029
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        124
-#define _APS_NEXT_COMMAND_VALUE         40024
+#define _APS_NEXT_RESOURCE_VALUE        125
+#define _APS_NEXT_COMMAND_VALUE         40030
 #define _APS_NEXT_CONTROL_VALUE         1086
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

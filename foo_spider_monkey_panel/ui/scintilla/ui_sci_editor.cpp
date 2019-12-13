@@ -273,7 +273,7 @@ LRESULT CScriptEditorCtrl::OnKeyDown( UINT, WPARAM wParam, LPARAM lParam, BOOL& 
 {
     // Pass the message to the parent window to handle all shortcuts (it will call us back)
     bHandled = FALSE;
-    (void)::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
+    GetParent().PostMessage( static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
     return 1;
 }
 

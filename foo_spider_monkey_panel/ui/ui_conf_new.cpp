@@ -8,6 +8,9 @@
 
 #include <js_panel_window.h>
 
+// TODO: fix default button highlighting and handling
+// TODO: fix `TAB` button handling (cycle between controls)
+
 namespace
 {
 

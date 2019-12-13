@@ -5,6 +5,7 @@
 #include <js_engine/js_container.h>
 #include <ui/ui_conf.h>
 #include <ui/ui_conf_new.h>
+#include <ui/ui_editor.h>
 #include <utils/art_helpers.h>
 #include <utils/error_popup.h>
 #include <utils/gdi_helpers.h>

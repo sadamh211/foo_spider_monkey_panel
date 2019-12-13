@@ -246,19 +246,22 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
         {
             // TODO: display warning about editing sample
 
-            smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", sampleData_[sampleIdx_.GetCurrentValue()].path );
+            //smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", sampleData_[sampleIdx_.GetCurrentValue()].path );
+            smp::EditTextFileInternal( *this, sampleData_[sampleIdx_.GetCurrentValue()].path );
 
             break;
         }
         case IDC_RADIO_SRC_FILE:
         {
-            smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", std::filesystem::u8path( path_.GetCurrentValue() ) );
+            //smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", std::filesystem::u8path( path_.GetCurrentValue() ) );
+            smp::EditTextFileInternal( *this, std::filesystem::u8path( path_.GetCurrentValue() ) );
             break;
         }
         case IDC_RADIO_SRC_MEMORY:
         {
             auto script = std::get<config::PanelSettings_InMemory>( payload_.GetCurrentValue() ).script;
-            smp::EditTextExternal( *this, L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
+            smp::EditTextInternal( *this, script );
+            //smp::EditTextExternal( *this, L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
             payload_ = config::PanelSettings_InMemory{ script };
             parent_.OnDataChanged();
             break;
@@ -278,6 +281,32 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
     {
         smp::utils::ReportErrorWithPopup( e.what() );
     }
+}
+
+LONG CConfigTabSimpleScript::OnEditScriptDropDown( LPNMHDR pnmh ) const
+{
+    auto const dropDown = reinterpret_cast<NMBCDROPDOWN*>( pnmh );
+
+    POINT pt{ dropDown->rcButton.left, dropDown->rcButton.bottom };
+
+    CWindow button = dropDown->hdr.hwndFrom;
+    button.ClientToScreen( &pt );
+
+    CMenu menu;
+    if ( menu.CreatePopupMenu() )
+    {
+        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_EXTERNAL, L"Edit with..." );
+        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_INTERNAL, L"Edit with internal editor" );
+        menu.TrackPopupMenu( TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, m_hWnd, nullptr );
+    }
+
+    return 0;
+}
+
+void CConfigTabSimpleScript::OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    // TODO: replace with proper implementation
+    OnEditScript( uNotifyCode, nID, wndCtl );
 }
 
 void CConfigTabSimpleScript::InitializeLocalOptions()

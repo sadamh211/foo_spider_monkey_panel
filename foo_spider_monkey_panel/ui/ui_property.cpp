@@ -62,59 +62,6 @@ void CConfigTabProperties::Revert()
     properties_.Revert();
 }
 
-void CConfigTabProperties::UpdateUiFromData()
-{
-    propertyListCtrl_.ResetContent();
-
-    struct LowerLexCmp
-    { // lexicographical comparison but with lower cased chars
-        bool operator()( const std::wstring& a, const std::wstring& b ) const
-        {
-            return ( _wcsicmp( a.c_str(), b.c_str() ) < 0 );
-        }
-    };
-    std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
-    for ( const auto& [name, pSerializedValue]: properties_.GetCurrentValue().values )
-    {
-        HPROPERTY hProp = std::visit( [&name = name]( auto&& arg ) {
-            using T = std::decay_t<decltype( arg )>;
-            if constexpr ( std::is_same_v<T, bool> || std::is_same_v<T, int32_t> )
-            {
-                return PropCreateSimple( name.c_str(), arg );
-            }
-            else if constexpr ( std::is_same_v<T, double> )
-            {
-                const std::wstring strNumber = [arg] {
-                    if ( std::trunc( arg ) == arg )
-                    { // Most likely uint64_t
-                        return std::to_wstring( static_cast<uint64_t>( arg ) );
-                    }
-
-                    // std::to_string(double) has precision of float
-                    return fmt::format( L"{:.16g}", arg );
-                }();
-                return PropCreateSimple( name.c_str(), strNumber.c_str() );
-            }
-            else if constexpr ( std::is_same_v<T, std::u8string> )
-            {
-                return PropCreateSimple( name.c_str(), smp::unicode::ToWide( arg ).c_str() );
-            }
-            else
-            {
-                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
-            }
-        },
-                                      *pSerializedValue );
-
-        propMap.emplace( name, hProp );
-    }
-
-    for ( auto& [name, hProp]: propMap )
-    {
-        propertyListCtrl_.AddItem( hProp );
-    }
-}
-
 LRESULT CConfigTabProperties::OnInitDialog( HWND, LPARAM )
 {
     DlgResize_Init( false, false, WS_CHILD );
@@ -123,6 +70,8 @@ LRESULT CConfigTabProperties::OnInitDialog( HWND, LPARAM )
     propertyListCtrl_.SubclassWindow( GetDlgItem( IDC_LIST_PROPERTIES ) );
     propertyListCtrl_.ModifyStyle( 0, LBS_SORT | LBS_HASSTRINGS );
     propertyListCtrl_.SetExtendedListStyle( PLS_EX_SORTED | PLS_EX_XPLOOK );
+
+    CWindow{ GetDlgItem( IDC_DEL ) }.EnableWindow( propertyListCtrl_.GetCurSel() != -1 );
 
     UpdateUiFromData();
 
@@ -193,6 +142,12 @@ LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
     return 0;
 }
 
+LRESULT CConfigTabProperties::OnSelChanged( LPNMHDR )
+{
+    UpdateUiDelButton();
+    return 0;
+}
+
 LRESULT CConfigTabProperties::OnClearallBnClicked( WORD, WORD, HWND )
 {
     properties_.ModifyValue( []( auto& props ) {
@@ -209,7 +164,7 @@ LRESULT CConfigTabProperties::OnClearallBnClicked( WORD, WORD, HWND )
 LRESULT CConfigTabProperties::OnDelBnClicked( WORD, WORD, HWND )
 {
     if ( int idx = propertyListCtrl_.GetCurSel();
-         idx )
+         idx >= 0 )
     {
         HPROPERTY hproperty = propertyListCtrl_.GetProperty( idx );
         std::wstring name = hproperty->GetName();
@@ -221,6 +176,7 @@ LRESULT CConfigTabProperties::OnDelBnClicked( WORD, WORD, HWND )
         } );
     }
 
+    UpdateUiDelButton();
     parent_.OnDataChanged();
 
     return 0;
@@ -327,6 +283,64 @@ LRESULT CConfigTabProperties::OnExportBnClicked( WORD, WORD, HWND )
     }
 
     return 0;
+}
+
+void CConfigTabProperties::UpdateUiFromData()
+{
+    propertyListCtrl_.ResetContent();
+
+    struct LowerLexCmp
+    { // lexicographical comparison but with lower cased chars
+        bool operator()( const std::wstring& a, const std::wstring& b ) const
+        {
+            return ( _wcsicmp( a.c_str(), b.c_str() ) < 0 );
+        }
+    };
+    std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
+    for ( const auto& [name, pSerializedValue]: properties_.GetCurrentValue().values )
+    {
+        HPROPERTY hProp = std::visit( [&name = name]( auto&& arg ) {
+            using T = std::decay_t<decltype( arg )>;
+            if constexpr ( std::is_same_v<T, bool> || std::is_same_v<T, int32_t> )
+            {
+                return PropCreateSimple( name.c_str(), arg );
+            }
+            else if constexpr ( std::is_same_v<T, double> )
+            {
+                const std::wstring strNumber = [arg] {
+                    if ( std::trunc( arg ) == arg )
+                    { // Most likely uint64_t
+                        return std::to_wstring( static_cast<uint64_t>( arg ) );
+                    }
+
+                    // std::to_string(double) has precision of float
+                    return fmt::format( L"{:.16g}", arg );
+                }();
+                return PropCreateSimple( name.c_str(), strNumber.c_str() );
+            }
+            else if constexpr ( std::is_same_v<T, std::u8string> )
+            {
+                return PropCreateSimple( name.c_str(), smp::unicode::ToWide( arg ).c_str() );
+            }
+            else
+            {
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+            }
+        },
+                                      *pSerializedValue );
+
+        propMap.emplace( name, hProp );
+    }
+
+    for ( auto& [name, hProp]: propMap )
+    {
+        propertyListCtrl_.AddItem( hProp );
+    }
+}
+
+void CConfigTabProperties::UpdateUiDelButton()
+{
+    CWindow{ GetDlgItem( IDC_DEL ) }.EnableWindow( propertyListCtrl_.GetCurSel() != -1 );
 }
 
 } // namespace smp::ui

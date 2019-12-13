@@ -45,6 +45,7 @@ public:
 #pragma warning( push )
 #pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_CODE_HANDLER_EX( PIN_ITEMCHANGED, OnPinItemChanged )
+        NOTIFY_CODE_HANDLER_EX( PIN_SELCHANGED, OnSelChanged )
 #pragma warning( pop )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabProperties> )
         REFLECT_NOTIFICATIONS()
@@ -69,8 +70,10 @@ private:
     LRESULT OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnPinItemChanged( LPNMHDR pnmh );
+    LRESULT OnSelChanged( LPNMHDR pnmh );
 
     void UpdateUiFromData();
+    void UpdateUiDelButton();
 
 private:
     CPropertyListCtrl propertyListCtrl_;

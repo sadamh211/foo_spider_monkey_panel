@@ -32,7 +32,10 @@ public:
         COMMAND_HANDLER_EX( IDC_TEXTEDIT_SRC_PATH, EN_CHANGE, OnEditChange )
         COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnEditChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
-        
+        COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
+        NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
+        COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
+        COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
     END_MSG_MAP()
 
     struct SampleComboBoxElem
@@ -64,6 +67,8 @@ private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
+    LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
+    void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void InitializeLocalOptions();
     void UpdateUiFromData();

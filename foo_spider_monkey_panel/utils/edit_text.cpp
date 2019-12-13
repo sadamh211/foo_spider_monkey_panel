@@ -3,9 +3,38 @@
 #include "edit_text.h"
 
 #include <ui/ui_edit_in_progress.h>
+#include <ui/ui_editor.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
+
+namespace
+{
+
+/// @remark For cases when modal might be called form another modal
+class ConditionalModalScope
+{
+public:
+    ConditionalModalScope( HWND hParent )
+        : needsModalScope_( modal_dialog_scope::can_create() )
+    {
+        if ( needsModalScope_ )
+        {
+            scope_.initialize( hParent );
+        }
+    }
+
+    ~ConditionalModalScope()
+    {
+        scope_.deinitialize();
+    }
+
+private:
+    modal_dialog_scope scope_;
+    bool needsModalScope_;
+};
+
+} // namespace
 
 namespace smp
 {
@@ -14,11 +43,13 @@ namespace smp
 
 void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
 {
-    // TODO: impl
-
+    // TODO: handle BOM
     auto text = smp::file::ReadFile( file.u8string(), CP_ACP, true );
-    // CEditor editor(hParent, text);
-    // DoModal and etc;
+    {
+        ConditionalModalScope scope( hParent );
+        smp::ui::CEditor dlg( text, [&file, &text] { smp::file::WriteFile( file.wstring().c_str(), text ); } );
+        dlg.DoModal( hParent );
+    }    
 }
 
 void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std::filesystem::path& file )
@@ -34,10 +65,9 @@ void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std:
 
 void EditTextInternal( HWND hParent, std::u8string& text )
 {
-    // TODO: impl
-
-    // CEditor editor(hParent, text);
-    // DoModal and etc;
+    ConditionalModalScope scope( hParent );
+    smp::ui::CEditor dlg( text );
+    dlg.DoModal( hParent );
 }
 
 void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, std::u8string& text )
@@ -67,24 +97,11 @@ void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, 
     }
     const smp::utils::final_action autoRemove( [&fsTmpFilePath] { fs::remove( fsTmpFilePath ); } );
 
-    // TODO: consider removing `modal_dialog_scope` stuff
-
-    modal_dialog_scope scope;
-    const bool needsModalScope = modal_dialog_scope::can_create();
-    if ( needsModalScope )
-    { // might be called form another modal
-        scope.initialize( hParent );
-    }
-
+    ConditionalModalScope scope( hParent );
     ui::CEditInProgress dlg{ pathToEditor, fsTmpFilePath };
     if ( dlg.DoModal( hParent ) == IDOK )
     {
         text = smp::file::ReadFile( fsTmpFilePath.u8string(), CP_UTF8 );
-    }
-
-    if ( needsModalScope )
-    {
-        scope.deinitialize();
     }
 }
 

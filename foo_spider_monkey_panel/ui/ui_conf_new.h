@@ -45,6 +45,8 @@ public:
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()
 
+    // TODO: add help button
+
     CDialogConfNew( smp::panel::js_panel_window* pParent, CDialogConfNew::Tab tabId = CDialogConfNew::Tab::def );
     ~CDialogConfNew() override = default;
 

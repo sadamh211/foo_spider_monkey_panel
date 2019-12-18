@@ -670,7 +670,7 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::show_configure_v2:
     {
-        ShowConfigureV2( hWnd_ );
+        ShowConfigureV2( wnd_ );
         return 0;
     }
     case InternalAsyncMessage::show_properties:

@@ -5,6 +5,9 @@
 #include <utils/error_popup.h>
 #include <utils/thread_pool.h>
 
+#include <abort_callback.h>
+#include <message_manager.h>
+
 #include <Scintilla.h>
 
 #include <unordered_map>

@@ -34,13 +34,20 @@ public:
     bool CheckComponent( const std::u8string& name, bool is_dll = true );
     bool CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll );
     bool CheckFont( const std::wstring& name );
+    // TODO: v2: remove hWnd argument
     uint32_t ColourPicker( uint32_t hWindow, uint32_t default_colour );
+    std::u8string EditText( const std::u8string& text );
+    void EditTextFile( const std::u8string& filePath );
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
     std::u8string FormatDuration( double p );
     std::u8string FormatFileSize( uint64_t p );
+    // TODO: v2: remove hWnd argument
     void GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
+    // TODO: v2: remove hWnd argument
     void GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
+    // TODO: v2: remove hWnd argument
     JSObject* GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
+    // TODO: v2: remove hWnd argument
     JSObject* GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
     JSObject* GetAlbumArtEmbedded( const std::u8string& rawpath, uint32_t art_id = 0 );
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id );
@@ -50,7 +57,9 @@ public:
     uint32_t GetSystemMetrics( uint32_t index );
     JSObject* Glob( const std::u8string& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );
     JSObject* GlobWithOpt( size_t optArgCount, const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask );
+    // TODO: v2: remove hWnd argument
     std::u8string InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def = "", bool error_on_cancel = false );
+    // TODO: v2: remove hWnd argument
     std::u8string InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel );
     bool IsKeyPressed( uint32_t vkey );
     std::wstring MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
@@ -59,7 +68,9 @@ public:
     std::wstring ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval );
     std::wstring ReadTextFile( const std::u8string& filePath, uint32_t codepage = CP_ACP );
     std::wstring ReadTextFileWithOpt( size_t optArgCount, const std::u8string& filePath, uint32_t codepage );
+    // TODO: v2: remove hWnd argument
     JS::Value ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
+    // TODO: v2: remove hWnd argument
     JS::Value ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options );
     bool WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
     bool WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom = true );

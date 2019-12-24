@@ -35,7 +35,9 @@ public:
     JSObject* Font( const std::wstring& fontName, uint32_t pxSize, uint32_t style = 0 );
     JSObject* FontWithOpt( size_t optArgCount, const std::wstring& fontName, uint32_t pxSize, uint32_t style );
     JSObject* Image( const std::wstring& path );
+    // TODO: v2: remove hWnd argument
     std::uint32_t LoadImageAsync( uint32_t hWnd, const std::wstring& path );
+    // TODO: v2: remove hWnd argument
     JSObject* LoadImageAsyncV2( uint32_t hWnd, const std::wstring& path );
 
 private:

@@ -2,17 +2,20 @@
 
 #include "utils.h"
 
+#include <config/smp_config.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_utils/js_art_helpers.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <ui/ui_html.h>
 #include <ui/ui_input_box.h>
 #include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/colour_helpers.h>
+#include <utils/edit_text.h>
 #include <utils/file_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/scope_helpers.h>
@@ -55,6 +58,8 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CheckComponent, JsUtils::CheckComponent, JsUtils::CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CheckFont, JsUtils::CheckFont );
 MJS_DEFINE_JS_FN_FROM_NATIVE( ColourPicker, JsUtils::ColourPicker );
+MJS_DEFINE_JS_FN_FROM_NATIVE( EditText, JsUtils::EditText );
+MJS_DEFINE_JS_FN_FROM_NATIVE( EditTextFile, JsUtils::EditTextFile );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FileTest, JsUtils::FileTest );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatDuration, JsUtils::FormatDuration );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatFileSize, JsUtils::FormatFileSize );
@@ -80,6 +85,8 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "CheckComponent", CheckComponent, 1, kDefaultPropsFlags ),
         JS_FN( "CheckFont", CheckFont, 1, kDefaultPropsFlags ),
         JS_FN( "ColourPicker", ColourPicker, 2, kDefaultPropsFlags ),
+        JS_FN( "EditText", EditText, 1, kDefaultPropsFlags ),
+        JS_FN( "EditTextFile", EditTextFile, 1, kDefaultPropsFlags ),
         JS_FN( "FileTest", FileTest, 2, kDefaultPropsFlags ),
         JS_FN( "FormatDuration", FormatDuration, 1, kDefaultPropsFlags ),
         JS_FN( "FormatFileSize", FormatFileSize, 1, kDefaultPropsFlags ),
@@ -199,17 +206,76 @@ bool JsUtils::CheckFont( const std::wstring& name )
     return ( it != font_families.cend() );
 }
 
-uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
+uint32_t JsUtils::ColourPicker( uint32_t, uint32_t default_colour )
 {
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
     COLORREF colour{};
     std::array<COLORREF, 16> dummy{};
     // Such cast will work only on x86
-    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), dummy.data() ) )
+    if ( !uChooseColor( &colour, hPanel, dummy.data() ) )
     {
         colour = smp::colour::convert_argb_to_colorref( default_colour );
     }
 
     return smp::colour::convert_colorref_to_argb( colour );
+}
+
+std::u8string JsUtils::EditText( const std::u8string& text )
+{
+    namespace fs = std::filesystem;
+
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+    std::u8string returnText = text;
+
+    try
+    {
+        const auto editorPath = fs::u8path( static_cast<const std::string&>( smp::config::default_editor ) );
+        if ( editorPath.empty() || !fs::exists( editorPath ) )
+        {
+            smp::EditTextInternal( hPanel, returnText );
+        }
+        else
+        {
+            smp::EditTextExternal( hPanel, editorPath, returnText );
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( fmt::format( "Error: {}", e.what() ) );
+    }
+
+    return returnText;
+}
+
+void JsUtils::EditTextFile( const std::u8string& filePath )
+{
+    namespace fs = std::filesystem;
+
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+    try
+    {
+        SmpException::ExpectTrue( fs::exists( fs::u8path( filePath ) ), "File does not exist: {}", filePath );
+
+        const auto editorPath = fs::u8path( static_cast<const std::string&>( smp::config::default_editor ) );
+        if ( editorPath.empty() || !fs::exists( editorPath ) )
+        {
+            smp::EditTextFileInternal( hPanel, filePath );
+        }
+        else
+        {
+            smp::EditTextFileExternal( editorPath, filePath );
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( fmt::format( "Error: {}", e.what() ) );
+    }
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
@@ -310,13 +376,14 @@ std::u8string JsUtils::FormatFileSize( uint64_t p )
     return std::u8string( pfc::format_file_size_short( p ) );
 }
 
-void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+void JsUtils::GetAlbumArtAsync( uint32_t, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    // Such cast will work only on x86
-    smp::art::GetAlbumArtAsync( reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+    smp::art::GetAlbumArtAsync( hPanel, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
 }
 
 void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -338,13 +405,14 @@ void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMe
     }
 }
 
-JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
     SmpException::ExpectTrue( handle, "handle argument is null" );
 
-    // Such cast will work only on x86
-    return mozjs::art::GetAlbumArtPromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+    
+    return mozjs::art::GetAlbumArtPromise( pJsCtx_, hPanel, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
 }
 
 JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -477,14 +545,17 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const std::u8string& pattern
     }
 }
 
-std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
+std::u8string JsUtils::InputBox( uint32_t, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
 {
     if ( modal_dialog_scope::can_create() )
     {
-        modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
+        const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+        SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+        modal_dialog_scope scope( hPanel );
 
         smp::ui::CInputBox dlg( prompt.c_str(), caption.c_str(), def.c_str() );
-        int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
+        int status = dlg.DoModal( hPanel );
         if ( status == IDCANCEL && error_on_cancel )
         {
             throw SmpException( "Dialog window was closed" );
@@ -614,14 +685,17 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::u8stri
     }
 }
 
-JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
+JS::Value JsUtils::ShowHtmlDialog( uint32_t, const std::wstring& htmlCode, JS::HandleValue options )
 {
     if ( modal_dialog_scope::can_create() )
     {
-        modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
+        const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+        SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+        modal_dialog_scope scope( hPanel );
 
         smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
-        int iRet = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
+        int iRet = dlg.DoModal( hPanel );
         if ( -1 == iRet || IDABORT == iRet )
         {
             if ( JS_IsExceptionPending( pJsCtx_ ) )

@@ -316,9 +316,6 @@
     <ClCompile Include="js_engine\js_realm_inner.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="ui\scintilla\sci_config.cpp">
-      <Filter>ui\scintilla</Filter>
-    </ClCompile>
     <ClCompile Include="config\panel_config.cpp">
       <Filter>config</Filter>
     </ClCompile>
@@ -352,6 +349,10 @@
     <ClCompile Include="ui\ui_editor.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="utils\pfc_helpers_cfg.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -788,6 +789,15 @@
     </ClInclude>
     <ClInclude Include="ui\ui_editor.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="config\smp_config.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\pfc_helpers_cfg.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_hwnd_helpers.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

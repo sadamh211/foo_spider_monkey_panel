@@ -172,6 +172,7 @@
     <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\js_art_helpers.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
+    <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
     <ClCompile Include="js_utils\js_image_helpers.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
@@ -184,7 +185,6 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="ui\scintilla\sci_config.cpp" />
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
@@ -216,6 +216,7 @@
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
+    <ClCompile Include="utils\pfc_helpers_cfg.cpp" />
     <ClCompile Include="utils\pfc_helpers_stream.cpp" />
     <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
@@ -248,6 +249,7 @@
     <ClInclude Include="config\panel_config_binary.h" />
     <ClInclude Include="config\panel_config_com.h" />
     <ClInclude Include="config\panel_config_json.h" />
+    <ClInclude Include="config\smp_config.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
@@ -299,6 +301,7 @@
     <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
+    <ClInclude Include="js_utils\js_hwnd_helpers.h" />
     <ClInclude Include="js_utils\js_image_helpers.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
     <ClInclude Include="js_utils\js_property_helper.h" />
@@ -358,6 +361,7 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\menu_helpers.h" />
+    <ClInclude Include="utils\pfc_helpers_cfg.h" />
     <ClInclude Include="utils\relative_filepath_trie.h" />
     <ClInclude Include="utils\pfc_helpers_cnt.h" />
     <ClInclude Include="utils\pfc_helpers_stream.h" />

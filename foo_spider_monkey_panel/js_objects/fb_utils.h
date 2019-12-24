@@ -47,9 +47,12 @@ public:
     JSObject* CreateMainMenuManager();
     JSObject* CreateProfiler( const std::u8string& name = "" );
     JSObject* CreateProfilerWithOpt( size_t optArgCount, const std::u8string& name );
+    // TODO: v2: remove hWnd argument
     uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options = JS::UndefinedHandleValue );
+    // TODO: v2: remove hWnd argument
     uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options );
     void Exit();
+    // TODO: v2: remove hWnd argument
     JSObject* GetClipboardContents( uint32_t hWindow );
     std::u8string GetDSPPresets();
     JSObject* GetFocusItem( bool force = true );

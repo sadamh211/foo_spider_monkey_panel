@@ -45,6 +45,8 @@ public:
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
 
+    HWND GetHwnd() const;
+
 public: // methods
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );

@@ -5,6 +5,6 @@
 namespace scintilla::config
 {
 
-extern ScintillaPropsCfg g_props;
+static inline ScintillaPropsCfg props{ smp::guid::scintilla_props };
 
-} // namespace namespacescintilla::config
+} // namespace scintilla::config

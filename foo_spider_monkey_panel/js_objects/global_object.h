@@ -37,6 +37,9 @@ public:
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
+    /// @remaek HWND might be null, if called before fb2k initialization is completed
+    HWND GetPanelHwnd() const;
+
 public: // methods
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );

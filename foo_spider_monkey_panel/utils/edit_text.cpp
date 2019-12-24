@@ -11,7 +11,7 @@
 namespace
 {
 
-/// @remark For cases when modal might be called form another modal
+/// @remark For cases when modal might be called from another modal
 class ConditionalModalScope
 {
 public:
@@ -38,8 +38,6 @@ private:
 
 namespace smp
 {
-
-// TODO: add to JS, e.g `utils.EditTextFile` & `utils.EditText`
 
 void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
 {

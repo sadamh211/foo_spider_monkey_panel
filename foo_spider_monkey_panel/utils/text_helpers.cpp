@@ -44,11 +44,20 @@ UINT FilterEncodings( nonstd::span<const DetectEncodingInfo> encodings )
     }
     else
     {
-        return ranges::max_element( encodings,
-                                    []( const auto& a, const auto& b ) {
-                                        return ( a.nConfidence < b.nConfidence );
-                                    } )
-            ->nCodePage;
+        if ( const auto it = ranges::find_if( encodings, []( const auto& elem ) { return ( elem.nCodePage == static_cast<UINT>( CodePage::Utf8 ) ); } );
+             it != encodings.cend() )
+        { // CodePage::Utf8 always has a higher priority
+            return it->nCodePage;
+        }
+        else
+        {
+            return ranges::max_element( encodings,
+                                        []( const auto& a, const auto& b ) {
+                                            // -1 <=> confidence level is too low
+                                            return ( a.nConfidence < b.nConfidence );
+                                        } )
+                ->nCodePage;
+        }      
     }
 }
 

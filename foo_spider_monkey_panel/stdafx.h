@@ -97,6 +97,7 @@ using u8string_view = basic_string_view<char8_t>;
 #endif
 
 // Additional PFC wrappers
+#include <utils/pfc_helpers_cfg.h>
 #include <utils/pfc_helpers_cnt.h>
 #include <utils/pfc_helpers_stream.h>
 #include <utils/pfc_helpers_ui.h>

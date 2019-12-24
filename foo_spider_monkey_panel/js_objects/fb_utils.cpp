@@ -13,6 +13,7 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/main_menu_manager.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <utils/array_x.h>
@@ -294,7 +295,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8str
     }
 }
 
-uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
+uint32_t JsFbUtils::DoDragDrop( uint32_t, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
     SmpException::ExpectTrue( handles, "handles argument is null" );
     const metadb_handle_list& handleList = handles->GetHandleList();
@@ -323,11 +324,14 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
         return DROPEFFECT_NONE;
     }
 
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
     MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handleList );
     // Such HWND cast works only on x86
-    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow,
+    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( hPanel,
                                                                                   pDO.get_ptr(),
                                                                                   handleCount,
                                                                                   parsedOptions.useTheming,
@@ -357,7 +361,7 @@ void JsFbUtils::Exit()
     standard_commands::main_exit();
 }
 
-JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
+JSObject* JsFbUtils::GetClipboardContents( uint32_t )
 {
     auto api = ole_interaction::get();
     pfc::com_ptr_t<IDataObject> pDO;
@@ -372,8 +376,11 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
         {
             dropped_files_data_impl data;
             if ( SUCCEEDED( api->parse_dataobject( pDO, data ) ) )
-            { // Such cast will work only on x86
-                data.to_handles( items, native, (HWND)hWindow );
+            {
+                const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+                SmpException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+                data.to_handles( items, native, hPanel );
             }
         }
     }

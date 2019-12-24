@@ -1232,7 +1232,7 @@ void CScriptEditorCtrl::Init()
     SetProperty( "dir.profile", smp::get_profile_path().c_str() );
 
     // Load properties
-    LoadProperties( scintilla::config::g_props.val() );
+    LoadProperties( scintilla::config::props.val() );
 }
 
 void CScriptEditorCtrl::LoadProperties( nonstd::span<const ScintillaProp> data )

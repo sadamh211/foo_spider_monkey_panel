@@ -260,14 +260,9 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
 void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
-    // TODO: cleanup
-    GetSettings() = smp::config::PanelSettings::Load( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
-
-    // FIX: If window already created, DUI won't destroy it and create it again.
-    if ( t_parent::GetHWND() )
-    {
-        update_script();
-    }
+    UpdateSettings( smp::config::PanelSettings::Load( parser.m_stream, parser.get_remaining(), fb2k::noAbort ),
+                    // FIX: If window already created, DUI won't destroy it and create it again.
+                    !!t_parent::GetHWND() );
 }
 
 void js_panel_window_dui::initialize_window( HWND parent )

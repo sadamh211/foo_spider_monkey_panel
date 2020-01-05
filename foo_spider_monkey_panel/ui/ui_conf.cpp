@@ -166,7 +166,8 @@ void CDialogConf::Apply()
     std::vector<char> code( sciEditor_.GetTextLength() + 1 );
     sciEditor_.GetText( code.data(), code.size() );
 
-    auto& panelSettings = m_parent->GetSettings();
+    auto panelSettings = m_parent->GetSettings();
+    panelSettings.payload = smp::config::PanelSettings_InMemory{ code.data() };
 
     if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
     {
@@ -182,7 +183,7 @@ void CDialogConf::Apply()
     }
 
     panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
-    m_parent->update_script( code.data() );
+    m_parent->UpdateSettings( panelSettings );
 
     // Save point
     sciEditor_.SetSavePoint();

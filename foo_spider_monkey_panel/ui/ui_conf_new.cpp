@@ -3,7 +3,7 @@
 #include "ui_conf_new.h"
 
 #include <ui/ui_conf_tab_appearance.h>
-#include <ui/ui_conf_tab_simple_script.h>
+#include <ui/ui_conf_tab_script.h>
 #include <ui/ui_property.h>
 
 #include <js_panel_window.h>
@@ -71,9 +71,8 @@ void CDialogConfNew::Apply()
     }
 
     settings_.Apply();
-    //pParent_->GetSettings() = settings_.GetSavedValue();
     OnDataChanged();
-    //pParent_->update_script();
+    pParent_->UpdateSettings( settings_ );
 }
 
 void CDialogConfNew::Revert()

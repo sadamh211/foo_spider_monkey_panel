@@ -7,30 +7,26 @@ struct JSContext;
 namespace mozjs
 {
 
-class JsScope
+class JsAutoRealmWithErrorReport
 {
 public:
-    JsScope( JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
-        : ac_( cx, global )
-        , are_( cx )
+    JsAutoRealmWithErrorReport( JSContext* cx, JS::HandleObject global )
+        : ar_( cx, global )
+        , ajsr_( cx )
     {
-        if ( !enableAutoReport )
-        {
-            are_.Disable();
-        }
     }
 
-    JsScope( const JsScope& ) = delete;
-    JsScope& operator=( const JsScope& ) = delete;
+    JsAutoRealmWithErrorReport( const JsAutoRealmWithErrorReport& ) = delete;
+    JsAutoRealmWithErrorReport& operator=( const JsAutoRealmWithErrorReport& ) = delete;
 
     void DisableReport()
     {
-        are_.Disable();
+        ajsr_.Disable();
     }
 
 private:
-    JSAutoRealm ac_;
-    mozjs::error::AutoJsReport are_;
+    JSAutoRealm ar_;
+    mozjs::error::AutoJsReport ajsr_;
 };
 
 } // namespace mozjs

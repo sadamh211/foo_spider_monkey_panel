@@ -53,6 +53,7 @@ public:
     JsStatus GetStatus() const;
 
     bool ExecuteScript( const std::u8string& scriptCode );
+    bool ExecuteScriptFile( const std::u8string& scriptFile );
 
     static void RunJobs();
 

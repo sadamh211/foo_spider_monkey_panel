@@ -334,9 +334,6 @@
     <ClCompile Include="ui\ui_conf_new.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_conf_tab_simple_script.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -353,6 +350,12 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_script.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="config\parsed_panel_config.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -766,9 +769,6 @@
     <ClInclude Include="ui\ui_conf_new.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_conf_tab_simple_script.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="utils\option_wrap.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -798,6 +798,12 @@
     </ClInclude>
     <ClInclude Include="js_utils\js_hwnd_helpers.h">
       <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_script.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="config\parsed_panel_config.h">
+      <Filter>config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

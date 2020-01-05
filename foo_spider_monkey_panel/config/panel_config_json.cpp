@@ -162,6 +162,8 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         jsonMain.push_back( { "payload", jsonPayload } );
         jsonMain.push_back( { "properties", settings.properties.ToJson() } );
         jsonMain.push_back( { "isPseudoTransparent", settings.isPseudoTransparent } );
+    
+        pfc_x::WriteString( writer, abort, jsonMain.dump() );
     }
     catch ( const json::exception& e )
     {

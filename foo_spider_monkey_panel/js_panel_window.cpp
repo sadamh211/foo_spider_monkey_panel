@@ -71,18 +71,49 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
     return my_class_data;
 }
 
-void js_panel_window::update_script( const char* code )
+void js_panel_window::ReloadPanel()
 {
-    if ( code )
-    {
-        // TODO: fix this
-        std::get<smp::config::PanelSettings_InMemory>( settings_.payload ).script = code;
-    }
-
     if ( pJsContainer_ )
     { // Panel might be not loaded at all, if settings are changed from Preferences.
         script_unload();
         script_load( false );
+    }
+}
+
+void js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+{
+    try
+    {
+        parsedSettings_ = std::visit( []( const auto& data ) -> smp::config::ParsedPanelSettings {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                return smp::config::ParsedPanelSettings_InMemory::Parse( data );
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> || std::is_same_v<T, smp::config::PanelSettings_Sample> )
+            {
+                return smp::config::ParsedPanelSettings_File::Parse( data );
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                return smp::config::ParsedPanelSettings_Package::Parse( data );
+            }
+            else
+            {
+                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+            }
+        },
+                                      settings.payload );
+        settings_ = settings;
+    }
+    catch ( ... )
+    {
+        // TODO: add error handling
+    }
+
+    if ( reloadPanel )
+    {
+        ReloadPanel();
     }
 }
 
@@ -220,7 +251,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     {
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
-        update_script();
+        ReloadPanel();
         return 0;
 
     case WM_ERASEBKGND:
@@ -660,12 +691,19 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::reload_script:
     {
-        update_script();
+        ReloadPanel();
         return 0;
     }
     case InternalAsyncMessage::show_configure:
     {
-        show_configure_popup( wnd_ );
+        if ( std::holds_alternative<config::ParsedPanelSettings_InMemory>( parsedSettings_ ) )
+        {
+            show_configure_popup( wnd_ );
+        }
+        else
+        {
+            ShowConfigureV2( wnd_ );
+        }
         return 0;
     }
     case InternalAsyncMessage::show_configure_v2:
@@ -742,7 +780,7 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     {
     case 1:
     {
-        update_script();
+        ReloadPanel();
         break;
     }
     case 2:
@@ -925,8 +963,27 @@ bool js_panel_window::script_load( bool isFirstLoad )
         return false;
     }
 
-    if ( !pJsContainer_->ExecuteScript( // TODO: fix this
-             std::get<smp::config::PanelSettings_InMemory>( settings_.payload ).script ) )
+    bool bRet = std::visit( [&]( const auto& data ) {
+        using T = std::decay_t<decltype( data )>;
+        if constexpr ( std::is_same_v<T, smp::config::ParsedPanelSettings_InMemory> )
+        {
+            return pJsContainer_->ExecuteScript( data.script );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::ParsedPanelSettings_File> )
+        {
+            return pJsContainer_->ExecuteScriptFile( data.scriptPath );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::ParsedPanelSettings_Package> )
+        {
+            return false;
+        }
+        else
+        {
+            static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+        }
+    },
+                            parsedSettings_ );
+    if ( !bRet )
     { // error reporting handled inside
         return false;
     }
@@ -1638,14 +1695,14 @@ void js_panel_window::on_volume_change( CallbackData& callbackData )
                                      std::get<0>( data ) );
 }
 
-config::PanelSettings& js_panel_window::GetSettings()
+const config::PanelSettings& js_panel_window::GetSettings() const
 {
     return settings_;
 }
 
-const config::PanelSettings& js_panel_window::GetSettings() const
+config::PanelProperties& js_panel_window::GetPanelProperties()
 {
-    return settings_;
+    return settings_.properties;
 }
 
 bool& js_panel_window::ShouldGrabFocus()

@@ -6,6 +6,12 @@ namespace smp
 {
 
 /// @throw smp::SmpException
+void EditTextFile( HWND hParent, const std::filesystem::path& file );
+
+/// @throw smp::SmpException
+void EditText( HWND hParent, std::u8string& text );
+
+/// @throw smp::SmpException
 void EditTextFileInternal( HWND hParent, const std::filesystem::path& file );
 
 /// @throw smp::SmpException

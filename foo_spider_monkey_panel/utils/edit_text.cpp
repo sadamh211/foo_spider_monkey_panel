@@ -2,11 +2,14 @@
 
 #include "edit_text.h"
 
+#include <config/smp_config.h>
 #include <ui/ui_edit_in_progress.h>
 #include <ui/ui_editor.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 #include <utils/winapi_error_helpers.h>
+
+#include <filesystem>
 
 namespace
 {
@@ -34,10 +37,60 @@ private:
     bool needsModalScope_;
 };
 
+/// @throw smp::SmpException
+std::filesystem::path GetFixedEditorPath()
+{
+    namespace fs = std::filesystem;
+
+    try
+    {
+        const auto editorPath = fs::u8path( static_cast<const std::u8string&>( smp::config::default_editor ) );
+        if ( editorPath.empty() || !fs::exists( editorPath ) )
+        {
+            smp::config::default_editor = "";
+            return fs::path{};
+        }
+        else
+        {
+            return editorPath;
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw smp::SmpException( e.what() );
+    }
+}
+
 } // namespace
 
 namespace smp
 {
+
+void EditTextFile( HWND hParent, const std::filesystem::path& file )
+{
+    const auto editorPath = GetFixedEditorPath();
+    if ( editorPath.empty() )
+    {
+        smp::EditTextFileInternal( hParent, file );
+    }
+    else
+    {
+        smp::EditTextFileExternal( editorPath, file );
+    }
+}
+
+void EditText( HWND hParent, std::u8string& text )
+{
+    const auto editorPath = GetFixedEditorPath();
+    if ( editorPath.empty() )
+    {
+        smp::EditTextInternal( hParent, text );
+    }
+    else
+    {
+        smp::EditTextExternal( hParent, editorPath, text );
+    }
+}
 
 void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
 {
@@ -47,7 +100,7 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
         ConditionalModalScope scope( hParent );
         smp::ui::CEditor dlg( text, [&file, &text] { smp::file::WriteFile( file.wstring().c_str(), text ); } );
         dlg.DoModal( hParent );
-    }    
+    }
 }
 
 void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std::filesystem::path& file )

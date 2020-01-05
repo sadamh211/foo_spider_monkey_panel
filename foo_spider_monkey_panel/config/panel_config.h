@@ -4,8 +4,6 @@
 
 #include <optional>
 
-// TODO: rename to panel_config
-
 namespace smp::config
 {
 

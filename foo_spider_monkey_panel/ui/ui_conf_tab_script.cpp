@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "ui_conf_tab_simple_script.h"
+#include "ui_conf_tab_script.h"
 
 #include <config/smp_config.h>
 #include <ui/ui_conf_new.h>
@@ -240,29 +240,16 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
 
     try
     {
-        const auto editorPath = [] {
-            const auto editorPath = fs::u8path( static_cast<const std::u8string&>( smp::config::default_editor ) );
-            if ( editorPath.empty() || !fs::exists( editorPath ) )
-            {
-                smp::config::default_editor = "";
-                return fs::path{};
-            }
-            else
-            {
-                return editorPath;
-            }
-        }();
-
         switch ( payloadSwitchId_.GetCurrentValue() )
         {
         case IDC_RADIO_SRC_SAMPLE:
         {
-            const int iRet = MessageBox( 
+            const int iRet = MessageBox(
                 L"Are you sure?\n\n"
                 L"You are trying to edit a sample script.\n"
                 L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
                 L"These changes will also be lost when updating the component.",
-                L"Editing script", 
+                L"Editing script",
                 MB_YESNO );
             if ( iRet != IDYES )
             {
@@ -276,15 +263,7 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
                 break;
             }
 
-            if ( editorPath.empty() )
-            {
-                smp::EditTextFileInternal( *this, filePath );
-            }
-            else
-            {
-                smp::EditTextFileExternal( editorPath, filePath );
-            }
-
+            smp::EditTextFile( *this, filePath );
             break;
         }
         case IDC_RADIO_SRC_FILE:
@@ -296,28 +275,13 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
                 break;
             }
 
-            if ( editorPath.empty() )
-            {
-                smp::EditTextFileInternal( *this, filePath );
-            }
-            else
-            {
-                smp::EditTextFileExternal( editorPath, filePath );
-            }
-
+            smp::EditTextFile( *this, filePath );
             break;
         }
         case IDC_RADIO_SRC_MEMORY:
         {
             auto script = std::get<config::PanelSettings_InMemory>( payload_.GetCurrentValue() ).script;
-            if ( editorPath.empty() )
-            {
-                smp::EditTextInternal( *this, script );
-            }
-            else
-            {
-                smp::EditTextExternal( *this, editorPath, script );
-            }
+            smp::EditText( *this, script );
             payload_ = config::PanelSettings_InMemory{ script };
             parent_.OnDataChanged();
             break;

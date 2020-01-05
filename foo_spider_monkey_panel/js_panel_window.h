@@ -1,6 +1,8 @@
 #pragma once
 
 #include <config/panel_config.h>
+#include <config/parsed_panel_config.h>
+
 #include <panel_info.h>
 #include <panel_tooltip_param.h>
 #include <user_message.h>
@@ -33,7 +35,8 @@ public:
     // ui_helpers::container_window
     [[nodiscard]] class_data& get_class_data() const override;
 
-    void update_script( const char* code = nullptr );
+    void ReloadPanel();
+    void UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
     void JsEngineFail( const std::u8string& errorText );
 
 protected:
@@ -60,7 +63,6 @@ private:
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
 public:
-
     [[nodiscard]] GUID GetGUID();
     [[nodiscard]] HDC GetHDC() const;
     [[nodiscard]] HWND GetHWND() const;
@@ -69,8 +71,8 @@ public:
     [[nodiscard]] int GetHeight() const;
     [[nodiscard]] int GetWidth() const;
     [[nodiscard]] PanelTooltipParam& GetPanelTooltipParam();
-    [[nodiscard]] config::PanelSettings& GetSettings();
     [[nodiscard]] const config::PanelSettings& GetSettings() const;
+    [[nodiscard]] config::PanelProperties& GetPanelProperties();
     [[nodiscard]] PanelInfo& ScriptInfo();
     [[nodiscard]] bool& ShouldGrabFocus();
 
@@ -87,6 +89,7 @@ public:
 private:
     const PanelType panelType_;
     config::PanelSettings settings_;
+    config::ParsedPanelSettings parsedSettings_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
 

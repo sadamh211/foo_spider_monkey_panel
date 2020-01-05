@@ -69,7 +69,7 @@ bool JsContainer::Initialize()
     {
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        utils::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
+        utils::final_action autoGlobal( [& jsGlobal = jsGlobal_] {
             jsGlobal.reset();
         } );
 
@@ -174,28 +174,68 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
     assert( jsGlobal_.initialized() );
     assert( JsStatus::Working == jsStatus_ );
 
-    isParsingScript_ = true;
-
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    isParsingScript_ = true;
+    const auto autoParseState = smp::utils::final_action( [&] { isParsingScript_ = false; } );
 
-    JS::SourceText<mozilla::Utf8Unit> source;
-    if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
+    try
     {
+        JSAutoRealm ac( pJsCtx_, jsGlobal_ );
+
+        JS::SourceText<mozilla::Utf8Unit> source;
+        if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
+        {
+            throw JsException();
+        }
+
+        JS::CompileOptions opts( pJsCtx_ );
+        opts.setFileAndLine( "<main>", 1 );
+
+        OnJsActionStart();
+        smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
+        JS::RootedValue dummyRval( pJsCtx_ );
+        if ( !JS::Evaluate( pJsCtx_, opts, source, &dummyRval ) )
+        {
+            throw JsException();
+        }
+        return true;
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
         return false;
     }
+}
 
-    JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( "<main>", 1 );
+bool JsContainer::ExecuteScriptFile( const std::u8string& scriptFile )
+{
+    assert( pJsCtx_ );
+    assert( jsGlobal_.initialized() );
+    assert( JsStatus::Working == jsStatus_ );
 
-    OnJsActionStart();
-    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+    auto selfSaver = shared_from_this();
+    isParsingScript_ = true;
+    auto autoParseState = smp::utils::final_action( [&] { isParsingScript_ = false; } );
 
-    JS::RootedValue dummyRval( pJsCtx_ );
-    bool bRet = JS::Evaluate( pJsCtx_, opts, source, &dummyRval );
+    try
+    {
+        JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
-    isParsingScript_ = false;
-    return bRet;
+        OnJsActionStart();
+        smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+
+        assert( pNativeGlobal_ );
+        pNativeGlobal_->IncludeScript( scriptFile );
+        return true;
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
+        return false;
+    }
 }
 
 void JsContainer::RunJobs()
@@ -217,7 +257,7 @@ void JsContainer::InvokeOnDragAction( const std::u8string& functionName, const P
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     if ( !CreateDropActionIfNeeded() )
     { // reports
@@ -245,7 +285,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current realm
     JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
@@ -294,7 +334,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     OnJsActionStart();
     smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );

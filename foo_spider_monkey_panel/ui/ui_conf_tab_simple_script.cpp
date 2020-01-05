@@ -2,6 +2,7 @@
 
 #include "ui_conf_tab_simple_script.h"
 
+#include <config/smp_config.h>
 #include <ui/ui_conf_new.h>
 #include <utils/edit_text.h>
 #include <utils/error_popup.h>
@@ -235,33 +236,88 @@ void CConfigTabSimpleScript::OnEditChange( UINT uNotifyCode, int nID, CWindow wn
 
 void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    // TODO: add ability to chose editor + detect default editors like Notepad++, VSCode, Sublime, maybe IntelliJ
-    // https://github.com/desktop/desktop/blob/development/app/src/lib/editors/win32.ts
+    namespace fs = std::filesystem;
 
     try
     {
+        const auto editorPath = [] {
+            const auto editorPath = fs::u8path( static_cast<const std::u8string&>( smp::config::default_editor ) );
+            if ( editorPath.empty() || !fs::exists( editorPath ) )
+            {
+                smp::config::default_editor = "";
+                return fs::path{};
+            }
+            else
+            {
+                return editorPath;
+            }
+        }();
+
         switch ( payloadSwitchId_.GetCurrentValue() )
         {
         case IDC_RADIO_SRC_SAMPLE:
         {
-            // TODO: display warning about editing sample
+            const int iRet = MessageBox( 
+                L"Are you sure?\n\n"
+                L"You are trying to edit a sample script.\n"
+                L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
+                L"These changes will also be lost when updating the component.",
+                L"Editing script", 
+                MB_YESNO );
+            if ( iRet != IDYES )
+            {
+                break;
+            }
 
-            //smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", sampleData_[sampleIdx_.GetCurrentValue()].path );
-            smp::EditTextFileInternal( *this, sampleData_[sampleIdx_.GetCurrentValue()].path );
+            const auto filePath = fs::path( sampleData_[sampleIdx_.GetCurrentValue()].path );
+            if ( !fs::exists( filePath ) )
+            {
+                smp::utils::ReportErrorWithPopup( fmt::format( "Sample script is missing: {}", filePath.u8string() ) );
+                break;
+            }
+
+            if ( editorPath.empty() )
+            {
+                smp::EditTextFileInternal( *this, filePath );
+            }
+            else
+            {
+                smp::EditTextFileExternal( editorPath, filePath );
+            }
 
             break;
         }
         case IDC_RADIO_SRC_FILE:
         {
-            //smp::EditTextFileExternal( L"C:\\Program Files\\Notepad++\\notepad++.exe", std::filesystem::u8path( path_.GetCurrentValue() ) );
-            smp::EditTextFileInternal( *this, std::filesystem::u8path( path_.GetCurrentValue() ) );
+            const auto filePath = fs::u8path( path_.GetCurrentValue() );
+            if ( !fs::exists( filePath ) )
+            {
+                smp::utils::ReportErrorWithPopup( fmt::format( "Script is missing: {}", filePath.u8string() ) );
+                break;
+            }
+
+            if ( editorPath.empty() )
+            {
+                smp::EditTextFileInternal( *this, filePath );
+            }
+            else
+            {
+                smp::EditTextFileExternal( editorPath, filePath );
+            }
+
             break;
         }
         case IDC_RADIO_SRC_MEMORY:
         {
             auto script = std::get<config::PanelSettings_InMemory>( payload_.GetCurrentValue() ).script;
-            smp::EditTextInternal( *this, script );
-            //smp::EditTextExternal( *this, L"C:\\Program Files\\Notepad++\\notepad++.exe", script );
+            if ( editorPath.empty() )
+            {
+                smp::EditTextInternal( *this, script );
+            }
+            else
+            {
+                smp::EditTextExternal( *this, editorPath, script );
+            }
             payload_ = config::PanelSettings_InMemory{ script };
             parent_.OnDataChanged();
             break;
@@ -273,7 +329,7 @@ void CConfigTabSimpleScript::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
         }
         }
     }
-    catch ( const std::filesystem::filesystem_error& e )
+    catch ( const fs::filesystem_error& e )
     {
         smp::utils::ReportErrorWithPopup( e.what() );
     }
@@ -305,7 +361,45 @@ LONG CConfigTabSimpleScript::OnEditScriptDropDown( LPNMHDR pnmh ) const
 
 void CConfigTabSimpleScript::OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    // TODO: replace with proper implementation
+    namespace fs = std::filesystem;
+
+    switch ( nID )
+    {
+    case ID_EDIT_WITH_EXTERNAL:
+    {
+        // TODO: add ability to choose editor (e.g. like default context menu `Open With`)
+
+        smp::file::FileDialogOptions fdOpts{};
+        fdOpts.filterSpec.assign( { { L"Executable files", L"*.exe" } } );
+        fdOpts.defaultExtension = L"exe";
+        fdOpts.rememberLocation = false;
+
+        try
+        {
+            const auto editorPath = fs::path( smp::file::FileDialog( L"Choose text editor", false, fdOpts ) );
+            if ( fs::exists( editorPath ) )
+            {
+                smp::config::default_editor = editorPath.u8string();
+            }
+        }
+        catch ( const fs::filesystem_error& e )
+        {
+            smp::utils::ReportErrorWithPopup( e.what() );
+        }
+        break;
+    }
+    case ID_EDIT_WITH_INTERNAL:
+    {
+        smp::config::default_editor = "";
+        break;
+    }
+    default:
+    {
+        assert( false );
+        break;
+    }
+    }
+
     OnEditScript( uNotifyCode, nID, wndCtl );
 }
 

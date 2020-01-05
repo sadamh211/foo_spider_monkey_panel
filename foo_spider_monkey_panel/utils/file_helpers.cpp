@@ -265,7 +265,7 @@ T ReadFileImpl( const std::u8string& path, UINT codepage, bool checkFileExistens
 namespace smp::file
 {
 
-    // TODO: replace `std::u8string` with `std::filesystem::path`
+// TODO: replace `std::u8string` with `std::filesystem::path`
 std::u8string ReadFile( const std::u8string& path, UINT codepage, bool checkFileExistense )
 {
     return ReadFileImpl<std::u8string>( path, codepage, checkFileExistense );
@@ -322,9 +322,7 @@ UINT DetectFileCharset( const std::u8string& path )
 
 std::wstring FileDialog( const std::wstring& title,
                          bool saveFile,
-                         nonstd::span<const COMDLG_FILTERSPEC> filterSpec,
-                         const std::wstring& defaultExtension,
-                         const std::wstring& defaultFilename )
+                         const FileDialogOptions& options )
 {
     _COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
     _COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
@@ -339,30 +337,33 @@ std::wstring FileDialog( const std::wstring& title,
         hr = pfd->GetOptions( &dwFlags );
         smp::error::CheckHR( hr, "GetOptions" );
 
-        hr = pfd->SetClientGuid( smp::guid::dialog_path );
-        smp::error::CheckHR( hr, "SetClientGuid" );
+        if ( options.rememberLocation )
+        {
+            hr = pfd->SetClientGuid( smp::guid::dialog_path );
+            smp::error::CheckHR( hr, "SetClientGuid" );
+        }
 
         hr = pfd->SetTitle( title.c_str() );
         smp::error::CheckHR( hr, "SetTitle" );
 
-        if ( !filterSpec.empty() )
+        if ( !options.filterSpec.empty() )
         {
-            hr = pfd->SetFileTypes( filterSpec.size(), filterSpec.data() );
+            hr = pfd->SetFileTypes( options.filterSpec.size(), options.filterSpec.data() );
             smp::error::CheckHR( hr, "SetFileTypes" );
         }
 
         //hr = pfd->SetFileTypeIndex( 1 );
         //smp::error::CheckHR( hr, "SetFileTypeIndex" );
 
-        if ( defaultExtension.length() )
+        if ( options.defaultExtension.length() )
         {
-            hr = pfd->SetDefaultExtension( defaultExtension.c_str() );
+            hr = pfd->SetDefaultExtension( options.defaultExtension.c_str() );
             smp::error::CheckHR( hr, "SetDefaultExtension" );
         }
 
-        if ( defaultFilename.length() )
+        if ( options.defaultFilename.length() )
         {
-            hr = pfd->SetFileName( defaultFilename.c_str() );
+            hr = pfd->SetFileName( options.defaultFilename.c_str() );
             smp::error::CheckHR( hr, "SetFileName" );
         }
 

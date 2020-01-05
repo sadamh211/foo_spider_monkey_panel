@@ -5,6 +5,7 @@
 #include <ui/scintilla/sci_config.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/array_x.h>
 
 #include <component_paths.h>
 #include <js_panel_window.h>
@@ -12,11 +13,11 @@
 namespace
 {
 
-constexpr COMDLG_FILTERSPEC k_DialogExtFilter[3] = {
+constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>( {
     { L"JavaScript files", L"*.js" },
     { L"Text files", L"*.txt" },
     { L"All files", L"*.*" },
-};
+} );
 
 WINDOWPLACEMENT g_WindowPlacement{};
 
@@ -175,7 +176,11 @@ LRESULT CEditor::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CEditor::OnFileImport( WORD, WORD, HWND )
 {
-    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"js";
+
+    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, fdOpts ) );
     if ( filename.empty() )
     {
         return 0;
@@ -197,7 +202,11 @@ LRESULT CEditor::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CEditor::OnFileExport( WORD, WORD, HWND )
 {
-    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"js";
+
+    const std::wstring filename( smp::file::FileDialog( L"Export File", true, fdOpts ) );
     if ( filename.empty() )
     {
         return 0;

@@ -164,7 +164,11 @@ std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
 
 void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
 {
-    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"cfg";
+
+    fs::path path( smp::file::FileDialog( L"Save as", true, fdOpts ) );
     if ( !path.empty() )
     {
         path = path.lexically_normal();
@@ -174,7 +178,11 @@ void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
 
 void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
 {
-    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"cfg";
+
+    fs::path path( smp::file::FileDialog( L"Import from", false, fdOpts ) );
     if ( !path.empty() )
     {
         path = path.lexically_normal();

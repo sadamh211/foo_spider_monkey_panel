@@ -52,10 +52,11 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
 
 void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std::filesystem::path& file )
 {
+    const std::wstring qPath = L"\"" + file.wstring() + L"\"";
     const auto hInstance = ShellExecute( nullptr,
                                          L"open",
                                          pathToEditor.c_str(),
-                                         file.c_str(),
+                                         qPath.c_str(),
                                          nullptr,
                                          SW_SHOW );
     smp::error::CheckWinApi( hInstance, "ShellExecute" );

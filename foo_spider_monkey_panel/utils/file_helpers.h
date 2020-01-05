@@ -4,6 +4,7 @@
 
 #include <optional>
 #include <string>
+#include <vector>
 
 namespace smp::file
 {
@@ -18,10 +19,16 @@ bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bo
 
 UINT DetectFileCharset( const std::u8string& path );
 
+struct FileDialogOptions
+{
+    std::vector<COMDLG_FILTERSPEC> filterSpec{ { L"All files", L"*.*" } };
+    std::wstring defaultExtension = L"";
+    std::wstring defaultFilename = L"";
+    bool rememberLocation = true;
+};
+
 std::wstring FileDialog( const std::wstring& title,
                          bool saveFile,
-                         nonstd::span<const COMDLG_FILTERSPEC> filterSpec = std::array<COMDLG_FILTERSPEC, 1>{ COMDLG_FILTERSPEC{ L"All files", L"*.*" } },
-                         const std::wstring& defaultExtension = L"",
-                         const std::wstring& defaultFilename = L"" );
+                         const FileDialogOptions& options = {} );
 
 } // namespace smp::file

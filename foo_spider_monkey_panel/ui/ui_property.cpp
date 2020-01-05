@@ -186,12 +186,15 @@ LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
 {
     using namespace smp::config;
 
-    constexpr auto k_DialogImportExtFilter = smp::to_array<COMDLG_FILTERSPEC>( {
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( {
         { L"Property files", L"*.json;*.smp;*.wsp" },
         { L"All files", L"*.*" },
     } );
+    fdOpts.defaultFilename = L"props";
+    fdOpts.defaultExtension = L"json";
 
-    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ) );
+    fs::path path( smp::file::FileDialog( L"Import from", false, fdOpts ) );
     if ( path.empty() )
     {
         return 0;
@@ -256,13 +259,15 @@ LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
 
 LRESULT CConfigTabProperties::OnExportBnClicked( WORD, WORD, HWND )
 {
-    constexpr auto k_DialogExportExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
-        {
-            { L"Property files", L"*.json" },
-            { L"All files", L"*.*" },
-        } );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( {
+        { L"Property files", L"*.json" },
+        { L"All files", L"*.*" },
+    } );
+    fdOpts.defaultFilename = L"props";
+    fdOpts.defaultExtension = L"json";
 
-    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ) );
+    fs::path path( smp::file::FileDialog( L"Save as", true, fdOpts ) );
     if ( path.empty() )
     {
         return 0;

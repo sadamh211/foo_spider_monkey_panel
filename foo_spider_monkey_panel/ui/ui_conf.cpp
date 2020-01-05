@@ -225,7 +225,11 @@ LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 {
-    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"js";
+
+    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, fdOpts ) );
     if ( filename.empty() )
     {
         return 0;
@@ -247,7 +251,11 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ) );
+    smp::file::FileDialogOptions fdOpts{};
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"js";
+
+    const std::wstring filename( smp::file::FileDialog( L"Export File", true, fdOpts ) );
     if ( filename.empty() )
     {
         return 0;

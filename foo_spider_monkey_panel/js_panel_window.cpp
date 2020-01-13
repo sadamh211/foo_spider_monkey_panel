@@ -34,6 +34,31 @@ DWORD ConvertEdgeStyleToNativeFlags( smp::config::EdgeStyle edge_style )
     }
 }
 
+/// @throw smp::SmpException
+smp::config::ParsedPanelSettings ParseSettings( const smp::config::PanelSettings::ScriptVariant& payload )
+{
+    return std::visit( []( const auto& data ) -> smp::config::ParsedPanelSettings {
+        using T = std::decay_t<decltype( data )>;
+        if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+        {
+            return smp::config::ParsedPanelSettings_InMemory::Parse( data );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> || std::is_same_v<T, smp::config::PanelSettings_Sample> )
+        {
+            return smp::config::ParsedPanelSettings_File::Parse( data );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+        {
+            return smp::config::ParsedPanelSettings_Package::Parse( data );
+        }
+        else
+        {
+            static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+        }
+    },
+                       payload );
+}
+
 } // namespace
 
 namespace mozjs
@@ -84,36 +109,17 @@ void js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings
 {
     try
     {
-        parsedSettings_ = std::visit( []( const auto& data ) -> smp::config::ParsedPanelSettings {
-            using T = std::decay_t<decltype( data )>;
-            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-            {
-                return smp::config::ParsedPanelSettings_InMemory::Parse( data );
-            }
-            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> || std::is_same_v<T, smp::config::PanelSettings_Sample> )
-            {
-                return smp::config::ParsedPanelSettings_File::Parse( data );
-            }
-            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-            {
-                return smp::config::ParsedPanelSettings_Package::Parse( data );
-            }
-            else
-            {
-                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
-            }
-        },
-                                      settings.payload );
+        parsedSettings_ = ParseSettings( settings.payload );
         settings_ = settings;
-    }
-    catch ( ... )
-    {
-        // TODO: add error handling
-    }
 
-    if ( reloadPanel )
+        if ( reloadPanel )
+        {
+            ReloadPanel();
+        }
+    }
+    catch ( const SmpException& e )
     {
-        ReloadPanel();
+        JsEngineFail( e.what() );
     }
 }
 
@@ -936,6 +942,11 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 }
 
+void js_panel_window::ReloadSettings()
+{
+    parsedSettings_ = ParseSettings( settings_.payload );
+}
+
 bool js_panel_window::script_load( bool isFirstLoad )
 {
     pfc::hires_timer timer;
@@ -976,7 +987,8 @@ bool js_panel_window::script_load( bool isFirstLoad )
         }
         else if constexpr ( std::is_same_v<T, smp::config::ParsedPanelSettings_Package> )
         {
-            return false;
+            ReloadSettings();
+            return pJsContainer_->ExecuteScriptFile( data.mainScriptPath );
         }
         else
         {

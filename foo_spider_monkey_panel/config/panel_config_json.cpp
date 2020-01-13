@@ -79,12 +79,8 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         }
         case ScriptType::Package:
         {
-            PanelSettings_Package payload;
-            payload.folderName = jsonPayload.at( "folderName" ).get<std::string>();
-            payload.location = jsonPayload.at( "location" ).get<PackageLocation>();
-            // TODO: validate location
-
-            panelSettings.payload = payload;
+            panelSettings.payload = PanelSettings_Package( jsonPayload.at( "location" ).get<PackageLocation>(),
+                                                           jsonPayload.at( "folderName" ).get<std::string>() );
             break;
         }
         default:
@@ -147,8 +143,8 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
             }
             else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
             {
-                jsonPayload.push_back( { "folderName", data.folderName } );
                 jsonPayload.push_back( { "location", data.location } );
+                jsonPayload.push_back( { "folderName", data.folderName } );
                 return ScriptType::Package;
             }
             else

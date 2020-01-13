@@ -29,17 +29,6 @@ enum class EdgeStyle : uint8_t
     Default = NoEdge,
 };
 
-struct PackageData      //< TODO: move to a separate file
-{                       // package.json (main script will be in (scripts/ ?)main.js)
-    std::u8string name; //< when imported will be used for folder name
-    std::u8string version;
-    std::u8string author;
-    std::u8string description;
-    bool shouldGrabFocus;
-    bool enableDragDrop;
-    std::vector<std::pair<std::string, std::string>> dynamicActions;
-};
-
 struct PanelProperties
 {
     using PropertyMap = std::unordered_map<std::wstring, std::shared_ptr<mozjs::SerializedJsValue>>;
@@ -78,14 +67,15 @@ struct PanelSettings_Sample
 
 struct PanelSettings_Package
 {
-    std::u8string folderName; // converted from packageName when imported (i.e. remove `'":/\ and etc)
     PackageLocation location;
-    PackageData data;
+    std::u8string folderName; // TODO: converted from packageName when imported (i.e. remove `'":/\ and etc)
 
 public:
-    // TODO: implement
-    PanelSettings_Package(){};
-    void ResetToDefault(){};
+    PanelSettings_Package( PackageLocation location, const std::u8string& folderName )
+        : location( location )
+        , folderName( folderName )
+    {
+    }
 };
 
 struct PanelSettings

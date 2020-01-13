@@ -28,6 +28,7 @@ struct ParsedPanelSettings_File
 
 struct ParsedPanelSettings_Package
 {
+    std::u8string packagePath;
     std::u8string mainScriptPath;
 
     std::u8string name;
@@ -37,8 +38,9 @@ struct ParsedPanelSettings_Package
 
     bool shouldGrabFocus = true;
     bool enableDragDrop = false;
-    std::vector<std::pair<std::string, std::string>> dynamicActions;
+    std::vector<std::pair<std::string, std::string>> menuActions;
 
+    /// @throw smp::SmpException
     [[nodiscard]] static ParsedPanelSettings_Package Parse( const PanelSettings_Package& settings );
 };
 

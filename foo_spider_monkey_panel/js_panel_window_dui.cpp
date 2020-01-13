@@ -69,8 +69,9 @@ namespace smp::panel
 js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
     : js_panel_window( PanelType::DUI )
     , m_callback( callback )
+    , m_is_edit_mode( callback->is_edit_mode_enabled() )
 {
-    m_is_edit_mode = m_callback->is_edit_mode_enabled();
+    
     set_configuration( cfg );
 }
 

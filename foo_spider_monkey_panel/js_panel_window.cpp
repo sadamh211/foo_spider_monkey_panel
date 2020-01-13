@@ -954,6 +954,7 @@ bool js_panel_window::script_load( bool isFirstLoad )
     wnd_.SetWindowLongPtr( GWL_EXSTYLE, extstyle );
     wnd_.SetWindowPos( nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
+    // TODO: check for extra on_size calls
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
     wnd_.PostMessage( static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
@@ -1009,6 +1010,8 @@ void js_panel_window::script_unload()
     ScriptInfo().clear();
     selectionHolder_.release();
     pJsContainer_->Finalize();
+    // TODO: remove
+    shouldGrabFocus_ = true;
 }
 
 void js_panel_window::create_context()

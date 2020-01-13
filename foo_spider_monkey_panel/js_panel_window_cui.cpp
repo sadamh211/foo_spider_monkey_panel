@@ -169,7 +169,6 @@ void js_panel_window_cui::get_name( pfc::string_base& out ) const
 
 void js_panel_window_cui::on_bool_changed( t_size ) const
 {
-    // TODO: may be implemented one day
 }
 
 void js_panel_window_cui::on_colour_changed( t_size ) const

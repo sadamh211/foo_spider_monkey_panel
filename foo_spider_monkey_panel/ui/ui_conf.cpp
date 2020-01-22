@@ -230,7 +230,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
     fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
     fdOpts.defaultExtension = L"js";
 
-    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, fdOpts ) );
+    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, fdOpts ).value_or( std::wstring{} ) );
     if ( filename.empty() )
     {
         return 0;
@@ -256,7 +256,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
     fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
     fdOpts.defaultExtension = L"js";
 
-    const std::wstring filename( smp::file::FileDialog( L"Export File", true, fdOpts ) );
+    const std::wstring filename( smp::file::FileDialog( L"Export File", true, fdOpts ).value_or( std::wstring{} ) );
     if ( filename.empty() )
     {
         return 0;

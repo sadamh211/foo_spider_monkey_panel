@@ -15,8 +15,6 @@
 #include <charconv>
 #include <optional>
 
-using namespace smp::ui::sci;
-
 namespace
 {
 
@@ -1232,10 +1230,10 @@ void CScriptEditorCtrl::Init()
     SetProperty( "dir.profile", smp::get_profile_path().c_str() );
 
     // Load properties
-    LoadProperties( scintilla::config::props.val() );
+    LoadProperties( config::sci::props.val() );
 }
 
-void CScriptEditorCtrl::LoadProperties( nonstd::span<const ScintillaProp> data )
+void CScriptEditorCtrl::LoadProperties( nonstd::span<const config::sci::ScintillaProp> data )
 {
     for ( const auto& prop: data )
     {

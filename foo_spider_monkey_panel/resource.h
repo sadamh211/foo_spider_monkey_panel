@@ -50,6 +50,7 @@
 #define IDC_INPUT_VALUE                 1064
 #define IDD_DIALOG_CONF_TAB_APPEARANCE  1066
 #define IDC_IE                          1067
+#define IDD_DIALOG_CONF_TAB_PACKAGE     1067
 #define IDC_SLOWSCRIPT_CONTINUE         1068
 #define IDC_SLOWSCRIPT_STOP             1069
 #define IDC_SLOWSCRIPT_CHECK_DONTASK    1070
@@ -63,11 +64,24 @@
 #define IDC_RADIO_SRC_MEMORY            1079
 #define IDC_CHECK_USE_REGEXP            1080
 #define IDC_BUTTON_SWITCH_MODE          1080
+#define IDC_TEXTEDIT_SRC_PACKAGE        1080
 #define IDC_RADIO_EDGE_NO               1081
 #define IDC_RADIO_EDGE_SUNKEN           1082
 #define IDC_RADIO_EDGE_GREY             1083
 #define IDC_CHECK_PSEUDOTRANSPARENT     1084
 #define IDC_EDIT_IN_PROGRESS_FOCUS      1085
+#define IDC_LIST_PACKAGE_FILES          1086
+#define IDC_EDIT_PACKAGE_NAME           1087
+#define IDC_EDIT_PACKAGE_AUTHOR         1088
+#define IDC_EDIT_PACKAGE_VERSION        1089
+#define IDC_EDIT_PACKAGE_DESCRIPTION    1090
+#define IDC_BUTTON_ADD_FILE             1091
+#define IDC_BUTTON_REMOVE_FILE          1092
+#define IDC_BUTTON_OPEN_FOLDER          1093
+#define IDC_RADIO_SRC_PACKAGE           1094
+#define IDC_BUTTON_RENAME_FILE          1094
+#define IDC_BUTTON_BROWSE               1095
+#define IDC_BUTTON_OPEN_PKG_MGR         1096
 #define ID_FILE_IMPORT                  40014
 #define ID_FILE_EXPORT                  40015
 #define ID_EDIT_RESETTODEFAULT          40016
@@ -80,12 +94,12 @@
 #define ID_EDIT_WITH_EXTERNAL           40029
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        125
+#define _APS_NEXT_RESOURCE_VALUE        126
 #define _APS_NEXT_COMMAND_VALUE         40030
-#define _APS_NEXT_CONTROL_VALUE         1086
+#define _APS_NEXT_CONTROL_VALUE         1096
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

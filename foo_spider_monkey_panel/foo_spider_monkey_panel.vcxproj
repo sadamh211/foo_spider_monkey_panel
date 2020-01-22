@@ -193,7 +193,8 @@
     <ClCompile Include="ui\ui_conf.cpp" />
     <ClCompile Include="ui\ui_conf_new.cpp" />
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
-    <ClCompile Include="ui\ui_conf_tab_script.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_package.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_script_source.cpp" />
     <ClCompile Include="ui\ui_editor.cpp" />
     <ClCompile Include="ui\ui_edit_in_progress.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
@@ -335,7 +336,8 @@
     <ClInclude Include="ui\ui_conf.h" />
     <ClInclude Include="ui\ui_conf_new.h" />
     <ClInclude Include="ui\ui_conf_tab_appearance.h" />
-    <ClInclude Include="ui\ui_conf_tab_script.h" />
+    <ClInclude Include="ui\ui_conf_tab_package.h" />
+    <ClInclude Include="ui\ui_conf_tab_script_source.h" />
     <ClInclude Include="ui\ui_editor.h" />
     <ClInclude Include="ui\ui_edit_in_progress.h" />
     <ClInclude Include="ui\ui_html.h" />

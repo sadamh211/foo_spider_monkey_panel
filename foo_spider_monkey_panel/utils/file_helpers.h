@@ -27,8 +27,8 @@ struct FileDialogOptions
     bool rememberLocation = true;
 };
 
-std::wstring FileDialog( const std::wstring& title,
-                         bool saveFile,
-                         const FileDialogOptions& options = {} );
+std::optional<std::wstring> FileDialog( const std::wstring& title,
+                                        bool saveFile,
+                                        const FileDialogOptions& options = {} );
 
 } // namespace smp::file

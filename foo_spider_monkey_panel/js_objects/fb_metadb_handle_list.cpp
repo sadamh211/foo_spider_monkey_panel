@@ -685,7 +685,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
     auto jsonToString = []( const json& value ) {
         return ( value.type() == json::value_t::string
                      ? value.get<std::string>()
-                     : value.dump() );
+                     : value.dump( 2 ) );
     };
 
     const json& obj = jsonObject;

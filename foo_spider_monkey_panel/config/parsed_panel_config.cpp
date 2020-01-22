@@ -83,6 +83,7 @@ ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSetti
 
         parsedSettings.packagePath = packageDir.u8string();
         parsedSettings.mainScriptPath = ( packageDir / "main.js" ).u8string();
+        parsedSettings.isSample = ( settings.location == PackageLocation::Sample );
 
         const json jsonMain = json::parse( smp::file::ReadFile( packageJsonFile.u8string(), false ) );
         SmpException::ExpectTrue( jsonMain.is_object(), "Corrupted `package.json`: not a JSON object" );
@@ -118,6 +119,59 @@ ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSetti
     catch ( const json::exception& e )
     {
         throw SmpException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+    }
+}
+
+void ParsedPanelSettings_Package::Save() const
+{
+    namespace fs = std::filesystem;
+    using json = nlohmann::json;
+
+    SmpException::ExpectTrue( !packagePath.empty(), "Corrupted settings: `packagePath_` is empty" );
+
+    try
+    {
+        auto jsonMain = json::object();
+        jsonMain.push_back( { "name", name } );
+        jsonMain.push_back( { "author", author } );
+        jsonMain.push_back( { "version", version } );
+        jsonMain.push_back( { "description", description } );
+        jsonMain.push_back( { "enableDragDrop", enableDragDrop } );
+        jsonMain.push_back( { "shouldGrabFocus", shouldGrabFocus } );
+
+        if ( !menuActions.empty() )
+        {
+            json menuActionsJson = json::object();
+            for ( const auto& [id, desc]: menuActions )
+            {
+                menuActionsJson.push_back( { id, desc } );
+            }
+
+            jsonMain.push_back( { "menuActions", menuActionsJson } );
+        }
+
+        const auto packagePathStd = fs::u8path( packagePath );
+        if ( !fs::exists( packagePathStd ) )
+        {
+            fs::create_directories( packagePathStd );
+        }
+
+        const auto packageJsonFile = packagePathStd / "package.json";
+        smp::file::WriteFile( packageJsonFile.wstring().c_str(), jsonMain.dump( 2 ) );
+
+        const auto mainScriptPathStd = fs::u8path( mainScriptPath );
+        if ( !fs::exists( mainScriptPathStd ) )
+        {
+            smp::file::WriteFile( mainScriptPathStd.c_str(), PanelSettings_InMemory::GetDefaultScript() );
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( e.what() );
+    }
+    catch ( const json::exception& e )
+    {
+        throw SmpException( fmt::format( "Corrupted settings: {}", e.what() ) );
     }
 }
 

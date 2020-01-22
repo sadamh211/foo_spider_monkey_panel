@@ -123,6 +123,7 @@ void js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings
     }
 }
 
+// TODO: rename
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
     smp::utils::ReportErrorWithPopup( errorText );
@@ -808,7 +809,14 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
     case 5:
     {
-        show_configure_popup( wnd_ );
+        if ( std::holds_alternative<config::ParsedPanelSettings_InMemory>( parsedSettings_ ) )
+        {
+            show_configure_popup( wnd_ );
+        }
+        else
+        {
+            ShowConfigureV2( wnd_ );
+        }
         break;
     }
     }

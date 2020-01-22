@@ -32,17 +32,6 @@ public:
         COMMAND_HANDLER_EX( IDC_CHECK_PSEUDOTRANSPARENT, BN_CLICKED, OnEditChange )
     END_MSG_MAP()
 
-    struct SampleComboBoxElem
-    {
-        SampleComboBoxElem( std::wstring path, std::wstring displayedName )
-            : path( std::move( path ) )
-            , displayedName( std::move( displayedName ) )
-        {
-        }
-        std::wstring path;
-        std::wstring displayedName;
-    };
-
 public:
     CConfigTabAppearance( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
     ~CConfigTabAppearance() override = default;

@@ -4,7 +4,7 @@
 
 #include <map>
 
-namespace smp::ui::sci
+namespace smp::config::sci
 {
 
 struct ScintillaProp

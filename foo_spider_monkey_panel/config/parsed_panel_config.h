@@ -19,6 +19,7 @@ struct ParsedPanelSettings_InMemory
 struct ParsedPanelSettings_File
 {
     std::u8string scriptPath;
+    // TODO: handle this
     bool isSample = false;
 
     [[nodiscard]] static ParsedPanelSettings_File Parse( const PanelSettings_File& settings );
@@ -30,6 +31,8 @@ struct ParsedPanelSettings_Package
 {
     std::u8string packagePath;
     std::u8string mainScriptPath;
+    // TODO: handle this
+    bool isSample;
 
     std::u8string name;
     std::u8string version;
@@ -42,6 +45,8 @@ struct ParsedPanelSettings_Package
 
     /// @throw smp::SmpException
     [[nodiscard]] static ParsedPanelSettings_Package Parse( const PanelSettings_Package& settings );
+    /// @throw smp::SmpException
+    void Save() const;
 };
 
 using ParsedPanelSettings = std::variant<ParsedPanelSettings_InMemory, ParsedPanelSettings_File, ParsedPanelSettings_Package>;

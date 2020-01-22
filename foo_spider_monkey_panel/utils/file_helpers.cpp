@@ -320,9 +320,9 @@ UINT DetectFileCharset( const std::u8string& path )
     return smp::utils::DetectCharSet( FileReader{ path }.GetFileContent() ).value_or( CP_ACP );
 }
 
-std::wstring FileDialog( const std::wstring& title,
-                         bool saveFile,
-                         const FileDialogOptions& options )
+std::optional<std::wstring> FileDialog( const std::wstring& title,
+                                        bool saveFile,
+                                        const FileDialogOptions& options )
 {
     _COM_SMARTPTR_TYPEDEF( IFileDialog, __uuidof( IFileDialog ) );
     _COM_SMARTPTR_TYPEDEF( IShellItem, __uuidof( IShellItem ) );
@@ -377,6 +377,10 @@ std::wstring FileDialog( const std::wstring& title,
         smp::error::CheckHR( hr, "SetDefaultFolder" );
 
         hr = pfd->Show( nullptr );
+        if ( hr == HRESULT_FROM_WIN32( ERROR_CANCELLED ) )
+        {
+            return std::nullopt;
+        }
         smp::error::CheckHR( hr, "Show" );
 
         IShellItemPtr psiResult;
@@ -398,7 +402,8 @@ std::wstring FileDialog( const std::wstring& title,
     }
     catch ( const SmpException& )
     {
-        return std::wstring{};
+        // TODO: replace with proper error reporting
+        return std::nullopt;
     }
 }
 

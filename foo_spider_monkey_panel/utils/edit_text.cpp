@@ -112,7 +112,10 @@ void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std:
                                          qPath.c_str(),
                                          nullptr,
                                          SW_SHOW );
-    smp::error::CheckWinApi( hInstance, "ShellExecute" );
+    if ( (int)hInstance < 32 )
+    {// As per WinAPI
+        smp::error::CheckWin32( (int)hInstance, "ShellExecute" );
+    }
 }
 
 void EditTextInternal( HWND hParent, std::u8string& text )

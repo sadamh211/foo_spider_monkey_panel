@@ -194,7 +194,7 @@ LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
     fdOpts.defaultFilename = L"props";
     fdOpts.defaultExtension = L"json";
 
-    fs::path path( smp::file::FileDialog( L"Import from", false, fdOpts ) );
+    auto path = fs::path( smp::file::FileDialog( L"Import from", false, fdOpts ).value_or( std::wstring{} ) );
     if ( path.empty() )
     {
         return 0;
@@ -267,7 +267,7 @@ LRESULT CConfigTabProperties::OnExportBnClicked( WORD, WORD, HWND )
     fdOpts.defaultFilename = L"props";
     fdOpts.defaultExtension = L"json";
 
-    fs::path path( smp::file::FileDialog( L"Save as", true, fdOpts ) );
+    auto path = fs::path( smp::file::FileDialog( L"Save as", true, fdOpts ).value_or( std::wstring{} ) );
     if ( path.empty() )
     {
         return 0;

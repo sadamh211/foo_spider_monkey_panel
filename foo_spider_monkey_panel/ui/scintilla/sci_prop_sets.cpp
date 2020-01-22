@@ -6,12 +6,10 @@
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
 
-using namespace smp::ui::sci;
-
 namespace
 {
 
-constexpr auto DefaultProps = smp::to_array<ScintillaPropsCfg::DefaultPropValue>(
+constexpr auto DefaultProps = smp::to_array<smp::config::sci::ScintillaPropsCfg::DefaultPropValue>(
     { { "style.default", "font:Courier New,size:10" },
       { "style.comment", "fore:#008000" },
       { "style.keyword", "bold,fore:#0000ff" },
@@ -37,7 +35,7 @@ constexpr auto DefaultProps = smp::to_array<ScintillaPropsCfg::DefaultPropValue>
 
 } // namespace
 
-namespace smp::ui::sci
+namespace smp::config::sci
 {
 
 ScintillaPropsCfg::ScintillaPropsCfg( const GUID& p_guid )

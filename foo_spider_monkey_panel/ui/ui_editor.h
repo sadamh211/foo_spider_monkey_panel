@@ -71,7 +71,7 @@ public:
     void Apply();
 
 private:
-    scintilla::CScriptEditorCtrl sciEditor_;
+    smp::ui::sci::CScriptEditorCtrl sciEditor_;
     CMenu menu;
 
     SaveCallback callback_;

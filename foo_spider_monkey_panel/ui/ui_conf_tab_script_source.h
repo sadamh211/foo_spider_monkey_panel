@@ -14,8 +14,8 @@ namespace smp::ui
 
 class CDialogConfNew;
 
-class CConfigTabSimpleScript
-    : public CDialogImpl<CConfigTabSimpleScript>
+class CConfigTabScriptSource
+    : public CDialogImpl<CConfigTabScriptSource>
     , public ITab
 {
 public:
@@ -24,14 +24,16 @@ public:
         IDD = IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT
     };
 
-    BEGIN_MSG_MAP( CConfigTabSimpleScript )
+    BEGIN_MSG_MAP( CConfigTabScriptSource )
         MSG_WM_INITDIALOG( OnInitDialog )
-        COMMAND_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, BN_CLICKED, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_TEXTEDIT_SRC_PATH, EN_CHANGE, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, BN_CLICKED, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_RADIO_SRC_PACKAGE, BN_CLICKED, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_TEXTEDIT_SRC_PATH, EN_CHANGE, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnScriptSrcChange )
+        COMMAND_HANDLER_EX( IDC_BUTTON_BROWSE, BN_CLICKED, OnBrowseFile )
+        COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_PKG_MGR, BN_CLICKED, OnOpenPackageManager )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
@@ -50,8 +52,8 @@ public:
     };
 
 public:
-    CConfigTabSimpleScript( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
-    ~CConfigTabSimpleScript() override = default;
+    CConfigTabScriptSource( CDialogConfNew& parent, OptionWrap<config::PanelSettings>& settings );
+    ~CConfigTabScriptSource() override = default;
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
@@ -65,7 +67,11 @@ public:
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
-    void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnScriptSrcChange( UINT uNotifyCode, int nID, CWindow wndCtl );
+
+    void OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl );
+
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
     void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
@@ -75,15 +81,20 @@ private:
     void UpdateUiRadioButtonData();
     void InitializeSamplesComboBox();
 
+    bool RequestConfirmationForReset();
+
 private:
+    bool isInitializingUi_ = false;
+
     CDialogConfNew& parent_;
+    OptionWrap<config::PanelSettings>& settings_;
     SuboptionWrap<OptionWrap<config::PanelSettings>, decltype( config::PanelSettings::payload )> payload_;
 
-    OptionWrap<int> payloadSwitchId_;
-    OptionWrap<std::u8string> path_;
-    OptionWrap<int> sampleIdx_;
+    int payloadSwitchId_;
+    std::u8string path_;
+    int sampleIdx_;
 
-    std::array<std::unique_ptr<IUiDdxOption>, 3> ddxOpts_;
+    std::array<std::unique_ptr<IUiDdx>, 3> ddx_;
 
     static std::vector<SampleComboBoxElem> sampleData_;
     CComboBox samplesComboBox_;

@@ -14,11 +14,13 @@
 #include <optional>
 #include <set>
 
+namespace smp::config::sci
+{
+struct ScintillaProp;
+}
+
 namespace smp::ui::sci
 {
-
-// forward declaration
-struct ScintillaProp;
 
 class CScriptEditorCtrl
     : public CScintillaCtrl
@@ -94,7 +96,7 @@ private:
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();
-    void LoadProperties( nonstd::span<const ScintillaProp> data );
+    void LoadProperties( nonstd::span<const smp::config::sci::ScintillaProp> data );
     void RestoreDefaultStyle();
     void TrackWidth();
     void LoadStyleFromProperties();
@@ -124,4 +126,4 @@ private:
     std::set<std::u8string, KeyWordComparator> m_apis;
 };
 
-} // namespace scintilla
+} // namespace smp::ui::sci

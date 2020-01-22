@@ -41,7 +41,12 @@ _Post_satisfies_( SUCCEEDED( hr ) ) void CheckHR( HRESULT hr, std::string_view f
     }
 }
 
-_Post_satisfies_( checkValue ) void CheckWinApi( bool checkValue, std::string_view functionName )
+_Post_satisfies_( checkValue ) void CheckWin32( int winErrorCode, std::string_view functionName )
+{
+    CheckHR( HRESULT_FROM_WIN32( winErrorCode ), functionName );
+}
+
+ void CheckWinApi( bool checkValue, std::string_view functionName )
 {
     if ( !checkValue )
     {

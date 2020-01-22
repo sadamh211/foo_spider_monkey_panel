@@ -31,7 +31,7 @@ public:
         , controlId_( controlId )
     {
         static_assert( std::is_convertible_v<T, bool> );
-        static_assert( std::is_assignable_v<T, bool> );
+        static_assert( std::is_assignable_v<T&, bool> );
     }
     ~UiDdx_CheckBox() override = default;
 
@@ -83,7 +83,7 @@ public:
         , controlId_( controlId )
     {
         static_assert( std::is_convertible_v<T, std::u8string> );
-        static_assert( std::is_assignable_v<T, std::u8string> );
+        static_assert( std::is_assignable_v<T&, std::u8string> );
     }
     ~UiDdx_TextEdit() override = default;
 
@@ -135,7 +135,7 @@ public:
         , controlIdList_( controlIdList.begin(), controlIdList.end() )
     {
         static_assert( std::is_convertible_v<T, int> );
-        static_assert( std::is_assignable_v<T, int> );
+        static_assert( std::is_assignable_v<T&, int> );
     }
     ~UiDdx_RadioRange() override = default;
 
@@ -185,22 +185,22 @@ private:
 };
 
 
-template <typename T>
-class UiDdx_ComboBox final
+template <typename ListT, typename T>
+class UiDdx_ListBase final
     : public IUiDdx
 {
 public:
     using value_type = typename T;
 
 public:
-    UiDdx_ComboBox( T& value, int controlId )
+    UiDdx_ListBase( T& value, int controlId )
         : value_( value )
         , controlId_( controlId )
     {
         static_assert( std::is_convertible_v<T, int> );
-        static_assert( std::is_assignable_v<T, int> );
+        static_assert( std::is_assignable_v<T&, int> );
     }
-    ~UiDdx_ComboBox() override = default;
+    ~UiDdx_ListBase() override = default;
 
     bool IsMatchingId( int controlId ) const override
     {
@@ -219,7 +219,7 @@ public:
             return;
         }
 
-        value_ = CComboBox{ ::GetDlgItem( hWnd_, controlId_ ) }.GetCurSel();
+        value_ = ListT{ ::GetDlgItem( hWnd_, controlId_ ) }.GetCurSel();
     }
     void WriteToUi() override
     {
@@ -228,7 +228,7 @@ public:
             return;
         }
 
-        CComboBox{ ::GetDlgItem( hWnd_, controlId_ ) }.SetCurSel( static_cast<int>( value_ ) );
+        ListT{ ::GetDlgItem( hWnd_, controlId_ ) }.SetCurSel( static_cast<int>( value_ ) );
     }
 
 private:
@@ -236,6 +236,12 @@ private:
     HWND hWnd_ = nullptr;
     const int controlId_;
 };
+
+template <typename T>
+using UiDdx_ComboBox = UiDdx_ListBase<CComboBox, T>;
+
+template <typename T>
+using UiDdx_ListBox = UiDdx_ListBase<CListBox, T>;
 
 template <template <typename> typename DdxT, typename T, typename... Args>
 std::unique_ptr<IUiDdx> CreateUiDdx( T& value, Args&&... args )

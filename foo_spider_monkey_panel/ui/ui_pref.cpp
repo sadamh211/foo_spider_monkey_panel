@@ -11,8 +11,6 @@
 
 namespace fs = std::filesystem;
 
-using namespace smp::ui::sci;
-
 namespace
 {
 
@@ -92,10 +90,10 @@ void CDialogPref::LoadProps( bool reset )
 {
     if ( reset )
     {
-        scintilla::config::props.reset();
+        smp::config::sci::props.reset();
     }
 
-    const auto& prop_sets = scintilla::config::props.val();
+    const auto& prop_sets = config::sci::props.val();
 
     m_props.DeleteAllItems();
 
@@ -116,7 +114,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
     if ( pniv->iItem >= 0 )
     {
-        auto& prop_sets = scintilla::config::props.val();
+        auto& prop_sets = config::sci::props.val();
 
         const auto key = this->uGetItemText( pniv->iItem, 0 );
         const auto val = this->uGetItemText( pniv->iItem, 1 );
@@ -168,11 +166,11 @@ void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
     fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
     fdOpts.defaultExtension = L"cfg";
 
-    fs::path path( smp::file::FileDialog( L"Save as", true, fdOpts ) );
+    auto path = fs::path( smp::file::FileDialog( L"Save as", true, fdOpts ).value_or( std::wstring{} ) );
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        scintilla::config::props.export_to_file( path.wstring().c_str() );
+        config::sci::props.export_to_file( path.wstring().c_str() );
     }
 }
 
@@ -182,11 +180,11 @@ void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
     fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
     fdOpts.defaultExtension = L"cfg";
 
-    fs::path path( smp::file::FileDialog( L"Import from", false, fdOpts ) );
+    auto path = fs::path( smp::file::FileDialog( L"Import from", false, fdOpts ).value_or( std::wstring{} ) );
     if ( !path.empty() )
     {
         path = path.lexically_normal();
-        scintilla::config::props.import_from_file( path.u8string().c_str() );
+        config::sci::props.import_from_file( path.u8string().c_str() );
     }
 
     LoadProps();

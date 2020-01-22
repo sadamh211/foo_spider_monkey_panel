@@ -409,7 +409,7 @@ std::u8string JsFbUtils::GetDSPPresets()
                        { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 
-    return j.dump();
+    return j.dump( 2 );
 }
 
 JSObject* JsFbUtils::GetFocusItem( bool force )
@@ -494,7 +494,7 @@ std::u8string JsFbUtils::GetOutputDevices()
               { "active", config.m_output == output_id && config.m_device == device_id } } );
     } );
 
-    return j.dump();
+    return j.dump( 2 );
 }
 
 JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::u8string& query )

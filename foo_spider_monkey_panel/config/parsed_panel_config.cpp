@@ -62,10 +62,10 @@ ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSetti
                 packageDir = fs::u8path( get_fb2k_component_path() ) / "samples" / "packages";
                 break;
             case PackageLocation::LocalAppData:
-                packageDir = fs::u8path( get_profile_path() ) / "foo_spider_monkey_panel" / "packages";
+                packageDir = fs::u8path( get_profile_path() ) / SMP_UNDERSCORE_NAME / "packages";
                 break;
             case PackageLocation::Fb2k:
-                packageDir = fs::u8path( get_fb2k_path() ) / "foo_spider_monkey_panel" / "packages";
+                packageDir = fs::u8path( get_fb2k_path() ) / SMP_UNDERSCORE_NAME / "packages";
                 break;
             default:
                 assert( 0 );
@@ -100,7 +100,7 @@ ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSetti
             const auto menuActionsJson = jsonMain.at( "menuActions" );
             SmpException::ExpectTrue( menuActionsJson.is_object(), "Corrupted `package.json`: `menuActions` is not a JSON object" );
 
-            std::vector<std::pair<std::string, std::string>> menuActions;
+            MenuActions menuActions;
             for ( const auto& [key, value]: menuActionsJson.items() )
             {
                 SmpException::ExpectTrue( !key.empty(), "Corrupted `package.json`: empty key in `menuActions`" );

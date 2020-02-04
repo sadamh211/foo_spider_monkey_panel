@@ -12,6 +12,8 @@
 
 namespace fs = std::filesystem;
 
+// TODO: add `New` button
+
 namespace smp::ui
 {
 
@@ -27,14 +29,14 @@ CConfigTabPackage::CConfigTabPackage( CDialogConfNew& parent, smp::config::Parse
           packageSettings_, []( auto& value ) -> auto& { return value.author; } )
     , description_(
           packageSettings_, []( auto& value ) -> auto& { return value.description; } )
-    , ddx_( {
-          CreateUiDdx<UiDdx_ListBox>( fileIdx_, IDC_LIST_PACKAGE_FILES ),
-      } )
     , ddxOpts_( {
           CreateUiDdxOption<UiDdx_TextEdit>( name_, IDC_EDIT_PACKAGE_NAME ),
           CreateUiDdxOption<UiDdx_TextEdit>( version_, IDC_EDIT_PACKAGE_VERSION ),
           CreateUiDdxOption<UiDdx_TextEdit>( author_, IDC_EDIT_PACKAGE_AUTHOR ),
           CreateUiDdxOption<UiDdx_TextEdit>( description_, IDC_EDIT_PACKAGE_DESCRIPTION ),
+      } )
+    , ddx_( {
+          CreateUiDdx<UiDdx_ListBox>( fileIdx_, IDC_LIST_PACKAGE_FILES ),
       } )
 {
     assert( fs::exists( packagePath_ ) );
@@ -136,7 +138,7 @@ BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-void CConfigTabPackage::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabPackage::OnUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     {
         auto it = ranges::find_if( ddx_, [nID]( auto& ddx ) {
@@ -158,6 +160,8 @@ void CConfigTabPackage::OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl 
             ( *it )->Ddx().ReadFromUi();
         }
     }
+
+    UpdateUiButtons();
 
     parent_.OnDataChanged();
 }
@@ -183,16 +187,21 @@ void CConfigTabPackage::OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl )
     {
         const fs::path path( *pathOpt );
         const auto it = ranges::find( files_, path );
-        if ( it == files_.cend() )
+        if ( it != files_.cend() )
         {
-            files_.emplace_back( path );
-            fileIdx_ = files_.size() - 1;
-            // TODO: sort files
-            UpdateListBoxFromData();
+            fileIdx_ = ranges::distance( files_.cbegin(), it );
         }
         else
         {
-            fileIdx_ = ranges::distance( files_.cbegin(), it );
+            const fs::path newPath = ( path.extension() == ".js"
+                                           ? packagePath_ / "scripts" / path.filename()
+                                           : packagePath_ / "assets" / path.filename() );
+
+            fs::copy( path, newPath );
+            files_.emplace_back( newPath );
+            fileIdx_ = files_.size() - 1;
+            // TODO: sort files
+            UpdateListBoxFromData();
         }
     }
     catch ( const fs::filesystem_error& e )
@@ -217,7 +226,10 @@ void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl 
     assert( static_cast<size_t>( fileIdx_ ) < files_.size() );
     try
     {
-        fs::remove( files_[fileIdx_] );
+        if ( fs::exists( files_[fileIdx_] ) )
+        {
+            fs::remove( files_[fileIdx_] );
+        }
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -226,7 +238,7 @@ void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl 
 
     files_.erase( files_.cbegin() + fileIdx_ );
     filesListBox_.DeleteString( fileIdx_ );
-    fileIdx_ = std::min<size_t>( files_.size(), static_cast<int>( fileIdx_ ) );
+    fileIdx_ = std::min<size_t>( files_.size(), fileIdx_ );
 
     UpdateUiFromData();
 }
@@ -335,26 +347,6 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
     }
 }
 
-LONG CConfigTabPackage::OnEditScriptDropDown( LPNMHDR pnmh ) const
-{
-    auto const dropDown = reinterpret_cast<NMBCDROPDOWN*>( pnmh );
-
-    POINT pt{ dropDown->rcButton.left, dropDown->rcButton.bottom };
-
-    CWindow button = dropDown->hdr.hwndFrom;
-    button.ClientToScreen( &pt );
-
-    CMenu menu;
-    if ( menu.CreatePopupMenu() )
-    {
-        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_EXTERNAL, L"Edit with..." );
-        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_INTERNAL, L"Edit with internal editor" );
-        menu.TrackPopupMenu( TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, m_hWnd, nullptr );
-    }
-
-    return 0;
-}
-
 void CConfigTabPackage::OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl )
 { // TODO: extract common code (see tab_script)
     switch ( nID )
@@ -400,6 +392,26 @@ void CConfigTabPackage::OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wnd
     OnEditScript( uNotifyCode, nID, wndCtl );
 }
 
+LONG CConfigTabPackage::OnEditScriptDropDown( LPNMHDR pnmh )
+{
+    const auto dropDown = reinterpret_cast<NMBCDROPDOWN*>( pnmh );
+
+    POINT pt{ dropDown->rcButton.left, dropDown->rcButton.bottom };
+
+    CWindow button = dropDown->hdr.hwndFrom;
+    button.ClientToScreen( &pt );
+
+    CMenu menu;
+    if ( menu.CreatePopupMenu() )
+    {
+        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_EXTERNAL, L"Edit with..." );
+        menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_INTERNAL, L"Edit with internal editor" );
+        menu.TrackPopupMenu( TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, m_hWnd, nullptr );
+    }
+
+    return 0;
+}
+
 void CConfigTabPackage::UpdateUiFromData()
 {
     if ( !this->m_hWnd )
@@ -416,6 +428,11 @@ void CConfigTabPackage::UpdateUiFromData()
         ddxOpt->Ddx().WriteToUi();
     }
 
+    UpdateUiButtons();
+}
+
+void CConfigTabPackage::UpdateUiButtons()
+{
     const bool enableFileActions = !!fileIdx_; ///< fileIdx == 0 <> main script file is selected
     CWindow{ GetDlgItem( IDC_BUTTON_REMOVE_FILE ) }.EnableWindow( enableFileActions );
     CWindow{ GetDlgItem( IDC_BUTTON_RENAME_FILE ) }.EnableWindow( enableFileActions );

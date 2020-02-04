@@ -67,15 +67,8 @@ struct PanelSettings_Sample
 
 struct PanelSettings_Package
 {
-    PackageLocation location;
-    std::u8string folderName; // TODO: converted from packageName when imported (i.e. remove `'":/\ and etc)
-
-public:
-    PanelSettings_Package( PackageLocation location, const std::u8string& folderName )
-        : location( location )
-        , folderName( folderName )
-    {
-    }
+    std::u8string name;
+    std::u8string author;
 };
 
 struct PanelSettings

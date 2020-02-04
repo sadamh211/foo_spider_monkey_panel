@@ -172,6 +172,8 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
     }
     case IDC_RADIO_SRC_FILE:
     {
+        // TODO: add support for relative path (i.e. automatic truncation and expansion)
+        // idea: truncate and expand path in config, not in UI
         newSettings.payload = config::PanelSettings_File{ path_ };
         break;
     }
@@ -232,6 +234,7 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
 
 void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
+    // TODO: impl
 }
 
 void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )

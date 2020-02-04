@@ -27,18 +27,19 @@ public:
 
     BEGIN_MSG_MAP( CConfigTabPackage )
         MSG_WM_INITDIALOG( OnInitDialog )
-        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_NAME, EN_CHANGE, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_VERSION, EN_CHANGE, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_AUTHOR, EN_CHANGE, OnEditChange )
-        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_DESCRIPTION, EN_CHANGE, OnEditChange )
+        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_NAME, EN_CHANGE, OnUiChange )
+        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_VERSION, EN_CHANGE, OnUiChange )
+        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_AUTHOR, EN_CHANGE, OnUiChange )
+        COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_DESCRIPTION, EN_CHANGE, OnUiChange )
+        COMMAND_HANDLER_EX( IDC_LIST_PACKAGE_FILES, LVN_ITEMCHANGED, OnUiChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_ADD_FILE, BN_CLICKED, OnAddFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_REMOVE_FILE, BN_CLICKED, OnRemoveFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_RENAME_FILE, BN_CLICKED, OnRenameFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenContainingFolder )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
-        NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
+        NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
     END_MSG_MAP()
 
 public:
@@ -57,7 +58,7 @@ public:
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
-    void OnEditChange( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl );
@@ -65,10 +66,12 @@ private:
     void OnOpenContainingFolder( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
-    LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
     void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
+    LONG OnEditScriptDropDown( LPNMHDR pnmh );
 
     void UpdateUiFromData();
+    void UpdateUiButtons();
+
     void InitializeFilesListBox();
     void UpdateListBoxFromData();
 
@@ -86,11 +89,12 @@ private:
     PackageSubOptionWrap<decltype( CfgParsedPackage::version )> version_;
     PackageSubOptionWrap<decltype( CfgParsedPackage::author )> author_;
     PackageSubOptionWrap<decltype( CfgParsedPackage::description )> description_;
+    
+    std::array<std::unique_ptr<IUiDdxOption>, 5> ddxOpts_;
 
-    int fileIdx_;
+    int fileIdx_ = 0;
 
     std::array<std::unique_ptr<IUiDdx>, 1> ddx_;
-    std::array<std::unique_ptr<IUiDdxOption>, 5> ddxOpts_;
 
     std::vector<std::filesystem::path> files_;
     CListBox filesListBox_;

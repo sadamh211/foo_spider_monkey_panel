@@ -1659,7 +1659,7 @@ let window = {
     MinWidth: undefined, // (uint) (read, write)
 
     /**
-     * Returns the author set in {@link window.DefinePanel}.
+     * Returns the name set in {@link window.DefinePanel}.
      * If it isn't present, the GUID of the panel is returned.
      *
      * @type {string}

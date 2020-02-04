@@ -186,6 +186,8 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ui\ui_editable_listbox.cpp" />
+    <ClCompile Include="ui\ui_edit_editable_listbox.cpp" />
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
@@ -194,6 +196,7 @@
     <ClCompile Include="ui\ui_conf_new.cpp" />
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
     <ClCompile Include="ui\ui_conf_tab_package.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_package_options.cpp" />
     <ClCompile Include="ui\ui_conf_tab_script_source.cpp" />
     <ClCompile Include="ui\ui_editor.cpp" />
     <ClCompile Include="ui\ui_edit_in_progress.cpp" />
@@ -202,6 +205,7 @@
     </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp" />
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
+    <ClCompile Include="ui\ui_package_manager.cpp" />
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_property.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
@@ -325,6 +329,8 @@
     <ClInclude Include="panel_info.h" />
     <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ui\ui_editable_listbox.h" />
+    <ClInclude Include="ui\ui_edit_editable_listbox.h" />
     <ClInclude Include="ui\internal\ui_ddx.h" />
     <ClInclude Include="ui\internal\ui_ddx_option.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
@@ -337,6 +343,7 @@
     <ClInclude Include="ui\ui_conf_new.h" />
     <ClInclude Include="ui\ui_conf_tab_appearance.h" />
     <ClInclude Include="ui\ui_conf_tab_package.h" />
+    <ClInclude Include="ui\ui_conf_tab_package_options.h" />
     <ClInclude Include="ui\ui_conf_tab_script_source.h" />
     <ClInclude Include="ui\ui_editor.h" />
     <ClInclude Include="ui\ui_edit_in_progress.h" />
@@ -344,6 +351,7 @@
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_itab.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
+    <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_slow_script.h" />

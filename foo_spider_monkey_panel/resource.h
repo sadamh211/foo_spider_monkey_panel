@@ -21,6 +21,7 @@
 #define IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT 120
 #define IDD_DIALOG_EDIT_IN_PROGRESS     121
 #define IDR_MENU_EDITOR                 122
+#define IDD_DIALOG_PACKAGE_MANAGER      126
 #define IDC_STATIC_GUID                 1000
 #define IDC_EDIT                        1001
 #define IDC_DEL                         1010
@@ -50,7 +51,6 @@
 #define IDC_INPUT_VALUE                 1064
 #define IDD_DIALOG_CONF_TAB_APPEARANCE  1066
 #define IDC_IE                          1067
-#define IDD_DIALOG_CONF_TAB_PACKAGE     1067
 #define IDC_SLOWSCRIPT_CONTINUE         1068
 #define IDC_SLOWSCRIPT_STOP             1069
 #define IDC_SLOWSCRIPT_CHECK_DONTASK    1070
@@ -63,8 +63,6 @@
 #define IDC_RADIO_SRC_FILE              1078
 #define IDC_RADIO_SRC_MEMORY            1079
 #define IDC_CHECK_USE_REGEXP            1080
-#define IDC_BUTTON_SWITCH_MODE          1080
-#define IDC_TEXTEDIT_SRC_PACKAGE        1080
 #define IDC_RADIO_EDGE_NO               1081
 #define IDC_RADIO_EDGE_SUNKEN           1082
 #define IDC_RADIO_EDGE_GREY             1083
@@ -79,9 +77,24 @@
 #define IDC_BUTTON_REMOVE_FILE          1092
 #define IDC_BUTTON_OPEN_FOLDER          1093
 #define IDC_RADIO_SRC_PACKAGE           1094
-#define IDC_BUTTON_RENAME_FILE          1094
 #define IDC_BUTTON_BROWSE               1095
 #define IDC_BUTTON_OPEN_PKG_MGR         1096
+#define IDC_BUTTON_NEW_ACTION           1097
+#define IDC_BUTTON_DELETE_ACTION        1098
+#define IDC_CHECK_SHOULD_GRAB_FOCUS     1099
+#define IDC_CHECK_ENABLE_DRAG_N_DROP    1100
+#define IDD_DIALOG_CONF_TAB_PACKAGE     1101
+#define IDD_DIALOG_CONF_TAB_PACKAGE_OPTS 1102
+#define IDC_BUTTON_EDIT_ACTION          1103
+#define IDC_BUTTON_RENAME_FILE          1104
+#define IDC_TEXTEDIT_SRC_PACKAGE        1105
+#define IDC_LIST_MENU_ACTIONS           1106
+#define IDC_LIST_PACKAGES               1107
+#define IDC_EDIT_PACKAGE_INFO           1108
+#define IDC_BUTTON_NEW_PACKAGE          1109
+#define IDC_BUTTON_DELETE_PACKAGE       1110
+#define IDC_BUTTON_EXPORT_PACKAGE       1111
+#define IDC_BUTTON_IMPORT_PACKAGE       1112
 #define ID_FILE_IMPORT                  40014
 #define ID_FILE_EXPORT                  40015
 #define ID_EDIT_RESETTODEFAULT          40016
@@ -97,9 +110,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        126
+#define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         40030
-#define _APS_NEXT_CONTROL_VALUE         1096
+#define _APS_NEXT_CONTROL_VALUE         1113
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

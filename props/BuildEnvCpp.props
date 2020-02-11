@@ -6,7 +6,6 @@
     <_ProjectFileVersion>11.0.51106.1</_ProjectFileVersion>
     <_PropertySheetDisplayName>cpp_basic</_PropertySheetDisplayName>
     <IntDir>$(PlatformConfigurationDir)temp\$(Configuration)\$(ProjectName)\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup>
     <TargetName>$(ProjectName)</TargetName>
@@ -26,9 +25,6 @@
     <ClCompile>
       <AdditionalIncludeDirectories>$(MainDir);$(GeneratedDir);$(IndependentGeneratedDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Lib>
       <OutputFile>$(LibDir)$(TargetName).lib</OutputFile>
@@ -37,6 +33,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(LibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ProgramDatabaseFile>$(DbgInfoDir)$(TargetName).pdb</ProgramDatabaseFile>
       <GenerateMapFile>true</GenerateMapFile>
       <MapFileName>$(DbgInfoDir)$(TargetName).map</MapFileName>

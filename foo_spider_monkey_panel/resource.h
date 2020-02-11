@@ -90,11 +90,11 @@
 #define IDC_TEXTEDIT_SRC_PACKAGE        1105
 #define IDC_LIST_MENU_ACTIONS           1106
 #define IDC_LIST_PACKAGES               1107
-#define IDC_EDIT_PACKAGE_INFO           1108
 #define IDC_BUTTON_NEW_PACKAGE          1109
 #define IDC_BUTTON_DELETE_PACKAGE       1110
 #define IDC_BUTTON_EXPORT_PACKAGE       1111
 #define IDC_BUTTON_IMPORT_PACKAGE       1112
+#define IDC_RICHEDIT_PACKAGE_INFO       1113
 #define ID_FILE_IMPORT                  40014
 #define ID_FILE_EXPORT                  40015
 #define ID_EDIT_RESETTODEFAULT          40016
@@ -112,7 +112,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        128
 #define _APS_NEXT_COMMAND_VALUE         40030
-#define _APS_NEXT_CONTROL_VALUE         1113
+#define _APS_NEXT_CONTROL_VALUE         1114
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

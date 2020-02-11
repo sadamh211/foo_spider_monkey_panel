@@ -373,6 +373,12 @@
     <ClCompile Include="ui\ui_package_manager.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="utils\miniz.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\zip_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -836,6 +842,9 @@
     </ClInclude>
     <ClInclude Include="ui\ui_package_manager.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\zip_utils.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

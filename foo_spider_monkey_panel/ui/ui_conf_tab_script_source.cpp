@@ -4,6 +4,7 @@
 
 #include <config/smp_config.h>
 #include <ui/ui_conf_new.h>
+#include <ui/ui_package_manager.h>
 #include <utils/edit_text.h>
 #include <utils/error_popup.h>
 #include <utils/file_helpers.h>
@@ -63,6 +64,7 @@ CConfigTabScriptSource::CConfigTabScriptSource( CDialogConfNew& parent, OptionWr
                                              IDC_RADIO_SRC_SAMPLE,
                                              IDC_RADIO_SRC_MEMORY,
                                              IDC_RADIO_SRC_FILE,
+                                             IDC_RADIO_SRC_PACKAGE,
                                          } ),
       } )
 {
@@ -185,6 +187,7 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
     case IDC_RADIO_SRC_PACKAGE:
     {
         // TODO: implement
+        OnOpenPackageManager( 0, 0, nullptr );
         newSettings.payload = config::PanelSettings_InMemory{};
         break;
     }
@@ -234,7 +237,8 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
 
 void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    // TODO: impl
+    CDialogPackageManager pkgMgr("");
+    pkgMgr.DoModal();
 }
 
 void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )

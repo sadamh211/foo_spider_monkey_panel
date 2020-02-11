@@ -67,13 +67,15 @@ struct PanelSettings_Sample
 
 struct PanelSettings_Package
 {
-    std::u8string name;
-    std::u8string author;
+    std::u8string id; ///< unique package id
+    std::u8string name; ///< used for logging only
+    std::u8string author; ///< used for logging only
 };
 
 struct PanelSettings
 {
-    GUID guid; ///< TODO: save guid to config
+    GUID guid; ///< TODO: remove
+    std::u8string name; ///< TODO: implement
     EdgeStyle edgeStyle;
     bool isPseudoTransparent;
     PanelProperties properties;

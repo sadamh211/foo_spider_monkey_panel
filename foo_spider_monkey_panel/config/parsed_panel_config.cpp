@@ -9,7 +9,10 @@
 #include <nlohmann/json.hpp>
 
 #include <filesystem>
+#include <optional>
 #include <vector>
+
+namespace fs = std::filesystem;
 
 namespace smp::config
 {
@@ -45,36 +48,90 @@ ParsedPanelSettings_File ParsedPanelSettings_File::Parse( const PanelSettings_Sa
     }
 }
 
-ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSettings_Package& settings )
+ParsedPanelSettings_Package ParsedPanelSettings_Package::CreateNewPackage( const std::u8string& name )
 {
-    namespace fs = std::filesystem;
-    using json = nlohmann::json;
-
-    SmpException::ExpectTrue( !settings.folderName.empty(), "Corrupted settings (package): `folderName` is empty" );
+    ParsedPanelSettings_Package package;
 
     try
     {
-        const fs::path packageDir = [&settings] {
-            fs::path packageDir;
-            switch ( settings.location )
-            {
-            case PackageLocation::Sample:
-                packageDir = fs::u8path( get_fb2k_component_path() ) / "samples" / "packages";
-                break;
-            case PackageLocation::LocalAppData:
-                packageDir = fs::u8path( get_profile_path() ) / SMP_UNDERSCORE_NAME / "packages";
-                break;
-            case PackageLocation::Fb2k:
-                packageDir = fs::u8path( get_fb2k_path() ) / SMP_UNDERSCORE_NAME / "packages";
-                break;
-            default:
-                assert( 0 );
-                throw SmpException( "Corrupted settings (package): unexpected `location`" );
-            }
-            return packageDir / settings.folderName;
-        }();
+        fs::path packagePath;
+        std::u8string id;
+        do
+        {
+            GUID guid;
+            (void)CoCreateGuid( &guid ); //< should not fail
+            std::wstring guidStr;
+            guidStr.resize( 64 );
+            int iRet = StringFromGUID2( guid, guidStr.data(), guidStr.size() );
+            assert( iRet > 1 );
+            guidStr.resize( iRet - 1 );
+            id = smp::unicode::ToU8( guidStr );
+            packagePath = fs::u8path( get_profile_path() ) / SMP_UNDERSCORE_NAME / "packages" / id;
+        } while ( fs::exists( packagePath ) );
 
-        SmpException::ExpectTrue( fs::exists( packageDir ), "Can't find the required package: `{}`", settings.folderName );
+        package.id = id;
+        package.name = name;
+        package.packagePath = packagePath.u8string();
+        package.mainScriptPath = ( packagePath / "main.js" ).u8string();
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( e.what() );
+    }
+
+    return package;
+}
+
+ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const std::u8string& packageId )
+{
+    return Parse( PanelSettings_Package{ packageId } );
+}
+
+ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSettings_Package& settings )
+{
+    using json = nlohmann::json;
+
+    SmpException::ExpectTrue( !settings.id.empty(), "Corrupted settings (package): `id` is empty" );
+
+    try
+    {
+        const auto packageDirRet = FindPackage( settings.id );
+        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
+            return ( str.empty() ? "<empty>" : str );
+        };
+        SmpException::ExpectTrue( packageDirRet.has_value(),
+                                  "Can't find the required package: `{} ({} by {})`",
+                                  settings.id,
+                                  valueOrEmpty( settings.name ),
+                                  valueOrEmpty( settings.author ) );
+
+        const auto parsedSettings = Parse( *packageDirRet );
+        SmpException::ExpectTrue( settings.id == parsedSettings.id, "Corrupted package: `id` is mismatched with parent folder" );
+
+        return parsedSettings;
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw SmpException( e.what() );
+    }
+    catch ( const json::exception& e )
+    {
+        throw SmpException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+    }
+}
+
+ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const std::filesystem::path& packageDir )
+{
+    using json = nlohmann::json;
+
+    try
+    {
+        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
+            return ( str.empty() ? "<empty>" : str );
+        };
+        SmpException::ExpectTrue( fs::exists( packageDir ),
+                                  "Can't find the required package: `{}'",
+                                  packageDir.u8string() );
 
         const auto packageJsonFile = packageDir / "package.json";
         SmpException::ExpectTrue( fs::exists( packageJsonFile ), "Corrupted package: can't find `package.json`" );
@@ -83,11 +140,12 @@ ParsedPanelSettings_Package ParsedPanelSettings_Package::Parse( const PanelSetti
 
         parsedSettings.packagePath = packageDir.u8string();
         parsedSettings.mainScriptPath = ( packageDir / "main.js" ).u8string();
-        parsedSettings.isSample = ( settings.location == PackageLocation::Sample );
+        parsedSettings.isSample = ( packageDir.parent_path() == fs::u8path( get_fb2k_component_path() ) / "samples" / "packages" );
 
         const json jsonMain = json::parse( smp::file::ReadFile( packageJsonFile.u8string(), false ) );
         SmpException::ExpectTrue( jsonMain.is_object(), "Corrupted `package.json`: not a JSON object" );
 
+        parsedSettings.id = jsonMain.at( "id" ).get<std::string>();
         parsedSettings.name = jsonMain.at( "name" ).get<std::string>();
         parsedSettings.author = jsonMain.at( "author" ).get<std::string>();
         parsedSettings.version = jsonMain.at( "version" ).get<std::string>();
@@ -127,11 +185,16 @@ void ParsedPanelSettings_Package::Save() const
     namespace fs = std::filesystem;
     using json = nlohmann::json;
 
-    SmpException::ExpectTrue( !packagePath.empty(), "Corrupted settings: `packagePath_` is empty" );
+    SmpException::ExpectTrue( !packagePath.empty(), "Corrupted settings: `packagePath` is empty" );
+    SmpException::ExpectTrue( !mainScriptPath.empty(), "Corrupted settings: `mainScriptPath` is empty" );
 
     try
     {
         auto jsonMain = json::object();
+
+        SmpException::ExpectTrue( !id.empty(), "Corrupted settings: `id` is empty" );
+
+        jsonMain.push_back( { "id", id } );
         jsonMain.push_back( { "name", name } );
         jsonMain.push_back( { "author", author } );
         jsonMain.push_back( { "version", version } );
@@ -156,7 +219,7 @@ void ParsedPanelSettings_Package::Save() const
             fs::create_directories( packagePathStd );
         }
 
-        const auto packageJsonFile = packagePathStd / "package.json";
+        const auto packageJsonFile = packagePathStd / L"package.json";
         smp::file::WriteFile( packageJsonFile.wstring().c_str(), jsonMain.dump( 2 ) );
 
         const auto mainScriptPathStd = fs::u8path( mainScriptPath );
@@ -173,6 +236,21 @@ void ParsedPanelSettings_Package::Save() const
     {
         throw SmpException( fmt::format( "Corrupted settings: {}", e.what() ) );
     }
+}
+
+std::optional<std::filesystem::path> ParsedPanelSettings_Package::FindPackage( const std::u8string& packageId )
+{
+    for ( const auto& path: { fs::u8path( get_fb2k_component_path() ) / "samples" / "packages",
+                              fs::u8path( get_profile_path() ) / SMP_UNDERSCORE_NAME / "packages",
+                              fs::u8path( get_fb2k_path() ) / SMP_UNDERSCORE_NAME / "packages" } )
+    {
+        const auto targetPath = path / packageId;
+        if ( fs::exists( targetPath ) && fs::is_directory( targetPath ) )
+        {
+            return targetPath;
+        }
+    }
+    return std::nullopt;
 }
 
 } // namespace smp::config

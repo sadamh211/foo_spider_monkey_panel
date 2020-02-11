@@ -12,6 +12,7 @@ The linked notices are provided for information only.
 - [JScript Panel - Unlicense](component/licenses/JScript_Panel.txt)
 - [JSON for Modern C++ - MIT](component/licenses/JSON_for_Modern_CPP.txt)
 - [KMeans - MIT](component/licenses/KMeans.txt)
+- [miniz - MIT](component/licenses/miniz.txt)
 - [range-v3 - BSL-1.0](component/licenses/range-v3.txt)
 - [PFC - zlib](component/licenses/PFC.txt)
 - [Scintilla - HPND](component/licenses/Scintilla.txt)

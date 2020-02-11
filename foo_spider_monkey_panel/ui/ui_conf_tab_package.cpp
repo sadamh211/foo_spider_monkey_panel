@@ -13,6 +13,7 @@
 namespace fs = std::filesystem;
 
 // TODO: add `New` button
+// TODO: display package id 
 
 namespace smp::ui
 {

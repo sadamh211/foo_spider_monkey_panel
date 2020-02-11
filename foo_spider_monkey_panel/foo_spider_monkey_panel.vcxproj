@@ -224,6 +224,7 @@
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
+    <ClCompile Include="utils\miniz.cpp" />
     <ClCompile Include="utils\pfc_helpers_cfg.cpp" />
     <ClCompile Include="utils\pfc_helpers_stream.cpp" />
     <ClCompile Include="utils\semantic_version.cpp" />
@@ -235,6 +236,7 @@
     <ClCompile Include="utils\thread_pool.cpp" />
     <ClCompile Include="utils\unicode.cpp" />
     <ClCompile Include="utils\winapi_error_helpers.cpp" />
+    <ClCompile Include="utils\zip_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="abort_callback.h" />
@@ -391,6 +393,7 @@
     <ClInclude Include="utils\type_traits_x.h" />
     <ClInclude Include="utils\unicode.h" />
     <ClInclude Include="utils\winapi_error_helpers.h" />
+    <ClInclude Include="utils\zip_utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

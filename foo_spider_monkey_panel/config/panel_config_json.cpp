@@ -79,7 +79,8 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         }
         case ScriptType::Package:
         {
-            panelSettings.payload = PanelSettings_Package{ jsonPayload.at( "name" ).get<std::string>(),
+            panelSettings.payload = PanelSettings_Package{ jsonPayload.at( "id" ).get<std::string>(),
+                                                           jsonPayload.at( "name" ).get<std::string>(),
                                                            jsonPayload.at( "author" ).get<std::string>() };
             break;
         }
@@ -143,6 +144,7 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
             }
             else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
             {
+                jsonPayload.push_back( { "id", data.id } );
                 jsonPayload.push_back( { "name", data.name } );
                 jsonPayload.push_back( { "author", data.author } );
                 return ScriptType::Package;

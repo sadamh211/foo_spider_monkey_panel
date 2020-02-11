@@ -18,67 +18,6 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// Russian (Russia) resources
-
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
-LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
-#pragma code_page(1251)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_DIALOG_PACKAGE_MANAGER DIALOGEX 0, 0, 309, 242
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    DEFPUSHBUTTON   "OK",IDOK,198,221,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,252,221,50,14
-    LISTBOX         IDC_LIST_PACKAGES,26,33,114,94,LBS_SORT | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
-    EDITTEXT        IDC_EDIT_PACKAGE_INFO,171,37,106,90,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY | WS_VSCROLL
-    PUSHBUTTON      "New",IDC_BUTTON_NEW_PACKAGE,23,132,50,14
-    PUSHBUTTON      "Delete",IDC_BUTTON_DELETE_PACKAGE,79,134,50,14
-    PUSHBUTTON      "Export",IDC_BUTTON_EXPORT_PACKAGE,80,154,50,14
-    PUSHBUTTON      "Import",IDC_BUTTON_IMPORT_PACKAGE,22,154,50,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_DIALOG_PACKAGE_MANAGER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 302
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 235
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_DIALOG_PACKAGE_MANAGER AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-#endif    // Russian (Russia) resources
-/////////////////////////////////////////////////////////////////////////////
-
-
-/////////////////////////////////////////////////////////////////////////////
 // English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
@@ -321,6 +260,23 @@ BEGIN
     GROUPBOX        "Menu actions",IDC_STATIC,9,7,172,176
 END
 
+IDD_DIALOG_PACKAGE_MANAGER DIALOGEX 0, 0, 363, 244
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,241,223,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,306,223,50,14
+    LISTBOX         IDC_LIST_PACKAGES,19,18,160,174,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "New",IDC_BUTTON_NEW_PACKAGE,20,196,50,14
+    PUSHBUTTON      "Delete",IDC_BUTTON_DELETE_PACKAGE,73,196,50,14
+    PUSHBUTTON      "Export",IDC_BUTTON_EXPORT_PACKAGE,73,214,50,14
+    PUSHBUTTON      "Import",IDC_BUTTON_IMPORT_PACKAGE,20,214,50,14
+    GROUPBOX        "",IDC_STATIC,185,14,160,179
+    CONTROL         "",IDC_RICHEDIT_PACKAGE_INFO,"RICHEDIT50W",WS_VSCROLL | 0x884,187,19,157,172
+    PUSHBUTTON      "Open folder",IDC_BUTTON_OPEN_FOLDER,127,196,50,14
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -440,6 +396,14 @@ BEGIN
     IDD_DIALOG_CONF_TAB_PACKAGE_OPTS, DIALOG
     BEGIN
     END
+
+    IDD_DIALOG_PACKAGE_MANAGER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 356
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 237
+    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -511,6 +475,11 @@ BEGIN
 END
 
 IDD_DIALOG_CONF_TAB_PACKAGE_OPTS AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_DIALOG_PACKAGE_MANAGER AFX_DIALOG_LAYOUT
 BEGIN
     0
 END

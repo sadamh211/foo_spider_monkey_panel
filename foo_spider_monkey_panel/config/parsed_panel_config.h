@@ -2,6 +2,8 @@
 
 #include <config/panel_config.h>
 
+#include <filesystem>
+#include <optional>
 #include <string>
 #include <variant>
 #include <vector>
@@ -27,16 +29,21 @@ struct ParsedPanelSettings_File
     [[nodiscard]] static ParsedPanelSettings_File Parse( const PanelSettings_Sample& settings );
 };
 
+// TODO: rename to ParsedPackage
+// TODO: remove extra Parse methods
+// TODO: extract most methods outside of the struct
 struct ParsedPanelSettings_Package
 {
     using MenuAction = std::pair<std::string, std::string>;
     using MenuActions = std::vector<MenuAction>;
 
+    // TODO: replace with path
     std::u8string packagePath;
     std::u8string mainScriptPath;
     // TODO: handle this
-    bool isSample;
+    bool isSample = false;
 
+    std::u8string id;
     std::u8string name;
     std::u8string version;
     std::u8string author;
@@ -47,7 +54,19 @@ struct ParsedPanelSettings_Package
     MenuActions menuActions;
 
     /// @throw smp::SmpException
+    [[nodiscard]] static ParsedPanelSettings_Package CreateNewPackage( const std::u8string& name );
+
+    /// @throw smp::SmpException
+    [[nodiscard]] static ParsedPanelSettings_Package Parse( const std::u8string& packageId );
+
+    /// @throw smp::SmpException
     [[nodiscard]] static ParsedPanelSettings_Package Parse( const PanelSettings_Package& settings );
+
+    /// @throw smp::SmpException
+    [[nodiscard]] static ParsedPanelSettings_Package Parse( const std::filesystem::path& packageDir );
+
+    [[nodiscard]] static std::optional<std::filesystem::path> FindPackage( const std::u8string& packageId );
+
     /// @throw smp::SmpException
     void Save() const;
 };

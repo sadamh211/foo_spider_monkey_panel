@@ -14,6 +14,8 @@
 #include <js_panel_window.h>
 #include <message_blocking_scope.h>
 
+#include <range/v3/algorithm.hpp>
+
 using namespace smp;
 
 namespace

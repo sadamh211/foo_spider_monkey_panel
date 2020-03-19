@@ -6,6 +6,10 @@
 
 #include "kmeans.h"
 
+#include <range/v3/algorithm.hpp>
+#include <range/v3/numeric.hpp>
+#include <range/v3/view.hpp>
+
 namespace
 {
 
@@ -29,7 +33,9 @@ struct Cluster
     {
         assert( pPoint );
 
-        central_values = ranges::view::transform( pPoint->pData->values, []( const auto& elem ) { return static_cast<double>( elem ); } );
+        central_values =
+            ranges::views::transform( pPoint->pData->values, []( const auto& elem ) { return static_cast<double>( elem ); } )
+            | ranges::to_vector;
         points.push_back( pPoint );
     }
 
@@ -93,7 +99,9 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
 {
     const size_t clusterCount = std::min( std::max( K, static_cast<uint32_t>( 14 ) ), pointsData.size() );
 
-    std::vector<Point> points = ranges::view::transform( pointsData, []( const auto& data ) { return Point{ &data }; } );
+    auto points =
+        ranges::views::transform( pointsData, []( const auto& data ) { return Point{ &data }; } )
+        | ranges::to_vector;
     std::vector<Cluster> clusters;
     clusters.reserve( clusterCount );
 
@@ -105,7 +113,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
         clusters.emplace_back( i, &centerPoint );
     }
 
-    for ( auto i: ranges::view::indices( max_iterations ) )
+    for ( auto i: ranges::views::indices( max_iterations ) )
     {
         (void)i;
         bool done = true;
@@ -141,7 +149,7 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
                 continue;
             }
 
-            for ( auto&& [j, centralValue]: ranges::view::enumerate( cluster.central_values ) )
+            for ( auto&& [j, centralValue]: ranges::views::enumerate( cluster.central_values ) )
             {
                 const uint32_t sum = ranges::accumulate( cluster.points, 0, [j = j]( uint32_t curSum, const auto pPoint ) {
                     return curSum + pPoint->pData->values[j] * pPoint->pData->pixel_count;
@@ -156,12 +164,18 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
         }
     }
 
-    return ranges::view::transform( clusters, []( const auto& cluster ) {
-        ClusterData clusterData;
-        clusterData.central_values = ranges::view::transform( cluster.central_values, []( const auto& value ) { return static_cast<uint8_t>( value ); } );
-        clusterData.points = ranges::view::transform( cluster.points, []( const auto& point ) { return point->pData; } );
-        return clusterData;
-    } );
+    return ranges::views::transform(
+               clusters, []( const auto& cluster ) {
+                   ClusterData clusterData;
+                   clusterData.central_values =
+                       ranges::views::transform( cluster.central_values, []( const auto& value ) { return static_cast<uint8_t>( value ); } )
+                       | ranges::to_vector;
+                   clusterData.points =
+                       ranges::views::transform( cluster.points, []( const auto& point ) { return point->pData; } )
+                       | ranges::to_vector;
+                   return clusterData;
+               } )
+           | ranges::to_vector;
 }
 
 } // namespace smp::utils::kmeans

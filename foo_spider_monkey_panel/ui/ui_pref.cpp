@@ -7,6 +7,9 @@
 #include <utils/array_x.h>
 #include <utils/file_helpers.h>
 
+#include <range/v3/algorithm.hpp>
+#include <range/v3/view.hpp>
+
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -99,7 +102,7 @@ void CDialogPref::LoadProps( bool reset )
 
     m_props.DeleteAllItems();
 
-    for ( auto&& [i, prop]: ranges::view::enumerate( prop_sets ) )
+    for ( auto&& [i, prop]: ranges::views::enumerate( prop_sets ) )
     {
         m_props.AddItem( i, 0, smp::unicode::ToWide( prop.key ).c_str() );
         m_props.AddItem( i, 1, smp::unicode::ToWide( prop.val ).c_str() );

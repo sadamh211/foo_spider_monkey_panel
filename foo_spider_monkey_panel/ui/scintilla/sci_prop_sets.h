@@ -57,4 +57,4 @@ private:
 
 extern ScintillaCfg g_scintillaCfg;
 
-} // namespace scintilla
+} // namespace smp::ui::sci

@@ -160,4 +160,4 @@ void CCustomFindReplaceDlg::SetWrapAroundSearchState( bool newState )
     uButton_SetCheck( m_hWnd, chx3, wrapAroundSearch_ );
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

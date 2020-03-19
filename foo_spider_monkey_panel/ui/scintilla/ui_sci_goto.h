@@ -62,4 +62,4 @@ private:
     CDialogGoto* pGoto_ = nullptr;
 };
 
-} // namespace scintilla
+} // namespace smp::ui::sci

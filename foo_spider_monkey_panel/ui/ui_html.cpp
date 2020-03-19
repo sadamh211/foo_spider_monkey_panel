@@ -13,6 +13,8 @@
 
 #include <component_paths.h>
 
+#include <range/v3/algorithm.hpp>
+
 namespace smp::ui
 {
 using namespace mozjs;

@@ -2,6 +2,8 @@
 
 #include <message_manager.h>
 
+#include <range/v3/algorithm.hpp>
+
 namespace
 {
 

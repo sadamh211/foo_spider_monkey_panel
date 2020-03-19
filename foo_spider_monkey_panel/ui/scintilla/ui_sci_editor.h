@@ -124,4 +124,4 @@ private:
     std::set<std::u8string, KeyWordComparator> m_apis;
 };
 
-} // namespace scintilla
+} // namespace smp::ui::sci

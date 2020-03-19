@@ -23,6 +23,8 @@
 #include <fcntl.h>
 #include <io.h>
 
+#include <range/v3/algorithm.hpp>
+
 #include <filesystem>
 
 using namespace smp;

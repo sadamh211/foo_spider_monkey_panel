@@ -11,6 +11,8 @@
 
 #include <component_paths.h>
 
+#include <range/v3/algorithm.hpp>
+
 #include <charconv>
 #include <optional>
 
@@ -646,7 +648,7 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
         return IndentationStatus::isNone;
     }
 
-    const auto reverseParts = ranges::view::reverse( styledParts );
+    const auto reverseParts = ranges::views::reverse( styledParts );
     const auto itBraces = ranges::find_if( reverseParts, []( const auto& elem ) {
         const auto& [part, style] = elem;
         return ( style == SCE_C_OPERATOR && ( part == "{" || part == "}" ) );
@@ -1195,7 +1197,7 @@ void CScriptEditorCtrl::Init()
     }
 
     // Disable Ctrl+Shift+some char
-    for ( auto code: ranges::view::indices( 48, 122 ) )
+    for ( auto code: ranges::views::indices( 48, 122 ) )
     {
         ClearCmdKey( MAKELONG( code, SCMOD_CTRL | SCMOD_SHIFT ) );
     }
@@ -1295,7 +1297,7 @@ void CScriptEditorCtrl::TrackWidth()
 {
     int max_width = 1;
 
-    for ( auto lineIdx: ranges::view::indices( GetLineCount() ) )
+    for ( auto lineIdx: ranges::views::indices( GetLineCount() ) )
     {
         // Get max width
         int pos = GetLineEndPosition( lineIdx );
@@ -1456,4 +1458,4 @@ std::optional<std::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const c
     return propval;
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

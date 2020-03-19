@@ -2,6 +2,8 @@
 
 #include "stats.h"
 
+#include <range/v3/numeric.hpp>
+
 namespace
 {
 

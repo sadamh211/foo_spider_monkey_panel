@@ -5,6 +5,7 @@
 #include <MLang.h>
 
 #include <nonstd/span.hpp>
+#include <range/v3/algorithm.hpp>
 
 #include <cwctype>
 #include <optional>

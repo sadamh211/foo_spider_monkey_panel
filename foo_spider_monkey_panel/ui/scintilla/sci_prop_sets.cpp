@@ -194,4 +194,4 @@ bool ScintillaCfg::StriCmpAscii::operator()( const std::u8string& a, const std::
     return ( pfc::comparator_stricmp_ascii::compare( a.c_str(), b.c_str() ) < 0 );
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

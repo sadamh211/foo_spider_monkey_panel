@@ -363,4 +363,4 @@ private:
 template <typename T>
 smp::ui::sci::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
 
-} // namespace scintilla
+} // namespace smp::ui::sci

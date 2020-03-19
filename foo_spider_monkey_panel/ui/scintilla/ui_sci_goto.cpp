@@ -138,4 +138,4 @@ LRESULT CScintillaGotoImpl::OnGotoCmd( UINT /*uMsg*/, WPARAM wParam, LPARAM lPar
     return 0;
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

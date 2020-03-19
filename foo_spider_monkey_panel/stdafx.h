@@ -75,9 +75,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 
-// range v3
-#include <range/v3/all.hpp>
-
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow
